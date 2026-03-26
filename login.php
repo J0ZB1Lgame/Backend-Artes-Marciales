@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Si ya hay sesión activa, entrar al menú
+
 if (isset($_SESSION['id'])) {
     header("Location: ../modelo/menu.php");
     exit();
@@ -15,7 +15,7 @@ if (isset($_POST['login'])) {
     $usuario = $_POST['usuario'];
     $clave = $_POST['clave'];
 
-    // Buscar usuario por nombre
+   
     $stmt = $conn->prepare("SELECT * FROM datos WHERE usuario = ?");
     $stmt->bind_param("s", $usuario);
     $stmt->execute();
@@ -24,10 +24,10 @@ if (isset($_POST['login'])) {
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
 
-        if ($clave === $row['clave']) { // <- Debes cambiar a password_hash en el futuro
+        if ($clave === $row['clave']) { 
 
-            // Guardar datos en sesión
-            $_SESSION['id'] = $row['id'];  // ID real de la tabla datos
+         
+            $_SESSION['id'] = $row['id'];  
             $_SESSION['usuario'] = $row['usuario'];
             $_SESSION['id_perfil'] = $row['id_perfil'];
             $_SESSION['nombre'] = $row['nombre'];
