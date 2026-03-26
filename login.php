@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-
+// Si ya hay sesión activa, entrar al menú
 if (isset($_SESSION['id'])) {
     header("Location: ../modelo/menu.php");
     exit();
@@ -15,7 +15,7 @@ if (isset($_POST['login'])) {
     $usuario = $_POST['usuario'];
     $clave = $_POST['clave'];
 
-   
+    // Buscar usuario por nombre
     $stmt = $conn->prepare("SELECT * FROM datos WHERE usuario = ?");
     $stmt->bind_param("s", $usuario);
     $stmt->execute();
@@ -24,10 +24,10 @@ if (isset($_POST['login'])) {
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
 
-        if ($clave === $row['clave']) { 
+        if ($clave === $row['clave']) { // <- Debes cambiar a password_hash en el futuro
 
-         
-            $_SESSION['id'] = $row['id'];  
+            // Guardar datos en sesión
+            $_SESSION['id'] = $row['id'];  // ID real de la tabla datos
             $_SESSION['usuario'] = $row['usuario'];
             $_SESSION['id_perfil'] = $row['id_perfil'];
             $_SESSION['nombre'] = $row['nombre'];
@@ -49,7 +49,7 @@ if (isset($_POST['login'])) {
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Inicio - SGTMAM</title>
+  <title>Login - Torneo de Artes Marciales</title>
 
   <style>
     body {
@@ -138,7 +138,7 @@ if (isset($_POST['login'])) {
 
 <body>
 
-<header>Sistema de Gestión: Torneo Mundial de Artes Marciales</header>
+<header>Torneo de Artes Marciales</header>
 
 <div class="container">
     <div class="login-box">
@@ -160,7 +160,7 @@ if (isset($_POST['login'])) {
     </div>
 </div>
 
-<footer>© 2026 SGTMAM</footer>
+<footer>© 2026 Torneo de Artes Marciales</footer>
 
 </body>
 </html>
