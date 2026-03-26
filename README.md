@@ -21,27 +21,13 @@ Antes de iniciar, asegúrate de tener instalado:
 
 ---
 
-## 🟢 2. Clonar el repositorio y subir al repositorio
-## para clonar
+## 🟢 2. Clonar el repositorio 
 
 Abre tu terminal o Git Bash y ejecuta:
 
 ```bash
 git clone https://github.com/J0ZB1Lgame/Backend-Artes-Marciales.git
 ```
-## para subir 
-
-# Crear tu rama (solo la primera vez)
-git checkout -b feature/mi-modulo
-
-# Guardar cambios
-git add .
-git commit -m "feat: descripción"
-git push -u origin feature/mi-modulo
-
-# Las siguientes veces solo:
-git push
-
 ---
 
 ## 🟢 3. Ubicar el proyecto en XAMPP
