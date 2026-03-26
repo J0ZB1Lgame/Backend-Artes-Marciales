@@ -49,7 +49,7 @@ if (isset($_POST['login'])) {
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Inicio - Verduras de Colombia</title>
+  <title>Inicio - SGTMAM</title>
 
   <style>
     body {
@@ -138,7 +138,7 @@ if (isset($_POST['login'])) {
 
 <body>
 
-<header>Verduras de Colombia</header>
+<header>Sistema de Gestión: Torneo Mundial de Artes Marciales</header>
 
 <div class="container">
     <div class="login-box">
@@ -160,7 +160,7 @@ if (isset($_POST['login'])) {
     </div>
 </div>
 
-<footer>© 2025 Frutas y Verduras de Colombia</footer>
+<footer>© 2026 SGTMAM</footer>
 
 </body>
 </html>
