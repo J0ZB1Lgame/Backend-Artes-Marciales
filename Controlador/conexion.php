@@ -3,7 +3,7 @@
 $host = 'localhost'; // Cambia si es necesario
 $dbname = 'torneo_db'; // Nombre de la BD
 $username = 'root'; // Usuario de BD
-$password = 'root123'; // Contraseña de BD
+$password = ''; // Contraseña de BD
 
 // Crear conexión
 $conn = new mysqli($host, $username, $password, $dbname);

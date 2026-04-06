@@ -1,6 +1,6 @@
 <?php
-require_once 'ICRUD.php';
-require_once '../Entidades/Usuario.php';
+require_once __DIR__ . '/ICRUD.php';
+require_once __DIR__ . '/../Entidades/Usuario.php';
 
 interface IUsuarioDAO extends ICRUD {
     // Métodos específicos si es necesario

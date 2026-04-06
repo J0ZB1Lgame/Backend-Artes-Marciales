@@ -7,7 +7,7 @@ if (isset($_SESSION['id'])) {
     exit();
 }
 
-include("../Controlador/conexion.php");
+include("Controlador/conexion.php");
 
 $error = "";
 
@@ -32,7 +32,7 @@ if (isset($_POST['login'])) {
             $_SESSION['estado'] = $row['estado'];
             $_SESSION['fecha_creacion'] = $row['fecha_creacion'];
 
-            header("Location: ../modelo/menu.php");
+            header("Location: staff_management.php");
             exit();
         } else {
             $error = "<div class='alert error'>❌ Contraseña incorrecta</div>";

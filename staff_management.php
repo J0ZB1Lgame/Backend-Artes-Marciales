@@ -14,8 +14,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $numero_documento = $_POST['numero_documento'];
         $telefono = $_POST['telefono'];
         $email = $_POST['email'];
-        $staffController->registrarStaff($id_usuario, $nombre, $apellido, $tipo_documento, $numero_documento, $telefono, $email);
-        echo "Staff registrado exitosamente.";
+        try {
+            $staffController->registrarStaff($id_usuario, $nombre, $apellido, $tipo_documento, $numero_documento, $telefono, $email);
+            echo "Staff registrado exitosamente.";
+        } catch (Exception $e) {
+            echo "Error al registrar staff: " . $e->getMessage();
+        }
     } elseif (isset($_POST['actualizar'])) {
         $id = $_POST['id'];
         $id_usuario = $_POST['id_usuario'];
@@ -26,12 +30,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $telefono = $_POST['telefono'];
         $email = $_POST['email'];
         $estado = $_POST['estado'];
-        $staffController->actualizarStaff($id, $id_usuario, $nombre, $apellido, $tipo_documento, $numero_documento, $telefono, $email, $estado);
-        echo "Staff actualizado exitosamente.";
+        try {
+            $staffController->actualizarStaff($id, $id_usuario, $nombre, $apellido, $tipo_documento, $numero_documento, $telefono, $email, $estado);
+            echo "Staff actualizado exitosamente.";
+        } catch (Exception $e) {
+            echo "Error al actualizar staff: " . $e->getMessage();
+        }
     } elseif (isset($_POST['eliminar'])) {
         $id = $_POST['id'];
-        $staffController->eliminarStaff($id);
-        echo "Staff eliminado exitosamente.";
+        try {
+            $staffController->eliminarStaff($id);
+            echo "Staff eliminado exitosamente.";
+        } catch (Exception $e) {
+            echo "Error al eliminar staff: " . $e->getMessage();
+        }
     }
 }
 
@@ -49,7 +61,7 @@ $staffs = $staffController->listarStaff();
 
     <h2>Registrar Staff</h2>
     <form method="POST">
-        ID Usuario: <input type="number" name="id_usuario" required><br>
+        <input type="hidden" name="id_usuario" value="<?php echo $_SESSION['id']; ?>">
         Nombre: <input type="text" name="nombre" required><br>
         Apellido: <input type="text" name="apellido" required><br>
         Tipo Documento: <input type="text" name="tipo_documento"><br>

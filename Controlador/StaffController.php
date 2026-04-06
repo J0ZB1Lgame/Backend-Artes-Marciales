@@ -1,6 +1,6 @@
 <?php
-require_once '../Modelo/DAO/StaffDAOImpl.php';
-require_once '../Modelo/Entidades/Staff.php';
+require_once __DIR__ . '/../Modelo/DAO/StaffDAOImpl.php';
+require_once __DIR__ . '/../Modelo/Entidades/Staff.php';
 
 class StaffController {
     private $staffDAO;
@@ -28,18 +28,7 @@ class StaffController {
     }
 
     public function listarStaff() {
-        // Este método no está en DAO, pero podemos agregarlo si es necesario
-        // Por simplicidad, asumir que hay un método en DAO para listar todos
-        // Aquí un ejemplo simple
-        $stmt = $this->staffDAO->conn->prepare("SELECT * FROM staff");
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $staffs = [];
-        while ($row = $result->fetch_assoc()) {
-            $staffs[] = new Staff($row['id_staff'], $row['id_usuario'], $row['nombre'], $row['apellido'], $row['tipo_documento'], $row['numero_documento'], $row['telefono'], $row['email'], $row['estado']);
-        }
-        $stmt->close();
-        return $staffs;
+        return $this->staffDAO->listarTodos();
     }
 }
 ?>

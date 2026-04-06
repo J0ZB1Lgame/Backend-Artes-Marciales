@@ -1,6 +1,6 @@
 <?php
-require_once 'IUsuarioDAO.php';
-require_once '../../Controlador/conexion.php';
+require_once __DIR__ . '/IUsuarioDAO.php';
+require_once __DIR__ . '/../../Controlador/conexion.php';
 
 class UsuarioDAOImpl implements IUsuarioDAO {
     private $conn;
