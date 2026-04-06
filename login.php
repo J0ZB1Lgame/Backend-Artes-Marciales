@@ -15,8 +15,8 @@ if (isset($_POST['login'])) {
     $usuario = $_POST['usuario'];
     $clave = $_POST['clave'];
 
-    // Buscar usuario por nombre
-    $stmt = $conn->prepare("SELECT * FROM datos WHERE usuario = ?");
+    // Buscar usuario por username
+    $stmt = $conn->prepare("SELECT * FROM usuario WHERE username = ?");
     $stmt->bind_param("s", $usuario);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -24,14 +24,13 @@ if (isset($_POST['login'])) {
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
 
-        if ($clave === $row['clave']) { // <- Debes cambiar a password_hash en el futuro
+        if ($clave === $row['password_hash']) { // Cambiar a password_verify si usas hash
 
             // Guardar datos en sesión
-            $_SESSION['id'] = $row['id'];  // ID real de la tabla datos
-            $_SESSION['usuario'] = $row['usuario'];
-            $_SESSION['id_perfil'] = $row['id_perfil'];
-            $_SESSION['nombre'] = $row['nombre'];
-            $_SESSION['email'] = $row['email'];
+            $_SESSION['id'] = $row['id_usuario'];  // ID real de la tabla usuario
+            $_SESSION['usuario'] = $row['username'];
+            $_SESSION['estado'] = $row['estado'];
+            $_SESSION['fecha_creacion'] = $row['fecha_creacion'];
 
             header("Location: ../modelo/menu.php");
             exit();
