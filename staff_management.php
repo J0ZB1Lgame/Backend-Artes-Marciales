@@ -61,7 +61,7 @@ $staffs = $staffController->listarStaff();
 
     <h2>Registrar Staff</h2>
     <form method="POST">
-        <input type="hidden" name="id_usuario" value="<?php echo $_SESSION['id']; ?>">
+        <input type="hidden" name="id_usuario" value="<?php echo isset($_SESSION['id']) ? $_SESSION['id'] : ''; ?>">
         Nombre: <input type="text" name="nombre" required><br>
         Apellido: <input type="text" name="apellido" required><br>
         Tipo Documento: <input type="text" name="tipo_documento"><br>
