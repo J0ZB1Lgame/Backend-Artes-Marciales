@@ -21,7 +21,9 @@ class StaffDAOImpl implements IStaffDAO {
         $email = $staff->getEmail();
         $estado = $staff->getEstado();
         $stmt->bind_param("isssssss", $id_usuario, $nombre, $apellido, $tipo_documento, $numero_documento, $telefono, $email, $estado);
-        $stmt->execute();
+        if (!$stmt->execute()) {
+            throw new Exception("Error al crear staff: " . $stmt->error);
+        }
         $staff->setIdStaff($this->conn->insert_id);
         $stmt->close();
         return $staff;
@@ -53,14 +55,18 @@ class StaffDAOImpl implements IStaffDAO {
         $estado = $staff->getEstado();
         $id_staff = $staff->getIdStaff();
         $stmt->bind_param("isssssssi", $id_usuario, $nombre, $apellido, $tipo_documento, $numero_documento, $telefono, $email, $estado, $id_staff);
-        $stmt->execute();
+        if (!$stmt->execute()) {
+            throw new Exception("Error al actualizar staff: " . $stmt->error);
+        }
         $stmt->close();
     }
 
     public function eliminarPorId($id) {
         $stmt = $this->conn->prepare("DELETE FROM staff WHERE id_staff = ?");
         $stmt->bind_param("i", $id);
-        $stmt->execute();
+        if (!$stmt->execute()) {
+            throw new Exception("Error al eliminar staff: " . $stmt->error);
+        }
         $stmt->close();
     }
 

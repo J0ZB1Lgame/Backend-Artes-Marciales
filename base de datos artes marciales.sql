@@ -106,3 +106,22 @@ CREATE TABLE asignacion_turno (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 ) ENGINE=InnoDB;
+
+-- =========================
+-- DATOS SEMILLA: tipos de rol de staff
+-- =========================
+INSERT INTO tipo_rol_staff (nombre, descripcion) VALUES
+('Árbitro', 'Encargado de juzgar combates'),
+('Médico de Ringside', 'Atiende urgencias en el ring'),
+('Coordinador de Torneo', 'Organiza la logística del torneo'),
+('Juez', 'Evalúa puntuaciones'),
+('Seguridad', 'Supervisa la seguridad del evento'),
+('Técnico', 'Asiste con aspectos técnicos');
+
+-- =========================
+-- DATOS SEMILLA: turnos
+-- =========================
+INSERT INTO turno (nombre, hora_inicio, hora_fin) VALUES
+('Mañana', '06:00:00', '14:00:00'),
+('Tarde', '14:00:00', '22:00:00'),
+('Noche', '22:00:00', '06:00:00');

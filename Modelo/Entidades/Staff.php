@@ -9,9 +9,11 @@ class Staff {
     private $telefono;
     private $email;
     private $estado;
+    private $cargo;
+    private $turno;
 
     // Constructor
-    public function __construct($id_staff = null, $id_usuario = null, $nombre = null, $apellido = null, $tipo_documento = null, $numero_documento = null, $telefono = null, $email = null, $estado = 'activo') {
+    public function __construct($id_staff = null, $id_usuario = null, $nombre = null, $apellido = null, $tipo_documento = null, $numero_documento = null, $telefono = null, $email = null, $estado = 'activo', $cargo = null, $turno = null) {
         $this->id_staff = $id_staff;
         $this->id_usuario = $id_usuario;
         $this->nombre = $nombre;
@@ -21,6 +23,8 @@ class Staff {
         $this->telefono = $telefono;
         $this->email = $email;
         $this->estado = $estado;
+        $this->cargo = $cargo;
+        $this->turno = $turno;
     }
 
     // Getters y Setters
@@ -94,6 +98,22 @@ class Staff {
 
     public function setEstado($estado) {
         $this->estado = $estado;
+    }
+
+    public function getCargo() {
+        return $this->cargo;
+    }
+
+    public function setCargo($cargo) {
+        $this->cargo = $cargo;
+    }
+
+    public function getTurno() {
+        return $this->turno;
+    }
+
+    public function setTurno($turno) {
+        $this->turno = $turno;
     }
 }
 ?>
