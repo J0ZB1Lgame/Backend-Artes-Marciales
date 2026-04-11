@@ -17,53 +17,11 @@ El MVP incluye el módulo de Gestión del Staff con funcionalidades CRUD (Crear,
 
 ### Archivos principales:
 - `Modelo/Entidades/Staff.php` - Clase entidad
-- `Modelo/DAO/IStaffDAO.php` y `StaffDAOImpl.php` - Interfaz y implementación DAO
+- `Modelo/DAO/IStaffDAO.php` y `Modelo/DAO/StaffDAOImpl.php` - Interfaz y implementación DAO
 - `Controlador/StaffController.php` - Lógica de negocio
-- `staff_management.php` - Interfaz web para gestión
+- `api/staff_api.php` - Endpoint REST para gestión de staff
 
 ---
-
-# ⚙️ 🚀 Guía de instalación y configuración
-
-Sigue estos pasos para ejecutar el proyecto en tu entorno local.
-
----
-
-## 🟢 1. Requisitos
-
-Antes de iniciar, asegúrate de tener instalado:
-
-* XAMPP (Apache y MySQL)
-* Git
-
----
-
-## 🟢 2. Clonar el repositorio 
-
-Abre tu terminal o Git Bash y ejecuta:
-
-```bash
-git clone https://github.com/J0ZB1Lgame/Backend-Artes-Marciales.git
-```
----
-
-## 🟢 3. Ubicar el proyecto en XAMPP
-
-Mueve la carpeta del proyecto a:
-
-```
-C:\xampp\htdocs\
-```
-
-Debe quedar así:
-
-```
-C:\xampp\htdocs\torneo-backend
-```
-
----
-
-## 🟢 4. Iniciar servicios en XAMPP
 
 # ⚙️ 🚀 Guía de instalación y configuración
 
@@ -146,44 +104,30 @@ database/script.sql
 
 ## 🟢 7. Probar el backend
 
-Abrir en el navegador:
+Utiliza los endpoints API expuestos en `api/`.
+
+Ejemplo de consulta de staff:
 
 ```
-http://localhost/backend-artes-marciales/src/auth/login.php
+http://localhost/Backend-Artes-Marciales/api/staff_api.php?action=listar
 ```
 
-## 🟢 8. Acceder al módulo de Gestión del Staff
-
-Para probar el módulo implementado, abre en el navegador:
-
-```
-http://localhost/Backend-Artes-Marciales/staff_management.php
-```
-
-Esto te permitirá gestionar el staff a través de una interfaz web simple.
+Para crear staff envía un `POST` con JSON al mismo endpoint y la acción `registrar`.
 
 ---
 
 # 📁 📦 Estructura del proyecto
 
 ```
-torneo-backend/
-│
-├── config/
-│   └── conexion.php
-│
-├src/
-│
-├── auth/
-│   ├── login.php
-│   └── logout.php
-│
-├── usuarios/
-│   ├── crear.php
-│   ├── listar.php
-│   ├── editar.php
-│   └── eliminar.php
-│
+Backend-Artes-Marciales/
+├── api/
+│   └── staff_api.php
+├── Controlador/
+│   └── StaffController.php
+├── Modelo/
+│   ├── DAO/
+│   └── Entidades/
+├── base de datos artes marciales.sql
 └── README.md
 ```
 
