@@ -10,12 +10,23 @@ if (!isset($_SESSION['id'])) {
 
 $staffController = new StaffController();
 $message = '';
-$staffs = $staffController->listarStaff();
-$usuarios = $staffController->listarUsuarios();
-$turnos = $staffController->listarTurnos();
-$roles = $staffController->listarTiposRol();
-$asignaciones = $staffController->listarAsignacionesTurno();
-$staffRoles = $staffController->listarRolesAsignados();
+$staffs = [];
+$usuarios = [];
+$turnos = [];
+$roles = [];
+$asignaciones = [];
+$staffRoles = [];
+
+try {
+    $staffs = $staffController->listarStaff();
+    $usuarios = $staffController->listarUsuarios();
+    $turnos = $staffController->listarTurnos();
+    $roles = $staffController->listarTiposRol();
+    $asignaciones = $staffController->listarAsignacionesTurno();
+    $staffRoles = $staffController->listarRolesAsignados();
+} catch (Exception $e) {
+    $message = 'Error al cargar datos: ' . $e->getMessage();
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
@@ -23,10 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $id_usuario = $_POST['id_usuario'];
             $nombre = trim($_POST['nombre']);
             $apellido = trim($_POST['apellido']);
-            $tipo_documento = trim($_POST['tipo_documento']);
-            $numero_documento = trim($_POST['numero_documento']);
-            $telefono = trim($_POST['telefono']);
-            $email = trim($_POST['email']);
+            $tipo_documento = trim($_POST['tipo_documento'] ?? '');
+            $numero_documento = trim($_POST['numero_documento'] ?? '');
+            $telefono = trim($_POST['telefono'] ?? '');
+            $email = trim($_POST['email'] ?? '');
             $staffController->registrarStaff($id_usuario, $nombre, $apellido, $tipo_documento, $numero_documento, $telefono, $email);
             $message = 'Staff registrado exitosamente.';
         } elseif (isset($_POST['actualizar'])) {
@@ -34,10 +45,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $id_usuario = $_POST['id_usuario'];
             $nombre = trim($_POST['nombre']);
             $apellido = trim($_POST['apellido']);
-            $tipo_documento = trim($_POST['tipo_documento']);
-            $numero_documento = trim($_POST['numero_documento']);
-            $telefono = trim($_POST['telefono']);
-            $email = trim($_POST['email']);
+            $tipo_documento = trim($_POST['tipo_documento'] ?? '');
+            $numero_documento = trim($_POST['numero_documento'] ?? '');
+            $telefono = trim($_POST['telefono'] ?? '');
+            $email = trim($_POST['email'] ?? '');
             $estado = $_POST['estado'];
             $staffController->actualizarStaff($id, $id_usuario, $nombre, $apellido, $tipo_documento, $numero_documento, $telefono, $email, $estado);
             $message = 'Staff actualizado exitosamente.';
@@ -62,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $staffController->revocarRol($id_staff, $id_tipo_rol);
             $message = 'Rol revocado exitosamente.';
         }
+        // Recargar datos después de la operación
         $staffs = $staffController->listarStaff();
         $turnos = $staffController->listarTurnos();
         $roles = $staffController->listarTiposRol();
@@ -72,18 +84,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
+// Crear mapeos para referencias rápidas
 $staffById = [];
 foreach ($staffs as $staff) {
-    $staffById[$staff->getIdStaff()] = $staff->getNombre() . ' ' . $staff->getApellido();
+    $staffById[$staff['id_staff']] = $staff['nombre'] . ' ' . $staff['apellido'];
 }
 $turnoById = [];
 foreach ($turnos as $turno) {
-    $turnoById[$turno->getIdTurno()] = $turno->getNombre();
+    $turnoById[$turno['id_turno']] = $turno['nombre'];
 }
 $rolById = [];
 foreach ($roles as $rol) {
-    $rolById[$rol->getIdTipoRol()] = $rol->getNombre();
+    $rolById[$rol['id_tipo_rol']] = $rol['nombre'];
 }
+?>
 ?>
 
 <!DOCTYPE html>
@@ -199,16 +213,16 @@ foreach ($roles as $rol) {
             <tbody>
                 <?php foreach ($staffs as $staff): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($staff->getIdStaff()); ?></td>
-                        <td><?php echo htmlspecialchars($staff->getIdUsuario()); ?></td>
-                        <td><?php echo htmlspecialchars($staff->getNombre()); ?></td>
-                        <td><?php echo htmlspecialchars($staff->getApellido()); ?></td>
-                        <td><?php echo htmlspecialchars($staff->getTipoDocumento()) . ' ' . htmlspecialchars($staff->getNumeroDocumento()); ?></td>
-                        <td><?php echo htmlspecialchars($staff->getTelefono()); ?></td>
-                        <td><?php echo htmlspecialchars($staff->getEmail()); ?></td>
-                        <td><?php echo htmlspecialchars($staff->getEstado()); ?></td>
+                        <td><?php echo htmlspecialchars($staff['id_staff']); ?></td>
+                        <td><?php echo htmlspecialchars($staff['id_usuario']); ?></td>
+                        <td><?php echo htmlspecialchars($staff['nombre']); ?></td>
+                        <td><?php echo htmlspecialchars($staff['apellido']); ?></td>
+                        <td><?php echo htmlspecialchars($staff['tipo_documento']) . ' ' . htmlspecialchars($staff['numero_documento']); ?></td>
+                        <td><?php echo htmlspecialchars($staff['telefono']); ?></td>
+                        <td><?php echo htmlspecialchars($staff['email']); ?></td>
+                        <td><?php echo htmlspecialchars($staff['estado']); ?></td>
                         <td class="actions">
-                            <button type="button" onclick="llenarFormulario(<?php echo htmlspecialchars($staff->getIdStaff()); ?>, <?php echo htmlspecialchars($staff->getIdUsuario()); ?>, '<?php echo htmlspecialchars(addslashes($staff->getNombre())); ?>', '<?php echo htmlspecialchars(addslashes($staff->getApellido())); ?>', '<?php echo htmlspecialchars(addslashes($staff->getTipoDocumento())); ?>', '<?php echo htmlspecialchars(addslashes($staff->getNumeroDocumento())); ?>', '<?php echo htmlspecialchars(addslashes($staff->getTelefono())); ?>', '<?php echo htmlspecialchars(addslashes($staff->getEmail())); ?>', '<?php echo htmlspecialchars($staff->getEstado()); ?>')">Editar</button>
+                            <button type="button" onclick="llenarFormulario(<?php echo htmlspecialchars($staff['id_staff']); ?>, <?php echo htmlspecialchars($staff['id_usuario']); ?>, '<?php echo htmlspecialchars(addslashes($staff['nombre'])); ?>', '<?php echo htmlspecialchars(addslashes($staff['apellido'])); ?>', '<?php echo htmlspecialchars(addslashes($staff['tipo_documento'])); ?>', '<?php echo htmlspecialchars(addslashes($staff['numero_documento'])); ?>', '<?php echo htmlspecialchars(addslashes($staff['telefono'])); ?>', '<?php echo htmlspecialchars(addslashes($staff['email'])); ?>', '<?php echo htmlspecialchars($staff['estado']); ?>')">Editar</button>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -232,14 +246,14 @@ foreach ($roles as $rol) {
                 <select name="id_staff_rol" id="id_staff_rol" required>
                     <option value="">Seleccionar staff</option>
                     <?php foreach ($staffs as $staff): ?>
-                        <option value="<?php echo htmlspecialchars($staff->getIdStaff()); ?>"><?php echo htmlspecialchars($staff->getNombre() . ' ' . $staff->getApellido()); ?></option>
+                        <option value="<?php echo htmlspecialchars($staff['id_staff']); ?>"><?php echo htmlspecialchars($staff['nombre'] . ' ' . $staff['apellido']); ?></option>
                     <?php endforeach; ?>
                 </select>
                 <label for="id_tipo_rol">Tipo de rol</label>
                 <select name="id_tipo_rol" id="id_tipo_rol" required>
                     <option value="">Seleccionar rol</option>
                     <?php foreach ($roles as $rol): ?>
-                        <option value="<?php echo htmlspecialchars($rol->getIdTipoRol()); ?>"><?php echo htmlspecialchars($rol->getNombre()); ?></option>
+                        <option value="<?php echo htmlspecialchars($rol['id_tipo_rol']); ?>"><?php echo htmlspecialchars($rol['nombre']); ?></option>
                     <?php endforeach; ?>
                 </select>
                 <button type="submit" name="asignar_rol">Asignar rol</button>
@@ -255,14 +269,14 @@ foreach ($roles as $rol) {
                 <select name="id_staff_turno" id="id_staff_turno" required>
                     <option value="">Seleccionar staff</option>
                     <?php foreach ($staffs as $staff): ?>
-                        <option value="<?php echo htmlspecialchars($staff->getIdStaff()); ?>"><?php echo htmlspecialchars($staff->getNombre() . ' ' . $staff->getApellido()); ?></option>
+                        <option value="<?php echo htmlspecialchars($staff['id_staff']); ?>"><?php echo htmlspecialchars($staff['nombre'] . ' ' . $staff['apellido']); ?></option>
                     <?php endforeach; ?>
                 </select>
                 <label for="id_turno">Turno</label>
                 <select name="id_turno" id="id_turno" required>
                     <option value="">Seleccionar turno</option>
                     <?php foreach ($turnos as $turno): ?>
-                        <option value="<?php echo htmlspecialchars($turno->getIdTurno()); ?>"><?php echo htmlspecialchars($turno->getNombre()) . ' (' . htmlspecialchars($turno->getHoraInicio()) . ' - ' . htmlspecialchars($turno->getHoraFin()) . ')'; ?></option>
+                        <option value="<?php echo htmlspecialchars($turno['id_turno']); ?>"><?php echo htmlspecialchars($turno['nombre']) . ' (' . htmlspecialchars($turno['hora_inicio']) . ' - ' . htmlspecialchars($turno['hora_fin']) . ')'; ?></option>
                     <?php endforeach; ?>
                 </select>
                 <label for="fecha">Fecha</label>
@@ -277,14 +291,14 @@ foreach ($roles as $rol) {
                 <select name="id_staff_revocar" id="id_staff_revocar" required>
                     <option value="">Seleccionar staff</option>
                     <?php foreach ($staffs as $staff): ?>
-                        <option value="<?php echo htmlspecialchars($staff->getIdStaff()); ?>"><?php echo htmlspecialchars($staff->getNombre() . ' ' . $staff->getApellido()); ?></option>
+                        <option value="<?php echo htmlspecialchars($staff['id_staff']); ?>"><?php echo htmlspecialchars($staff['nombre'] . ' ' . $staff['apellido']); ?></option>
                     <?php endforeach; ?>
                 </select>
                 <label for="id_tipo_rol_revocar">Tipo de rol</label>
                 <select name="id_tipo_rol_revocar" id="id_tipo_rol_revocar" required>
                     <option value="">Seleccionar rol</option>
                     <?php foreach ($roles as $rol): ?>
-                        <option value="<?php echo htmlspecialchars($rol->getIdTipoRol()); ?>"><?php echo htmlspecialchars($rol->getNombre()); ?></option>
+                        <option value="<?php echo htmlspecialchars($rol['id_tipo_rol']); ?>"><?php echo htmlspecialchars($rol['nombre']); ?></option>
                     <?php endforeach; ?>
                 </select>
                 <button type="submit" name="revocar_rol">Revocar rol</button>
@@ -306,13 +320,13 @@ foreach ($roles as $rol) {
             </thead>
             <tbody>
                 <?php foreach ($asignaciones as $asignacion): ?>
-                    <?php if ($asignacion->getEstado() === 'activo'): ?>
+                    <?php if ($asignacion['estado'] === 'activo'): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($asignacion->getIdAsignacion()); ?></td>
-                            <td><?php echo htmlspecialchars($staffById[$asignacion->getIdStaff()] ?? $asignacion->getIdStaff()); ?></td>
-                            <td><?php echo htmlspecialchars($turnoById[$asignacion->getIdTurno()] ?? $asignacion->getIdTurno()); ?></td>
-                            <td><?php echo htmlspecialchars($asignacion->getFecha()); ?></td>
-                            <td><?php echo htmlspecialchars($asignacion->getEstado()); ?></td>
+                            <td><?php echo htmlspecialchars($asignacion['id_asignacion']); ?></td>
+                            <td><?php echo htmlspecialchars($staffById[$asignacion['id_staff']] ?? $asignacion['id_staff']); ?></td>
+                            <td><?php echo htmlspecialchars($turnoById[$asignacion['id_turno']] ?? $asignacion['id_turno']); ?></td>
+                            <td><?php echo htmlspecialchars($asignacion['fecha']); ?></td>
+                            <td><?php echo htmlspecialchars($asignacion['estado']); ?></td>
                         </tr>
                     <?php endif; ?>
                 <?php endforeach; ?>
@@ -334,10 +348,10 @@ foreach ($roles as $rol) {
             <tbody>
                 <?php foreach ($staffRoles as $staffRol): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($staffRol->getIdStaff()); ?></td>
-                        <td><?php echo htmlspecialchars($staffById[$staffRol->getIdStaff()] ?? $staffRol->getIdStaff()); ?></td>
-                        <td><?php echo htmlspecialchars($rolById[$staffRol->getIdTipoRol()] ?? $staffRol->getIdTipoRol()); ?></td>
-                        <td><?php echo htmlspecialchars($staffRol->getFechaAsignacion()); ?></td>
+                        <td><?php echo htmlspecialchars($staffRol['id_staff']); ?></td>
+                        <td><?php echo htmlspecialchars($staffById[$staffRol['id_staff']] ?? $staffRol['id_staff']); ?></td>
+                        <td><?php echo htmlspecialchars($rolById[$staffRol['id_tipo_rol']] ?? $staffRol['id_tipo_rol']); ?></td>
+                        <td><?php echo htmlspecialchars($staffRol['fecha_asignacion'] ?? 'N/A'); ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

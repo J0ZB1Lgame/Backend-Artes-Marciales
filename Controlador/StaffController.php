@@ -1,11 +1,4 @@
 <?php
-// ================== HEADERS API ==================
-
-header("Access-Control-Allow-Origin: *");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
-
 // ================== IMPORTS ==================
 
 require_once __DIR__ . '/../Modelo/DAO/StaffDAOImpl.php';
@@ -13,9 +6,11 @@ require_once __DIR__ . '/../Modelo/DAO/TurnoDAOImpl.php';
 require_once __DIR__ . '/../Modelo/DAO/TipoRolStaffDAOImpl.php';
 require_once __DIR__ . '/../Modelo/DAO/AsignacionTurnoDAOImpl.php';
 require_once __DIR__ . '/../Modelo/DAO/StaffRolDAOImpl.php';
+require_once __DIR__ . '/../Modelo/DAO/UsuarioDAOImpl.php';
 require_once __DIR__ . '/../Modelo/DAO/RolDAOImpl.php';
 require_once __DIR__ . '/../Modelo/Entidades/Staff.php';
 require_once __DIR__ . '/../Modelo/Entidades/AsignacionTurno.php';
+require_once __DIR__ . '/../Controlador/conexion.php';
 
 // ================== CLASE ==================
 
@@ -25,20 +20,25 @@ class StaffController {
     private $tipoRolStaffDAO;
     private $asignacionTurnoDAO;
     private $staffRolDAO;
+    private $usuarioDAO;
     private $rolDAO;
+    private $conn;
 
     public function __construct() {
+        global $conn;
+        $this->conn = $conn;
         $this->staffDAO = new StaffDAOImpl();
         $this->turnoDAO = new TurnoDAOImpl();
         $this->tipoRolStaffDAO = new TipoRolStaffDAOImpl();
         $this->asignacionTurnoDAO = new AsignacionTurnoDAOImpl();
         $this->staffRolDAO = new StaffRolDAOImpl();
+        $this->usuarioDAO = new UsuarioDAOImpl();
         $this->rolDAO = new RolDAOImpl();
     }
 
-    // ================== RESPUESTAS JSON ==================
+    // ================== RESPUESTAS JSON (para API) ==================
 
-    private function response($data, $message = "OK", $status = 200) {
+    public function jsonResponse($data, $message = "OK", $status = 200) {
         http_response_code($status);
         echo json_encode([
             "status" => "success",
@@ -48,7 +48,7 @@ class StaffController {
         exit;
     }
 
-    private function error($message, $status = 400) {
+    public function jsonError($message, $status = 400) {
         http_response_code($status);
         echo json_encode([
             "status" => "error",
@@ -86,12 +86,11 @@ class StaffController {
         }
     }
 
-    // ================== MÉTODOS API ==================
+    // ================== MÉTODOS DE LISTA ==================
 
     public function listarStaff() {
         try {
             $staffs = $this->staffDAO->listarTodos();
-
             $data = [];
 
             foreach ($staffs as $staff) {
@@ -100,54 +99,155 @@ class StaffController {
                     "id_usuario" => $staff->getIdUsuario(),
                     "nombre" => $staff->getNombre(),
                     "apellido" => $staff->getApellido(),
+                    "tipo_documento" => $staff->getTipoDocumento(),
+                    "numero_documento" => $staff->getNumeroDocumento(),
                     "telefono" => $staff->getTelefono(),
                     "email" => $staff->getEmail(),
                     "estado" => $staff->getEstado()
                 ];
             }
-
-            $this->response($data, "Lista de staff obtenida");
-
+            return $data;
         } catch (Exception $e) {
-            $this->error($e->getMessage(), 500);
+            throw $e;
         }
     }
 
-    public function obtenerStaff($id) {
+    public function listarUsuarios() {
         try {
-            $this->validarId($id, 'ID de staff');
-            $data = $this->staffDAO->obtenerPorId($id);
-            $this->response($data, "Staff obtenido");
+            $query = "SELECT id_usuario, username, email, estado FROM usuario";
+            $result = $this->conn->query($query);
+            $data = [];
+            
+            if ($result && $result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    $data[] = $row;
+                }
+            }
+            return $data;
         } catch (Exception $e) {
-            $this->error($e->getMessage());
+            throw $e;
         }
     }
 
-    public function registrarStaff($datos) {
+    public function listarTurnos() {
         try {
-            $this->validarStaffData(
-                $datos['id_usuario'],
-                $datos['nombre'],
-                $datos['apellido'],
-                $datos['email']
-            );
+            $turnos = $this->turnoDAO->listarTodos();
+            $data = [];
+            
+            foreach ($turnos as $turno) {
+                $data[] = [
+                    "id_turno" => $turno->getIdTurno(),
+                    "nombre" => $turno->getNombre(),
+                    "hora_inicio" => $turno->getHoraInicio(),
+                    "hora_fin" => $turno->getHoraFin()
+                ];
+            }
+            return $data;
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function listarTiposRol() {
+        try {
+            $roles = $this->tipoRolStaffDAO->listarTodos();
+            $data = [];
+            
+            foreach ($roles as $rol) {
+                $data[] = [
+                    "id_tipo_rol" => $rol->getIdTipoRol(),
+                    "nombre" => $rol->getNombre(),
+                    "descripcion" => $rol->getDescripcion()
+                ];
+            }
+            return $data;
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function listarAsignacionesTurno() {
+        try {
+            $asignaciones = $this->asignacionTurnoDAO->listarTodas();
+            $data = [];
+            
+            foreach ($asignaciones as $asignacion) {
+                $data[] = [
+                    "id_asignacion" => $asignacion->getIdAsignacion(),
+                    "id_staff" => $asignacion->getIdStaff(),
+                    "id_turno" => $asignacion->getIdTurno(),
+                    "fecha" => $asignacion->getFecha(),
+                    "estado" => $asignacion->getEstado()
+                ];
+            }
+            return $data;
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function listarRolesAsignados() {
+        try {
+            $staffRoles = $this->staffRolDAO->listarTodos();
+            $data = [];
+            
+            foreach ($staffRoles as $staffRole) {
+                $data[] = [
+                    "id_staff" => $staffRole->getIdStaff(),
+                    "id_tipo_rol" => $staffRole->getIdTipoRol()
+                ];
+            }
+            return $data;
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    // ================== MÉTODOS CRUD ==================
+
+    public function registrarStaff($id_usuario, $nombre, $apellido, $tipo_documento, $numero_documento, $telefono, $email) {
+        try {
+            $this->validarStaffData($id_usuario, $nombre, $apellido, $email);
 
             $staff = new Staff(
                 null,
-                $datos['id_usuario'],
-                $datos['nombre'],
-                $datos['apellido'],
-                $datos['tipo_documento'],
-                $datos['numero_documento'],
-                $datos['telefono'],
-                $datos['email']
+                $id_usuario,
+                $nombre,
+                $apellido,
+                $tipo_documento,
+                $numero_documento,
+                $telefono,
+                $email
             );
 
             $id = $this->staffDAO->crear($staff);
-
-            $this->response($id, "Staff registrado correctamente", 201);
+            return $id;
         } catch (Exception $e) {
-            $this->error($e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function actualizarStaff($id, $id_usuario, $nombre, $apellido, $tipo_documento, $numero_documento, $telefono, $email, $estado) {
+        try {
+            $this->validarId($id, 'ID de staff');
+            $this->validarStaffData($id_usuario, $nombre, $apellido, $email);
+
+            $staff = new Staff(
+                $id,
+                $id_usuario,
+                $nombre,
+                $apellido,
+                $tipo_documento,
+                $numero_documento,
+                $telefono,
+                $email
+            );
+
+            $staff->setEstado($estado);
+            $this->staffDAO->actualizar($staff);
+            return true;
+        } catch (Exception $e) {
+            throw $e;
         }
     }
 
@@ -155,81 +255,75 @@ class StaffController {
         try {
             $this->validarId($id, 'ID de staff');
             $this->staffDAO->eliminarPorId($id);
-            $this->response(null, "Staff eliminado");
+            return true;
         } catch (Exception $e) {
-            $this->error($e->getMessage());
+            throw $e;
         }
     }
 
-    public function listarAsignacionesTurno() {
+    public function obtenerStaff($id) {
         try {
-            $data = $this->asignacionTurnoDAO->listarTodas();
-            $this->response($data, "Turnos listados");
+            $this->validarId($id, 'ID de staff');
+            $staff = $this->staffDAO->obtenerPorId($id);
+            return $staff;
         } catch (Exception $e) {
-            $this->error($e->getMessage());
+            throw $e;
+        }
+    }
+
+    // ================== MÉTODOS DE ASIGNACIÓN ==================
+
+    public function asignarRol($id_staff, $id_tipo_rol) {
+        try {
+            $this->validarId($id_staff, 'ID de staff');
+            $this->validarId($id_tipo_rol, 'ID de tipo rol');
+
+            $query = "INSERT INTO staff_rol (id_staff, id_tipo_rol) VALUES (?, ?)";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("ii", $id_staff, $id_tipo_rol);
+            
+            if (!$stmt->execute()) {
+                throw new Exception('Error al asignar rol: ' . $stmt->error);
+            }
+            
+            $stmt->close();
+            return true;
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function asignarTurno($id_staff, $id_turno, $fecha) {
+        try {
+            $this->validarId($id_staff, 'ID de staff');
+            $this->validarId($id_turno, 'ID de turno');
+            $this->validarFecha($fecha);
+
+            $asignacion = new AsignacionTurno(null, $id_staff, $id_turno, $fecha, 'activo');
+            $this->asignacionTurnoDAO->crear($asignacion);
+            return true;
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    public function revocarRol($id_staff, $id_tipo_rol) {
+        try {
+            $this->validarId($id_staff, 'ID de staff');
+            $this->validarId($id_tipo_rol, 'ID de tipo rol');
+
+            $query = "DELETE FROM staff_rol WHERE id_staff = ? AND id_tipo_rol = ?";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("ii", $id_staff, $id_tipo_rol);
+            
+            if (!$stmt->execute()) {
+                throw new Exception('Error al revocar rol: ' . $stmt->error);
+            }
+            
+            $stmt->close();
+            return true;
+        } catch (Exception $e) {
+            throw $e;
         }
     }
 }
-
-// ================== ROUTER ==================
-
-$controller = new StaffController();
-$metodo = $_SERVER['REQUEST_METHOD'];
-$action = $_GET['action'] ?? '';
-
-if ($metodo === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
-
-try {
-
-    if ($metodo === 'GET') {
-
-        if ($action === 'listar') {
-            $controller->listarStaff();
-
-        } elseif ($action === 'obtener' && isset($_GET['id'])) {
-            $controller->obtenerStaff($_GET['id']);
-
-        } elseif ($action === 'turnos') {
-            $controller->listarAsignacionesTurno();
-
-        } else {
-            throw new Exception("Acción GET no válida");
-        }
-
-    } elseif ($metodo === 'POST') {
-
-        $json = file_get_contents('php://input');
-        $datos = json_decode($json, true);
-
-        if ($action === 'registrar') {
-            $controller->registrarStaff($datos);
-
-        } else {
-            throw new Exception("Acción POST no válida");
-        }
-
-    } elseif ($metodo === 'DELETE') {
-
-        if ($action === 'eliminar' && isset($_GET['id'])) {
-            $controller->eliminarStaff($_GET['id']);
-
-        } else {
-            throw new Exception("Acción DELETE no válida");
-        }
-
-    } else {
-        http_response_code(405);
-        echo json_encode(["error" => "Método no permitido"]);
-    }
-
-} catch (Exception $e) {
-    http_response_code(400);
-    echo json_encode([
-        "status" => "error",
-        "message" => $e->getMessage()
-    ]);
-}
-?>
