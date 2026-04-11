@@ -1,7 +1,4 @@
--- ─────────────────────────────────────────────────────────────────────────────
--- TAM DB - Script actualizado según diagrama de clases final
--- Motor: MySQL | Charset: utf8mb4
--- ─────────────────────────────────────────────────────────────────────────────
+
 
 CREATE DATABASE IF NOT EXISTS tam_db
     CHARACTER SET utf8mb4
