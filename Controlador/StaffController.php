@@ -1,4 +1,13 @@
 <?php
+// ================== HEADERS API ==================
+
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+
+// ================== IMPORTS ==================
+
 require_once __DIR__ . '/../Modelo/DAO/StaffDAOImpl.php';
 require_once __DIR__ . '/../Modelo/DAO/TurnoDAOImpl.php';
 require_once __DIR__ . '/../Modelo/DAO/TipoRolStaffDAOImpl.php';
@@ -7,6 +16,8 @@ require_once __DIR__ . '/../Modelo/DAO/StaffRolDAOImpl.php';
 require_once __DIR__ . '/../Modelo/DAO/RolDAOImpl.php';
 require_once __DIR__ . '/../Modelo/Entidades/Staff.php';
 require_once __DIR__ . '/../Modelo/Entidades/AsignacionTurno.php';
+
+// ================== CLASE ==================
 
 class StaffController {
     private $staffDAO;
@@ -24,6 +35,29 @@ class StaffController {
         $this->staffRolDAO = new StaffRolDAOImpl();
         $this->rolDAO = new RolDAOImpl();
     }
+
+    // ================== RESPUESTAS JSON ==================
+
+    private function response($data, $message = "OK", $status = 200) {
+        http_response_code($status);
+        echo json_encode([
+            "status" => "success",
+            "message" => $message,
+            "data" => $data
+        ]);
+        exit;
+    }
+
+    private function error($message, $status = 400) {
+        http_response_code($status);
+        echo json_encode([
+            "status" => "error",
+            "message" => $message
+        ]);
+        exit;
+    }
+
+    // ================== VALIDACIONES ==================
 
     private function validarStaffData($id_usuario, $nombre, $apellido, $email = null) {
         if (empty($id_usuario) || !is_numeric($id_usuario)) {
@@ -52,134 +86,150 @@ class StaffController {
         }
     }
 
-    public function registrarStaff($id_usuario, $nombre, $apellido, $tipo_documento, $numero_documento, $telefono, $email) {
-        $this->validarStaffData($id_usuario, $nombre, $apellido, $email);
-        $staff = new Staff(null, $id_usuario, $nombre, $apellido, $tipo_documento, $numero_documento, $telefono, $email);
-        return $this->staffDAO->crear($staff);
+    // ================== MÉTODOS API ==================
+
+    public function listarStaff() {
+        try {
+            $staffs = $this->staffDAO->listarTodos();
+
+            $data = [];
+
+            foreach ($staffs as $staff) {
+                $data[] = [
+                    "id_staff" => $staff->getIdStaff(),
+                    "id_usuario" => $staff->getIdUsuario(),
+                    "nombre" => $staff->getNombre(),
+                    "apellido" => $staff->getApellido(),
+                    "telefono" => $staff->getTelefono(),
+                    "email" => $staff->getEmail(),
+                    "estado" => $staff->getEstado()
+                ];
+            }
+
+            $this->response($data, "Lista de staff obtenida");
+
+        } catch (Exception $e) {
+            $this->error($e->getMessage(), 500);
+        }
     }
 
     public function obtenerStaff($id) {
-        $this->validarId($id, 'ID de staff');
-        return $this->staffDAO->obtenerPorId($id);
+        try {
+            $this->validarId($id, 'ID de staff');
+            $data = $this->staffDAO->obtenerPorId($id);
+            $this->response($data, "Staff obtenido");
+        } catch (Exception $e) {
+            $this->error($e->getMessage());
+        }
     }
 
-    public function actualizarStaff($id, $id_usuario, $nombre, $apellido, $tipo_documento, $numero_documento, $telefono, $email, $estado) {
-        $this->validarId($id, 'ID de staff');
-        $this->validarStaffData($id_usuario, $nombre, $apellido, $email);
-        $staff = new Staff($id, $id_usuario, $nombre, $apellido, $tipo_documento, $numero_documento, $telefono, $email, $estado);
-        $this->staffDAO->actualizar($staff);
+    public function registrarStaff($datos) {
+        try {
+            $this->validarStaffData(
+                $datos['id_usuario'],
+                $datos['nombre'],
+                $datos['apellido'],
+                $datos['email']
+            );
+
+            $staff = new Staff(
+                null,
+                $datos['id_usuario'],
+                $datos['nombre'],
+                $datos['apellido'],
+                $datos['tipo_documento'],
+                $datos['numero_documento'],
+                $datos['telefono'],
+                $datos['email']
+            );
+
+            $id = $this->staffDAO->crear($staff);
+
+            $this->response($id, "Staff registrado correctamente", 201);
+        } catch (Exception $e) {
+            $this->error($e->getMessage());
+        }
     }
 
     public function eliminarStaff($id) {
-        $this->validarId($id, 'ID de staff');
-        $this->staffDAO->eliminarPorId($id);
-    }
-
-    public function listarStaff() {
-        return $this->staffDAO->listarTodos();
-    }
-
-    public function listarUsuarios() {
-        global $conn;
-        $usuarios = [];
-        $stmt = $conn->prepare("SELECT id_usuario, username FROM usuario WHERE estado = 'activo' ORDER BY username");
-        $stmt->execute();
-        $result = $stmt->get_result();
-        while ($row = $result->fetch_assoc()) {
-            $usuarios[] = $row;
+        try {
+            $this->validarId($id, 'ID de staff');
+            $this->staffDAO->eliminarPorId($id);
+            $this->response(null, "Staff eliminado");
+        } catch (Exception $e) {
+            $this->error($e->getMessage());
         }
-        $stmt->close();
-        return $usuarios;
-    }
-
-    public function listarTurnos() {
-        return $this->turnoDAO->listarTodos();
-    }
-
-    public function listarTiposRol() {
-        return $this->tipoRolStaffDAO->listarTodos();
-    }
-
-    public function asignarTurno($id_staff, $id_turno, $fecha) {
-        $this->validarId($id_staff, 'ID de staff');
-        $this->validarId($id_turno, 'ID de turno');
-        $this->validarFecha($fecha);
-        $asignacion = new AsignacionTurno(null, $id_staff, $id_turno, $fecha, 'activo');
-        return $this->asignacionTurnoDAO->crear($asignacion);
-    }
-
-    public function modificarTurno($id_asignacion, $id_staff, $id_turno, $fecha, $estado) {
-        $this->validarId($id_asignacion, 'ID de asignación');
-        $this->validarId($id_staff, 'ID de staff');
-        $this->validarId($id_turno, 'ID de turno');
-        $this->validarFecha($fecha);
-        if (!in_array($estado, ['activo', 'inactivo'])) {
-            throw new Exception('El estado de la asignación es inválido.');
-        }
-        $asignacion = new AsignacionTurno($id_asignacion, $id_staff, $id_turno, $fecha, $estado);
-        $this->asignacionTurnoDAO->actualizar($asignacion);
-    }
-
-    public function listarTurnosDeStaff($id_staff) {
-        $this->validarId($id_staff, 'ID de staff');
-        return $this->asignacionTurnoDAO->listarPorStaff($id_staff);
     }
 
     public function listarAsignacionesTurno() {
-        return $this->asignacionTurnoDAO->listarTodas();
-    }
-
-    public function asignarRol($id_staff, $id_tipo_rol) {
-        $this->validarId($id_staff, 'ID de staff');
-        $this->validarId($id_tipo_rol, 'ID de tipo de rol');
-        $this->staffRolDAO->asignar($id_staff, $id_tipo_rol);
-    }
-
-    public function revocarRol($id_staff, $id_tipo_rol) {
-        $this->validarId($id_staff, 'ID de staff');
-        $this->validarId($id_tipo_rol, 'ID de tipo de rol');
-        $this->staffRolDAO->revocar($id_staff, $id_tipo_rol);
-
-        // Si el staff ya no tiene ningún rol, se eliminan sus turnos activos
-        $rolesRestantes = $this->staffRolDAO->listarRolesPorStaff($id_staff);
-        if (empty($rolesRestantes)) {
-            $this->asignacionTurnoDAO->eliminarPorStaff($id_staff);
+        try {
+            $data = $this->asignacionTurnoDAO->listarTodas();
+            $this->response($data, "Turnos listados");
+        } catch (Exception $e) {
+            $this->error($e->getMessage());
         }
     }
+}
 
-    public function listarRolesDeStaff($id_staff) {
-        $this->validarId($id_staff, 'ID de staff');
-        $asignaciones = $this->staffRolDAO->listarRolesPorStaff($id_staff);
-        $roles = [];
-        foreach ($asignaciones as $asignacion) {
-            $roles[] = $this->tipoRolStaffDAO->obtenerPorId($asignacion->getIdTipoRol());
+// ================== ROUTER ==================
+
+$controller = new StaffController();
+$metodo = $_SERVER['REQUEST_METHOD'];
+$action = $_GET['action'] ?? '';
+
+if ($metodo === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+try {
+
+    if ($metodo === 'GET') {
+
+        if ($action === 'listar') {
+            $controller->listarStaff();
+
+        } elseif ($action === 'obtener' && isset($_GET['id'])) {
+            $controller->obtenerStaff($_GET['id']);
+
+        } elseif ($action === 'turnos') {
+            $controller->listarAsignacionesTurno();
+
+        } else {
+            throw new Exception("Acción GET no válida");
         }
-        return $roles;
+
+    } elseif ($metodo === 'POST') {
+
+        $json = file_get_contents('php://input');
+        $datos = json_decode($json, true);
+
+        if ($action === 'registrar') {
+            $controller->registrarStaff($datos);
+
+        } else {
+            throw new Exception("Acción POST no válida");
+        }
+
+    } elseif ($metodo === 'DELETE') {
+
+        if ($action === 'eliminar' && isset($_GET['id'])) {
+            $controller->eliminarStaff($_GET['id']);
+
+        } else {
+            throw new Exception("Acción DELETE no válida");
+        }
+
+    } else {
+        http_response_code(405);
+        echo json_encode(["error" => "Método no permitido"]);
     }
 
-    public function listarRolesAsignados() {
-        return $this->staffRolDAO->listarTodos();
-    }
-
-    public function listarRolesSistema() {
-        return $this->rolDAO->listarTodos();
-    }
-
-    public function asignarRolSistemaAUsuario($id_usuario, $id_rol) {
-        $this->validarId($id_usuario, 'ID de usuario');
-        $this->validarId($id_rol, 'ID de rol');
-        $this->rolDAO->asignarAUsuario($id_usuario, $id_rol);
-    }
-
-    public function revocarRolSistemaDeUsuario($id_usuario, $id_rol) {
-        $this->validarId($id_usuario, 'ID de usuario');
-        $this->validarId($id_rol, 'ID de rol');
-        $this->rolDAO->revocarDeUsuario($id_usuario, $id_rol);
-    }
-
-    public function listarRolesDeUsuario($id_usuario) {
-        $this->validarId($id_usuario, 'ID de usuario');
-        return $this->rolDAO->listarPorUsuario($id_usuario);
-    }
+} catch (Exception $e) {
+    http_response_code(400);
+    echo json_encode([
+        "status" => "error",
+        "message" => $e->getMessage()
+    ]);
 }
 ?>
