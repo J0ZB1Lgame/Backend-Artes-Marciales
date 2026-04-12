@@ -17,15 +17,26 @@ let editingId = null; // null = creando, number = editando
 // LLAMADAS AL BACKEND (usan api.js)
 // ════════════════════════════════════════════════════════════════════════════
 
-async function fetchStaff() { return apiGet(ENDPOINT); }
-async function fetchTiposRol() { return apiGet(ENDPOINT, { action: 'tipos_rol' }); }
-async function fetchTurnos() { return apiGet(ENDPOINT, { action: 'turnos' }); }
+// ── Endpoints
+const EP = 'staff/staff_api.php';
+const EP_EXT = 'staff/staff_extended_api.php';
 
-async function crearStaff(datos) { return apiPost(ENDPOINT, datos); }
-async function actualizarStaff(id, d) { return apiPut(ENDPOINT, d, { id }); }
-async function eliminarStaff(id) { return apiDelete(ENDPOINT, { id }); }
-async function asignarRol(id_staff, id_tipo_rol) {
-    return apiPost(ENDPOINT, { id_staff, id_tipo_rol }, { action: 'asignar_rol' });
+// Listar y obtener
+async function fetchStaff() { return apiGet(EP); }
+async function fetchTiposRol() { return apiGet(EP, { action: 'tipos_rol' }); }
+async function fetchTurnos() { return apiGet(EP, { action: 'turnos' }); }
+async function fetchZonas() { return apiGet(EP_EXT, { action: 'zona/listar' }); }
+
+// CRUD — nota: PUT manda id en el body y usa ?action=actualizar
+async function crearStaff(datos) {
+    // El backend pide ejecutor — por ahora va 1 (admin)
+    return apiPost(EP, { ejecutor: 1, ...datos });
+}
+async function actualizarStaff(id, datos) {
+    return apiPut(EP, { id, ...datos }, { action: 'actualizar' });
+}
+async function eliminarStaff(id) {
+    return apiDelete(EP, { action: 'eliminar', id });
 }
 
 // ════════════════════════════════════════════════════════════════════════════
