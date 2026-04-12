@@ -8,11 +8,11 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-W
 
 // ================== IMPORTS ==================
 
-require_once __DIR__ . '/../controllers/staff/StaffController.php';
+require_once __DIR__ . '/../controllers/staff/StaffTorneoController.php';
 
 // ================== ROUTER ==================
 
-$controller = new StaffController();
+$controller = new StaffTorneoController();
 $metodo = $_SERVER['REQUEST_METHOD'];
 $action = $_GET['action'] ?? '';
 
@@ -25,32 +25,28 @@ try {
 
     if ($metodo === 'GET') {
 
-        if ($action === 'listar') {
+        if (!$action) {
             $data = $controller->listarStaff();
             $controller->jsonResponse($data, "Lista de staff obtenida");
 
         } elseif ($action === 'obtener' && isset($_GET['id'])) {
-            $data = $controller->obtenerStaff($_GET['id']);
+            $data = $controller->obtenerStaff((int) $_GET['id']);
             $controller->jsonResponse($data, "Staff obtenido");
 
-        } elseif ($action === 'turnos') {
-            $data = $controller->listarAsignacionesTurno();
-            $controller->jsonResponse($data, "Turnos listados");
-
         } elseif ($action === 'usuarios') {
-            $data = $controller->listarUsuarios();
+            $data = $controller->mostrarUsuario();
             $controller->jsonResponse($data, "Usuarios listados");
 
-        } elseif ($action === 'turnos-lista') {
+        } elseif ($action === 'tipos_rol') {
+            $data = $controller->mostrarRol();
+            $controller->jsonResponse($data, "Tipos de rol listados");
+
+        } elseif ($action === 'turnos' || $action === 'turnos-lista') {
             $data = $controller->listarTurnos();
             $controller->jsonResponse($data, "Turnos listados");
 
-        } elseif ($action === 'tipos-rol') {
-            $data = $controller->listarTiposRol();
-            $controller->jsonResponse($data, "Tipos de rol listados");
-
         } elseif ($action === 'roles-asignados') {
-            $id_staff = $_GET['id_staff'] ?? null;
+            $id_staff = isset($_GET['id_staff']) ? (int) $_GET['id_staff'] : null;
             $data = $controller->listarRolesAsignados($id_staff);
             $controller->jsonResponse($data, "Roles asignados listados");
 
@@ -62,19 +58,19 @@ try {
 
         $datos = json_decode(file_get_contents('php://input'), true);
 
-        if ($action === 'registrar') {
-            $resultado = $controller->registrarStaff($datos);
+        if (!$action) {
+            $resultado = $controller->registrarStaff($datos['ejecutor'] ?? 0, $datos);
             if ($resultado) {
                 $controller->jsonResponse($resultado, "Staff registrado exitosamente", 201);
             } else {
                 $controller->jsonError("Error al registrar staff");
             }
 
-        } elseif ($action === 'asignar-rol') {
+        } elseif ($action === 'asignar_rol') {
             if (!isset($datos['id_staff']) || !isset($datos['id_tipo_rol'])) {
                 $controller->jsonError("Faltan parámetros requeridos");
             }
-            $resultado = $controller->asignarRol($datos['id_staff'], $datos['id_tipo_rol']);
+            $resultado = $controller->asignarRolAStaff((int) $datos['id_staff'], (int) $datos['id_tipo_rol']);
             if ($resultado) {
                 $controller->jsonResponse(null, "Rol asignado exitosamente", 201);
             } else {
@@ -85,7 +81,7 @@ try {
             if (!isset($datos['id_staff']) || !isset($datos['id_turno']) || !isset($datos['fecha'])) {
                 $controller->jsonError("Faltan parámetros requeridos");
             }
-            $resultado = $controller->asignarTurno($datos['id_staff'], $datos['id_turno'], $datos['fecha']);
+            $resultado = $controller->asignarTurno((int) $datos['id_staff'], (int) $datos['id_turno'], $datos['fecha']);
             if ($resultado) {
                 $controller->jsonResponse($resultado, "Turno asignado exitosamente", 201);
             } else {
@@ -104,7 +100,7 @@ try {
             if (!isset($datos['id'])) {
                 $controller->jsonError("ID requerido");
             }
-            $resultado = $controller->actualizarStaff($datos['id'], $datos);
+            $resultado = $controller->actualizarStaff((int) $datos['id'], $datos);
             if ($resultado) {
                 $controller->jsonResponse(null, "Staff actualizado exitosamente");
             } else {
@@ -120,7 +116,7 @@ try {
             if (!isset($_GET['id'])) {
                 $controller->jsonError("ID requerido");
             }
-            $resultado = $controller->eliminarStaff($_GET['id']);
+            $resultado = $controller->eliminarStaff((int) $_GET['id']);
             if ($resultado) {
                 $controller->jsonResponse(null, "Staff eliminado exitosamente");
             } else {
@@ -131,7 +127,7 @@ try {
             if (!isset($_GET['id_staff']) || !isset($_GET['id_tipo_rol'])) {
                 $controller->jsonError("Parámetros requeridos: id_staff, id_tipo_rol");
             }
-            $resultado = $controller->revocarRol($_GET['id_staff'], $_GET['id_tipo_rol']);
+            $resultado = $controller->revocarRol((int) $_GET['id_staff'], (int) $_GET['id_tipo_rol']);
             if ($resultado) {
                 $controller->jsonResponse(null, "Rol revocado exitosamente");
             } else {
