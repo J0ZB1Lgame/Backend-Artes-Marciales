@@ -33,11 +33,15 @@ try {
             $data = $controller->obtenerStaff((int) $_GET['id']);
             $controller->jsonResponse($data, "Staff obtenido");
 
+        } elseif ($action === 'listar') {
+            $data = $controller->listarStaff();
+            $controller->jsonResponse($data, "Lista de staff obtenida");
+
         } elseif ($action === 'usuarios') {
             $data = $controller->mostrarUsuario();
             $controller->jsonResponse($data, "Usuarios listados");
 
-        } elseif ($action === 'tipos_rol') {
+        } elseif ($action === 'tipos-rol') {
             $data = $controller->mostrarRol();
             $controller->jsonResponse($data, "Tipos de rol listados");
 
@@ -66,7 +70,7 @@ try {
                 $controller->jsonError("Error al registrar staff");
             }
 
-        } elseif ($action === 'asignar_rol') {
+        } elseif ($action === 'asignar-rol') {
             if (!isset($datos['id_staff']) || !isset($datos['id_tipo_rol'])) {
                 $controller->jsonError("Faltan parámetros requeridos");
             }

@@ -87,3 +87,6 @@ INSERT INTO zona (nombre, descripcion) VALUES
 ('Zona B', 'Área secundaria de combates'),
 ('Zona Médica', 'Área de atención médica'),
 ('Zona VIP', 'Área para autoridades del torneo');
+
+-- NOTA: El usuario admin se genera ejecutando backend/setup_admin.php una sola vez.
+-- No insertar passwords en texto plano en este archivo.

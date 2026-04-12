@@ -1,9 +1,8 @@
 <?php
 
+require_once __DIR__ . '/../../../daos/base/BaseDAO.php';
 require_once __DIR__ . '/../interfaces/ILogDAO.php';
-require_once __DIR__ . '/../../entities/staff/Log.php';
-require_once __DIR__ . '/../../../config/conexion.php';
-require_once __DIR__ . '/../../base/BaseDAO.php';
+require_once __DIR__ . '/../../../entities/login/Log.php';
 
 class LogDAOImpl extends BaseDAO implements ILogDAO {
 
@@ -12,37 +11,26 @@ class LogDAOImpl extends BaseDAO implements ILogDAO {
         parent::__construct($conn);
     }
 
-    public function crear($evento) {
-        return $this->crearEvento($evento);
-    }
-
     public function crearEvento($evento): void {
-        if ($evento->getFecha()) {
-            $sql = "INSERT INTO log (accion, fecha, id_usuario) VALUES (?, ?, ?)";
-            $stmt = $this->connection->prepare($sql);
-            $stmt->bind_param("ssi", $evento->getAccion(), $evento->getFecha(), $evento->getIdUsuario());
-        } else {
-            $sql = "INSERT INTO log (accion, id_usuario) VALUES (?, ?)";
-            $stmt = $this->connection->prepare($sql);
-            $stmt->bind_param("si", $evento->getAccion(), $evento->getIdUsuario());
-        }
+        $sql = "INSERT INTO log (accion, fecha, id_usuario) VALUES (?, ?, ?)";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bind_param("ssi", $evento->getAccion(), $evento->getFecha(), $evento->getIdUsuario());
         $stmt->execute();
+        $evento->setIdLog($this->connection->insert_id);
     }
 
     public function consultarHistorial(): array {
         $sql = "SELECT * FROM log ORDER BY fecha DESC";
         $result = $this->connection->query($sql);
-        $lista = [];
-
+        $logs = [];
         while ($row = $result->fetch_assoc()) {
-            $lista[] = new Log(
-                $row['id_log'],
-                $row['accion'],
-                $row['fecha'],
-                $row['id_usuario']
-            );
+            $logs[] = new Log($row['id_log'], $row['accion'], $row['fecha'], $row['id_usuario']);
         }
-        return $lista;
+        return $logs;
+    }
+
+    public function crear($entidad) {
+        $this->crearEvento($entidad);
     }
 
     public function obtenerPorId($id) {
@@ -51,17 +39,16 @@ class LogDAOImpl extends BaseDAO implements ILogDAO {
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result();
-
         if ($row = $result->fetch_assoc()) {
             return new Log($row['id_log'], $row['accion'], $row['fecha'], $row['id_usuario']);
         }
         return null;
     }
 
-    public function actualizar($evento) {
+    public function actualizar($entidad) {
         $sql = "UPDATE log SET accion = ?, fecha = ?, id_usuario = ? WHERE id_log = ?";
         $stmt = $this->connection->prepare($sql);
-        $stmt->bind_param("ssii", $evento->getAccion(), $evento->getFecha(), $evento->getIdUsuario(), $evento->getIdLog());
+        $stmt->bind_param("ssii", $entidad->getAccion(), $entidad->getFecha(), $entidad->getIdUsuario(), $entidad->getIdLog());
         return $stmt->execute();
     }
 

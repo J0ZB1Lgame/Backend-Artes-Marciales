@@ -38,33 +38,6 @@ function apiError($message, $status = 400) {
 try {
     if ($metodo === 'GET') {
         switch ($action) {
-            case 'usuario/listar':
-                apiResponse($controller->mostrarUsuario(), 'Usuarios listados');
-                break;
-            case 'usuario/buscar':
-                if (!isset($_GET['id'])) {
-                    apiError('ID requerido');
-                }
-                apiResponse($controller->buscarUsuario((int) $_GET['id']), 'Usuario encontrado');
-                break;
-            case 'usuario/estado':
-                if (!isset($_GET['id'])) {
-                    apiError('ID requerido');
-                }
-                apiResponse($controller->verEstadoUsuario((int) $_GET['id']), 'Estado de usuario obtenido');
-                break;
-            case 'sesion/buscar':
-                if (!isset($_GET['id'])) {
-                    apiError('ID requerido');
-                }
-                apiResponse($controller->buscarSesion((int) $_GET['id']), 'Sesión encontrada');
-                break;
-            case 'sesion/usuario':
-                apiResponse($controller->getUsuarioLogueado(), 'Usuario en sesión obtenido');
-                break;
-            case 'log/consultar':
-                apiResponse($controller->consultarLog(), 'Historial de logs obtenido');
-                break;
             case 'staff_torneo/listar':
                 $ejecutor = $_GET['ejecutor'] ?? null;
                 $torneo = $_GET['torneo'] ?? null;
@@ -110,34 +83,6 @@ try {
             $datos = [];
         }
         switch ($action) {
-            case 'usuario/crear':
-                $resultado = $controller->crearUsuario($datos);
-                if ($resultado) {
-                    apiResponse($resultado, 'Usuario creado', 201);
-                }
-                apiError('Error al crear usuario');
-                break;
-            case 'sesion/iniciar':
-                if (!isset($datos['username']) || !isset($datos['password'])) {
-                    apiError('Faltan parámetros: username, password');
-                }
-                $resultado = $controller->iniciarSesion($datos['username'], $datos['password']);
-                if ($resultado) {
-                    apiResponse(null, 'Sesión iniciada', 201);
-                }
-                apiError('Usuario o contraseña inválidos', 401);
-                break;
-            case 'sesion/cerrar':
-                $controller->cerrarSesion();
-                apiResponse(null, 'Sesión cerrada', 200);
-                break;
-            case 'log/registrar':
-                if (!isset($datos['id_usuario']) || !isset($datos['accion'])) {
-                    apiError('Faltan parámetros: id_usuario, accion');
-                }
-                $controller->registrarEvento((int) $datos['id_usuario']);
-                apiResponse(null, 'Evento registrado', 201);
-                break;
             case 'staff_torneo/registrar':
                 if (!isset($datos['ejecutor']) || !isset($datos['datos_staff'])) {
                     apiError('Faltan parámetros: ejecutor, datos_staff');
@@ -208,36 +153,6 @@ try {
             $datos = [];
         }
         switch ($action) {
-            case 'usuario/actualizar':
-                if (!isset($datos['id_usuario'])) {
-                    apiError('ID de usuario requerido');
-                }
-                $resultado = $controller->actualizarInformacionUsuario($datos);
-                if ($resultado) {
-                    apiResponse(null, 'Usuario actualizado');
-                }
-                apiError('Error al actualizar usuario');
-                break;
-            case 'usuario/actualizar-username':
-                if (!isset($datos['id_usuario']) || !isset($datos['username'])) {
-                    apiError('Faltan parámetros: id_usuario, username');
-                }
-                $resultado = $controller->actualizarUsername((int) $datos['id_usuario'], $datos['username']);
-                if ($resultado) {
-                    apiResponse(null, 'Username actualizado');
-                }
-                apiError('Error al actualizar username');
-                break;
-            case 'usuario/actualizar-password':
-                if (!isset($datos['id_usuario']) || !isset($datos['password'])) {
-                    apiError('Faltan parámetros: id_usuario, password');
-                }
-                $resultado = $controller->actualizarPassword((int) $datos['id_usuario'], $datos['password']);
-                if ($resultado) {
-                    apiResponse(null, 'Password actualizado');
-                }
-                apiError('Error al actualizar password');
-                break;
             case 'rol/actualizar':
                 if (!isset($datos['id_rol'])) {
                     apiError('ID de rol requerido');
@@ -273,16 +188,6 @@ try {
         }
     } elseif ($metodo === 'DELETE') {
         switch ($action) {
-            case 'usuario/eliminar':
-                if (!isset($_GET['id'])) {
-                    apiError('ID requerido');
-                }
-                $resultado = $controller->eliminarUsuario((int) $_GET['id']);
-                if ($resultado) {
-                    apiResponse(null, 'Usuario eliminado');
-                }
-                apiError('Error al eliminar usuario');
-                break;
             case 'staff_torneo/eliminar':
                 if (!isset($_GET['ejecutor']) || !isset($_GET['staff']) || !isset($_GET['torneo'])) {
                     apiError('Parámetros requeridos: ejecutor, staff, torneo');

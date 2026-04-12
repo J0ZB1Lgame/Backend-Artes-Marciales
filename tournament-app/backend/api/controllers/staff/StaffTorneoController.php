@@ -4,28 +4,18 @@ require_once __DIR__ . '/../../../../backend/config/conexion.php';
 require_once __DIR__ . '/../../../../backend/models/daos/staff/impl/StaffTorneoDAOImpl.php';
 require_once __DIR__ . '/../../../../backend/models/daos/staff/impl/ZonaDAOImpl.php';
 require_once __DIR__ . '/../../../../backend/models/daos/staff/impl/RolDAOImpl.php';
-require_once __DIR__ . '/../../../../backend/models/daos/staff/impl/LogDAOImpl.php';
-require_once __DIR__ . '/../../../../backend/models/daos/staff/impl/UsuarioDAOImpl.php';
-require_once __DIR__ . '/../../../../backend/models/daos/staff/impl/SesionDAOImpl.php';
 require_once __DIR__ . '/../../../../backend/models/daos/staff/impl/LuchadorDAOImpl.php';
 require_once __DIR__ . '/../../../../backend/models/entities/staff/StaffTorneo.php';
-require_once __DIR__ . '/../../../../backend/models/entities/staff/Usuario.php';
-require_once __DIR__ . '/../../../../backend/models/entities/staff/Sesion.php';
 require_once __DIR__ . '/../../../../backend/models/entities/staff/Luchador.php';
 require_once __DIR__ . '/../../../../backend/models/entities/staff/Zona.php';
 require_once __DIR__ . '/../../../../backend/models/entities/staff/Rol.php';
-require_once __DIR__ . '/../../../../backend/models/entities/staff/Log.php';
 
 class StaffTorneoController {
     private $staffTorneoDAO;
     private $zonaDAO;
     private $rolDAO;
-    private $logDAO;
-    private $usuarioDAO;
-    private $sesionDAO;
     private $luchadorDAO;
     private $conn;
-    private $sesionActual;
 
     public function __construct() {
         global $conn;
@@ -33,9 +23,6 @@ class StaffTorneoController {
         $this->staffTorneoDAO = new StaffTorneoDAOImpl();
         $this->zonaDAO = new ZonaDAOImpl();
         $this->rolDAO = new RolDAOImpl();
-        $this->logDAO = new LogDAOImpl();
-        $this->usuarioDAO = new UsuarioDAOImpl();
-        $this->sesionDAO = new SesionDAOImpl();
         $this->luchadorDAO = new LuchadorDAOImpl();
     }
 
@@ -62,7 +49,7 @@ class StaffTorneoController {
     public function registrarStaff($ejecutor, $datosStaff) {
         $staffTorneo = new StaffTorneo(null, $datosStaff['nombre'] ?? '');
         $resultado = $this->staffTorneoDAO->crear($staffTorneo);
-        $this->reportarLog($ejecutor, "Registrar staff en torneo: " . $staffTorneo->getNombre());
+        // Log removed
         return $resultado;
     }
 
@@ -87,7 +74,7 @@ class StaffTorneoController {
         foreach ($staffTorneos as $registro) {
             if ($registro->getNombre() === $torneo) {
                 $this->conn->query("UPDATE staff_torneo SET id_staff = {$staff} WHERE id_staff_torneo = {$registro->getIdStaffTorneo()}");
-                $this->reportarLog($ejecutor, "Asignar staff {$staff} al torneo {$torneo}");
+                // Log removed
                 return true;
             }
         }
@@ -95,7 +82,7 @@ class StaffTorneoController {
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("is", $staff, $torneo);
         $success = $stmt->execute();
-        $this->reportarLog($ejecutor, "Asignar staff {$staff} al torneo {$torneo}");
+        // Log removed
         return $success;
     }
 
@@ -103,7 +90,7 @@ class StaffTorneoController {
         $zonas = $this->zonaDAO->listarTodos();
         foreach ($zonas as $registro) {
             if ($registro->getNombre() === $zona) {
-                $this->reportarLog($ejecutor, "Asignar zona {$zona} al staff {$staff}");
+                // Log removed
                 return true;
             }
         }
@@ -111,7 +98,7 @@ class StaffTorneoController {
     }
 
     public function asignarRol($ejecutor, $staff, $rol) {
-        $this->reportarLog($ejecutor, "Asignar rol {$rol} al staff {$staff}");
+        // Log removed
         return true;
     }
 
@@ -121,145 +108,8 @@ class StaffTorneoController {
     }
 
     public function modificarZonaEnTorneo($ejecutor, $staff, string $nuevaZona) {
-        $this->reportarLog($ejecutor, "Modificar zona en torneo para staff {$staff} a {$nuevaZona}");
+        // Log removed
         return true;
-    }
-
-    // ======= Usuario =======
-    public function crearUsuario($usuario) {
-        if (is_array($usuario)) {
-            $usuario = new Usuario(
-                null,
-                $usuario['username'] ?? '',
-                $usuario['password'] ?? '',
-                $usuario['rol'] ?? 'staff',
-                isset($usuario['estado']) ? (bool) $usuario['estado'] : true
-            );
-        }
-        return $this->usuarioDAO->crear($usuario);
-    }
-
-    public function buscarUsuario(int $id) {
-        return $this->usuarioDAO->obtenerPorId($id);
-    }
-
-    public function mostrarUsuario(): array {
-        $usuarios = $this->usuarioDAO->listarTodos();
-        $response = [];
-
-        foreach ($usuarios as $usuario) {
-            $response[] = [
-                'id_usuario' => $usuario->getIdUsuario(),
-                'username' => $usuario->getUsername(),
-                'rol' => $usuario->getRol(),
-                'estado' => $usuario->getEstado()
-            ];
-        }
-
-        return $response;
-    }
-
-    public function actualizarInformacionUsuario($usuario) {
-        if (is_array($usuario)) {
-            $usuarioActual = $this->usuarioDAO->obtenerPorId($usuario['id_usuario'] ?? 0);
-            if (!$usuarioActual) {
-                return false;
-            }
-            if (isset($usuario['username'])) {
-                $usuarioActual->setUsername($usuario['username']);
-            }
-            if (isset($usuario['password'])) {
-                $usuarioActual->setPassword($usuario['password']);
-            }
-            if (isset($usuario['rol'])) {
-                $usuarioActual->setRol($usuario['rol']);
-            }
-            if (isset($usuario['estado'])) {
-                $usuarioActual->setEstado((bool) $usuario['estado']);
-            }
-            return $this->usuarioDAO->actualizar($usuarioActual);
-        }
-        return $this->usuarioDAO->actualizar($usuario);
-    }
-
-    public function actualizarUsername(int $id, string $username): bool {
-        $usuario = $this->usuarioDAO->obtenerPorId($id);
-        if (!$usuario) {
-            return false;
-        }
-        $usuario->setUsername($username);
-        return $this->usuarioDAO->actualizar($usuario);
-    }
-
-    public function actualizarPassword(int $id, string $password): bool {
-        $usuario = $this->usuarioDAO->obtenerPorId($id);
-        if (!$usuario) {
-            return false;
-        }
-        $usuario->setPassword($password);
-        return $this->usuarioDAO->actualizar($usuario);
-    }
-
-    public function verEstadoUsuario(int $id) {
-        $usuario = $this->usuarioDAO->obtenerPorId($id);
-        return $usuario ? $usuario->getEstado() : null;
-    }
-
-    public function eliminarUsuario(int $id): bool {
-        return $this->usuarioDAO->eliminarPorId($id);
-    }
-
-    // ======= Sesión =======
-    public function iniciarSesion(string $username, string $password): bool {
-        $usuario = $this->usuarioDAO->obtenerPorUsername($username);
-        if (!$usuario || $usuario->getPassword() !== $password || !$usuario->getEstado()) {
-            return false;
-        }
-        $this->sesionActual = new Sesion(null, date('Y-m-d H:i:s'), '', $usuario);
-        $this->sesionDAO->crearSesion($this->sesionActual);
-        return true;
-    }
-
-    public function buscarSesion(int $id) {
-        return $this->sesionDAO->buscarSesion($id);
-    }
-
-    public function cerrarSesion(): void {
-        if ($this->sesionActual && $this->sesionActual->getIdSesion()) {
-            $this->sesionDAO->cerrarSesion($this->sesionActual->getIdSesion());
-        }
-    }
-
-    public function validarPermisos(string $rolRequerido): bool {
-        $usuario = $this->getUsuarioLogueado();
-        if (!$usuario) {
-            return false;
-        }
-        return $usuario->getRol() === $rolRequerido || $usuario->getRol() === 'Administrador';
-    }
-
-    public function getUsuarioLogueado() {
-        return $this->sesionActual ? $this->sesionActual->getUsuarioActivo() : null;
-    }
-
-    // ======= Logs =======
-    public function registrarEvento(int $id): void {
-        $evento = new Log(null, "Evento registrado por usuario {$id}", date('Y-m-d H:i:s'), $id);
-        $this->logDAO->crearEvento($evento);
-    }
-
-    public function consultarLog(): array {
-        $logs = $this->logDAO->consultarHistorial();
-        $response = [];
-        foreach ($logs as $log) {
-            $response[] = [
-                'id_log' => $log->getIdLog(),
-                'accion' => $log->getAccion(),
-                'fecha' => $log->getFecha(),
-                'id_usuario' => $log->getIdUsuario()
-            ];
-        }
-        return $response;
     }
 
     // ======= Rol =======
@@ -422,12 +272,12 @@ class StaffTorneoController {
     }
 
     public function modificarRolEnTorneo($ejecutor, $staff, $nuevoRol) {
-        $this->reportarLog($ejecutor, "Modificar rol en torneo para staff {$staff} a {$nuevoRol}");
+        // Log removed
         return true;
     }
 
     public function modificarZonaEnTorneo($ejecutor, $staff, string $nuevaZona) {
-        $this->reportarLog($ejecutor, "Modificar zona en torneo para staff {$staff} a {$nuevaZona}");
+        // Log removed
         return true;
     }
 
@@ -436,7 +286,7 @@ class StaffTorneoController {
         $stmt = $this->conn->prepare($sql);
         $stmt->bind_param("is", $staff, $torneo);
         $success = $stmt->execute();
-        $this->reportarLog($ejecutor, "Eliminar staff {$staff} del torneo {$torneo}");
+        // Log removed
         return $success;
     }
 
@@ -790,11 +640,6 @@ class StaffTorneoController {
 
     public function eliminarLuchador(int $id): bool {
         return $this->luchadorDAO->eliminarPorId($id);
-    }
-
-    public function reportarLog(int $idStaff, string $descripcion): void {
-        $evento = new Log(null, $descripcion, date('Y-m-d H:i:s'), $idStaff);
-        $this->logDAO->crearEvento($evento);
     }
 }
 
