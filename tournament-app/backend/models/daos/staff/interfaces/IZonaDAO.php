@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/ICRUD.php';
 
-interface ITipoRolStaffDAO extends ICRUD {
+interface IZonaDAO extends ICRUD {
     public function listarTodos();
 }
 
