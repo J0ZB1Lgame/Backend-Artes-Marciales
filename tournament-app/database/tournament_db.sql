@@ -1,47 +1,45 @@
 CREATE DATABASE IF NOT EXISTS torneo_db;
 USE torneo_db;
 
--- Módulo Seguridad / Inicio de Sesión
-
-CREATE TABLE IF NOT EXISTS usuario (
+-- =========================
+-- TABLA: usuario
+-- =========================
+CREATE TABLE usuario (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    rol VARCHAR(50) DEFAULT 'staff',
-    estado BOOLEAN DEFAULT TRUE
+    password_hash VARCHAR(255) NOT NULL,
+    estado ENUM('activo', 'inactivo') DEFAULT 'activo',
+    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS sesion (
-    id_sesion INT AUTO_INCREMENT PRIMARY KEY,
-    fecha_inicio DATETIME NOT NULL,
-    fecha_fin DATETIME,
-    id_usuario_activo INT,
-    FOREIGN KEY (id_usuario_activo) REFERENCES usuario(id_usuario) ON DELETE SET NULL
-) ENGINE=InnoDB;
-
-CREATE TABLE IF NOT EXISTS log (
-    id_log INT AUTO_INCREMENT PRIMARY KEY,
-    accion VARCHAR(255) NOT NULL,
-    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-    id_usuario INT,
-    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE SET NULL
-) ENGINE=InnoDB;
-
--- Módulo Gestión del Staff
-
-CREATE TABLE IF NOT EXISTS rol (
+-- =========================
+-- TABLA: rol (del sistema)
+-- =========================
+CREATE TABLE rol (
     id_rol INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(50) NOT NULL UNIQUE,
+    nombre_rol VARCHAR(50) NOT NULL UNIQUE,
     descripcion VARCHAR(255)
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS zona (
-    id_zona INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    descripcion VARCHAR(255)
+-- =========================
+-- TABLA: usuario_rol
+-- =========================
+CREATE TABLE usuario_rol (
+    id_usuario INT,
+    id_rol INT,
+    PRIMARY KEY (id_usuario, id_rol),
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (id_rol) REFERENCES rol(id_rol)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS staff (
+-- =========================
+-- TABLA: staff
+-- =========================
+CREATE TABLE staff (
     id_staff INT AUTO_INCREMENT PRIMARY KEY,
     id_usuario INT NULL,
     nombre VARCHAR(100) NOT NULL,
@@ -50,40 +48,79 @@ CREATE TABLE IF NOT EXISTS staff (
     numero_documento VARCHAR(50) UNIQUE,
     telefono VARCHAR(20),
     email VARCHAR(100),
-    estado ENUM('activo','inactivo') DEFAULT 'activo',
-    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE SET NULL
+    estado ENUM('activo', 'inactivo') DEFAULT 'activo',
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS staff_torneo (
-    id_staff_torneo INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
+-- =========================
+-- TABLA: tipo_rol_staff
+-- =========================
+CREATE TABLE tipo_rol_staff (
+    id_tipo_rol INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL UNIQUE,
+    descripcion VARCHAR(255)
+) ENGINE=InnoDB;
+
+-- =========================
+-- TABLA: staff_rol
+-- =========================
+CREATE TABLE staff_rol (
     id_staff INT,
-    FOREIGN KEY (id_staff) REFERENCES staff(id_staff) ON DELETE SET NULL
+    id_tipo_rol INT,
+    fecha_asignacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_staff, id_tipo_rol),
+    FOREIGN KEY (id_staff) REFERENCES staff(id_staff)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (id_tipo_rol) REFERENCES tipo_rol_staff(id_tipo_rol)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- Módulo Luchador
-
-CREATE TABLE IF NOT EXISTS luchador (
-    id_luchador INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    especie VARCHAR(100),
-    nivel_poder_ki DOUBLE DEFAULT 0.0,
-    origen VARCHAR(100),
-    estado BOOLEAN DEFAULT TRUE
+-- =========================
+-- TABLA: turno
+-- =========================
+CREATE TABLE turno (
+    id_turno INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL
 ) ENGINE=InnoDB;
 
--- Datos semilla
+-- =========================
+-- TABLA: asignacion_turno
+-- =========================
+CREATE TABLE asignacion_turno (
+    id_asignacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_staff INT,
+    id_turno INT,
+    fecha DATE NOT NULL,
+    estado ENUM('activo', 'inactivo') DEFAULT 'activo',
+    FOREIGN KEY (id_staff) REFERENCES staff(id_staff)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+    FOREIGN KEY (id_turno) REFERENCES turno(id_turno)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+) ENGINE=InnoDB;
 
-INSERT INTO rol (nombre, descripcion) VALUES
-('Administrador', 'Control total del sistema'),
-('Coordinador', 'Organiza la logística del torneo'),
-('Árbitro', 'Juzga los combates'),
-('Médico', 'Atiende urgencias en el ring'),
+-- =========================
+-- DATOS SEMILLA: tipos de rol de staff
+-- =========================
+INSERT INTO tipo_rol_staff (nombre, descripcion) VALUES
+('Árbitro', 'Encargado de juzgar combates'),
+('Médico de Ringside', 'Atiende urgencias en el ring'),
+('Coordinador de Torneo', 'Organiza la logística del torneo'),
+('Juez', 'Evalúa puntuaciones'),
 ('Seguridad', 'Supervisa la seguridad del evento'),
 ('Técnico', 'Asiste con aspectos técnicos');
 
-INSERT INTO zona (nombre, descripcion) VALUES
-('Zona A', 'Área principal de combates'),
-('Zona B', 'Área secundaria de combates'),
-('Zona Médica', 'Área de atención médica'),
-('Zona VIP', 'Área para autoridades del torneo');
+-- =========================
+-- DATOS SEMILLA: turnos
+-- =========================
+INSERT INTO turno (nombre, hora_inicio, hora_fin) VALUES
+('Mañana', '06:00:00', '14:00:00'),
+('Tarde', '14:00:00', '22:00:00'),
+('Noche', '22:00:00', '06:00:00');

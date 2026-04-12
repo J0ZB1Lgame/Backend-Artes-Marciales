@@ -154,14 +154,6 @@ backend/
 - Controllers: `NombreController.php`
 - APIs: `nombre_modulo_api.php`
 
-## 🧩 Nota para Frontend
-
-El módulo de Staff ya está terminado en el backend para esta fase.
-
-- El endpoint principal de consumo es `backend/api/endpoints/staff/staff_api.php`.
-- Hay un endpoint extendido adicional en `backend/api/endpoints/staff/staff_extended_api.php` para rutas extra.
-- No hay trabajo backend adicional pendiente en Staff: pueden avanzar con la integración frontend directamente.
-
 ## 📝 Notas
 
 - `.env` está en `.gitignore` - Cada desarrollador usa sus propias credenciales

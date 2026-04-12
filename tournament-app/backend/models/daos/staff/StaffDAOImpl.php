@@ -1,16 +1,10 @@
 <?php
 
-require_once __DIR__ . '/../interfaces/IStaffDAO.php';
+require_once __DIR__ . '/IStaffDAO.php';
 require_once __DIR__ . '/../../entities/staff/Staff.php';
 require_once __DIR__ . '/../../../config/conexion.php';
-require_once __DIR__ . '/../../base/BaseDAO.php';
 
-class StaffDAOImpl extends BaseDAO implements IStaffDAO {
-
-    public function __construct() {
-        global $conn;
-        parent::__construct($conn);
-    }
+class StaffDAOImpl implements IStaffDAO {
 
     public function crear($staff) {
         global $conn;

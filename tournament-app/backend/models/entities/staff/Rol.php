@@ -1,23 +1,23 @@
 <?php
 
 class Rol {
-    private ?int $idRol;
-    private string $nombre;
-    private string $descripcion;
+    private $id_rol;
+    private $nombre_rol;
+    private $descripcion;
 
-    public function __construct(?int $idRol = null, string $nombre = '', string $descripcion = '') {
-        $this->idRol = $idRol;
-        $this->nombre = $nombre;
+    public function __construct($id_rol = null, $nombre_rol = null, $descripcion = null) {
+        $this->id_rol = $id_rol;
+        $this->nombre_rol = $nombre_rol;
         $this->descripcion = $descripcion;
     }
 
-    public function getIdRol(): ?int { return $this->idRol; }
-    public function getNombre(): string { return $this->nombre; }
-    public function getDescripcion(): string { return $this->descripcion; }
+    public function getId_rol() { return $this->id_rol; }
+    public function getNombre_rol() { return $this->nombre_rol; }
+    public function getDescripcion() { return $this->descripcion; }
 
-    public function setIdRol(int $idRol): void { $this->idRol = $idRol; }
-    public function setNombre(string $nombre): void { $this->nombre = $nombre; }
-    public function setDescripcion(string $descripcion): void { $this->descripcion = $descripcion; }
+    public function setId_rol($id_rol) { $this->id_rol = $id_rol; }
+    public function setNombre_rol($nombre_rol) { $this->nombre_rol = $nombre_rol; }
+    public function setDescripcion($descripcion) { $this->descripcion = $descripcion; }
 }
 
 ?>

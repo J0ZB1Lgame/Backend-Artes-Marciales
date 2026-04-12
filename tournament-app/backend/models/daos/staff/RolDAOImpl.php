@@ -1,25 +1,19 @@
 <?php
 
-require_once __DIR__ . '/../interfaces/IRolDAO.php';
+require_once __DIR__ . '/IRolDAO.php';
 require_once __DIR__ . '/../../entities/staff/Rol.php';
 require_once __DIR__ . '/../../../config/conexion.php';
-require_once __DIR__ . '/../../base/BaseDAO.php';
 
-class RolDAOImpl extends BaseDAO implements IRolDAO {
-
-    public function __construct() {
-        global $conn;
-        parent::__construct($conn);
-    }
+class RolDAOImpl implements IRolDAO {
 
     public function crear($rol) {
         global $conn;
-        $sql = "INSERT INTO rol (nombre, descripcion) VALUES (?, ?)";
+        $sql = "INSERT INTO rol (nombre_rol, descripcion) VALUES (?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ss", $rol->getNombre(), $rol->getDescripcion());
+        $stmt->bind_param("ss", $rol->getNombre_rol(), $rol->getDescripcion());
         
         if ($stmt->execute()) {
-            $rol->setIdRol($conn->insert_id);
+            $rol->setId_rol($conn->insert_id);
             return $rol;
         }
         return false;
@@ -34,16 +28,16 @@ class RolDAOImpl extends BaseDAO implements IRolDAO {
         $result = $stmt->get_result();
         
         if ($row = $result->fetch_assoc()) {
-            return new Rol($row['id_rol'], $row['nombre'], $row['descripcion']);
+            return new Rol($row['id_rol'], $row['nombre_rol'], $row['descripcion']);
         }
         return null;
     }
 
     public function actualizar($rol) {
         global $conn;
-        $sql = "UPDATE rol SET nombre=?, descripcion=? WHERE id_rol=?";
+        $sql = "UPDATE rol SET nombre_rol=?, descripcion=? WHERE id_rol=?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ssi", $rol->getNombre(), $rol->getDescripcion(), $rol->getIdRol());
+        $stmt->bind_param("ssi", $rol->getNombre_rol(), $rol->getDescripcion(), $rol->getId_rol());
         return $stmt->execute();
     }
 
@@ -62,7 +56,7 @@ class RolDAOImpl extends BaseDAO implements IRolDAO {
         $rolList = [];
         
         while ($row = $result->fetch_assoc()) {
-            $rolList[] = new Rol($row['id_rol'], $row['nombre'], $row['descripcion']);
+            $rolList[] = new Rol($row['id_rol'], $row['nombre_rol'], $row['descripcion']);
         }
         return $rolList;
     }
@@ -95,7 +89,7 @@ class RolDAOImpl extends BaseDAO implements IRolDAO {
         $rolList = [];
         
         while ($row = $result->fetch_assoc()) {
-            $rolList[] = new Rol($row['id_rol'], $row['nombre'], $row['descripcion']);
+            $rolList[] = new Rol($row['id_rol'], $row['nombre_rol'], $row['descripcion']);
         }
         return $rolList;
     }
