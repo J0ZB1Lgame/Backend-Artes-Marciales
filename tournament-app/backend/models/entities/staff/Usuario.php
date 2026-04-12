@@ -1,31 +1,37 @@
 <?php
 
 class Usuario {
-    private $id_usuario;
-    private $username;
-    private $password_hash;
-    private $estado;
-    private $fecha_creacion;
+    private ?int $idUsuario;
+    private string $username;
+    private string $password;
+    private string $rol;
+    private bool $estado;
 
-    public function __construct($id_usuario = null, $username = null, $password_hash = null, $estado = null, $fecha_creacion = null) {
-        $this->id_usuario = $id_usuario;
+    public function __construct(
+        ?int $idUsuario = null,
+        string $username = '',
+        string $password = '',
+        string $rol = '',
+        bool $estado = true
+    ) {
+        $this->idUsuario = $idUsuario;
         $this->username = $username;
-        $this->password_hash = $password_hash;
+        $this->password = $password;
+        $this->rol = $rol;
         $this->estado = $estado;
-        $this->fecha_creacion = $fecha_creacion;
     }
 
-    public function getId_usuario() { return $this->id_usuario; }
-    public function getUsername() { return $this->username; }
-    public function getPassword_hash() { return $this->password_hash; }
-    public function getEstado() { return $this->estado; }
-    public function getFecha_creacion() { return $this->fecha_creacion; }
+    public function getIdUsuario(): ?int { return $this->idUsuario; }
+    public function getUsername(): string { return $this->username; }
+    public function getPassword(): string { return $this->password; }
+    public function getRol(): string { return $this->rol; }
+    public function getEstado(): bool { return $this->estado; }
 
-    public function setId_usuario($id_usuario) { $this->id_usuario = $id_usuario; }
-    public function setUsername($username) { $this->username = $username; }
-    public function setPassword_hash($password_hash) { $this->password_hash = $password_hash; }
-    public function setEstado($estado) { $this->estado = $estado; }
-    public function setFecha_creacion($fecha_creacion) { $this->fecha_creacion = $fecha_creacion; }
+    public function setIdUsuario(int $idUsuario): void { $this->idUsuario = $idUsuario; }
+    public function setUsername(string $username): void { $this->username = $username; }
+    public function setPassword(string $password): void { $this->password = $password; }
+    public function setRol(string $rol): void { $this->rol = $rol; }
+    public function setEstado(bool $estado): void { $this->estado = $estado; }
 }
 
 ?>

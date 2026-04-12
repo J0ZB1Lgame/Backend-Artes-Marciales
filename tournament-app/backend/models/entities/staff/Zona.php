@@ -1,21 +1,25 @@
 <?php
 
-class Rol {
-    private ?int $idRol;
+class Zona {
+    private ?int $idZona;
     private string $nombre;
     private string $descripcion;
 
-    public function __construct(?int $idRol = null, string $nombre = '', string $descripcion = '') {
-        $this->idRol = $idRol;
+    public function __construct(
+        ?int $idZona = null,
+        string $nombre = '',
+        string $descripcion = ''
+    ) {
+        $this->idZona = $idZona;
         $this->nombre = $nombre;
         $this->descripcion = $descripcion;
     }
 
-    public function getIdRol(): ?int { return $this->idRol; }
+    public function getIdZona(): ?int { return $this->idZona; }
     public function getNombre(): string { return $this->nombre; }
     public function getDescripcion(): string { return $this->descripcion; }
 
-    public function setIdRol(int $idRol): void { $this->idRol = $idRol; }
+    public function setIdZona(int $idZona): void { $this->idZona = $idZona; }
     public function setNombre(string $nombre): void { $this->nombre = $nombre; }
     public function setDescripcion(string $descripcion): void { $this->descripcion = $descripcion; }
 }
