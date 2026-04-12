@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3307
--- Tiempo de generación: 13-04-2026 a las 01:04:58
+-- Tiempo de generación: 13-04-2026 a las 01:57:24
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -59,6 +59,19 @@ CREATE TABLE `rol` (
   `descripcion` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `rol`
+--
+
+INSERT INTO `rol` (`id_rol`, `nombre`, `descripcion`) VALUES
+(1, 'Juez de Campo', 'Supervisa combates en campo'),
+(2, 'Gestor de encuentros', 'Organiza y gestiona enfrentamientos'),
+(3, 'Director del torneo', 'Administra todo el torneo'),
+(4, 'Oficial de Inscripciones', 'Gestiona registros de participantes'),
+(5, 'Jefe de Seguridad Médica', 'Supervisa atención médica'),
+(6, 'Analista del torneo', 'Analiza resultados y desempeño'),
+(7, 'Usuario administrador', 'Control total del sistema');
+
 -- --------------------------------------------------------
 
 --
@@ -97,7 +110,7 @@ CREATE TABLE `usuario` (
   `username` varchar(50) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
   `estado` tinyint(1) DEFAULT NULL,
-  `id_rol` int(11) DEFAULT NULL
+  `rol` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -111,6 +124,19 @@ CREATE TABLE `zona` (
   `nombre` varchar(50) DEFAULT NULL,
   `descripcion` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `zona`
+--
+
+INSERT INTO `zona` (`id_zona`, `nombre`, `descripcion`) VALUES
+(1, 'Administración', 'Gestión administrativa del torneo'),
+(2, 'Combate', 'Área donde se realizan los combates'),
+(3, 'Jueces', 'Zona asignada a jueces'),
+(4, 'Encuentros', 'Organización de enfrentamientos'),
+(5, 'Inscripciones', 'Registro de participantes'),
+(6, 'Médica', 'Atención médica y primeros auxilios'),
+(7, 'Análisis', 'Evaluación y análisis del torneo');
 
 --
 -- Índices para tablas volcadas
@@ -155,8 +181,7 @@ ALTER TABLE `staff_torneo`
 -- Indices de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  ADD PRIMARY KEY (`id_usuario`),
-  ADD KEY `id_rol` (`id_rol`);
+  ADD PRIMARY KEY (`id_usuario`);
 
 --
 -- Indices de la tabla `zona`
@@ -184,7 +209,7 @@ ALTER TABLE `permiso`
 -- AUTO_INCREMENT de la tabla `rol`
 --
 ALTER TABLE `rol`
-  MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT de la tabla `sesion`
@@ -208,7 +233,7 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `zona`
 --
 ALTER TABLE `zona`
-  MODIFY `id_zona` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_zona` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Restricciones para tablas volcadas
@@ -238,12 +263,6 @@ ALTER TABLE `sesion`
 ALTER TABLE `staff_torneo`
   ADD CONSTRAINT `staff_torneo_ibfk_1` FOREIGN KEY (`id_rol`) REFERENCES `rol` (`id_rol`),
   ADD CONSTRAINT `staff_torneo_ibfk_2` FOREIGN KEY (`id_zona`) REFERENCES `zona` (`id_zona`);
-
---
--- Filtros para la tabla `usuario`
---
-ALTER TABLE `usuario`
-  ADD CONSTRAINT `usuario_ibfk_1` FOREIGN KEY (`id_rol`) REFERENCES `rol` (`id_rol`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
