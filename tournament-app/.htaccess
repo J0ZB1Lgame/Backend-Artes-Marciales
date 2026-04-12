@@ -1,0 +1,47 @@
+# Bloquear acceso a archivos sensibles
+<FilesMatch "^\.env|^\.git|\.sql$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Prevenir listado de directorios
+<IfModule mod_autoindex.c>
+    Options -Indexes
+</IfModule>
+
+# Bloquear acceso directo a carpetas sensibles
+<Directory "backend/config">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+</Directory>
+
+<Directory "backend/core">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+</Directory>
+
+<Directory "database">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+</Directory>
+
+# Headers de seguridad
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# Rewrite para APIs
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /Backend-Artes-Marciales/
+</IfModule>
