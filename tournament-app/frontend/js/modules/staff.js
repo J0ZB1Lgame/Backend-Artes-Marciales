@@ -4,7 +4,7 @@
 // NUNCA hace fetch() directo — siempre delega a api.js (apiGet, apiPost, etc.)
 // ─────────────────────────────────────────────────────────────────────────────
 
-const ENDPOINT = 'staff.php';
+const ENDPOINT = 'staff/staff_api.php';
 
 // ════════════════════════════════════════════════════════════════════════════
 // ESTADO LOCAL
