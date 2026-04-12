@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../daos/base/BaseDAO.php';
+require_once __DIR__ . '/../../base/BaseDAO.php';
 require_once __DIR__ . '/../interfaces/ILogDAO.php';
 require_once __DIR__ . '/../../../entities/login/Log.php';
 

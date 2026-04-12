@@ -70,6 +70,25 @@ class UsuarioController {
         return $this->usuarioDAO->eliminarPorId($id);
     }
 
+    public function validarPermisos(string $accion): bool {
+        $rolActual = $_SESSION['rol'] ?? null;
+        if (!$rolActual) {
+            return false;
+        }
+
+        $permisosPorRol = [
+            'Administrador' => ['*'],
+            'Coordinador' => ['listar', 'obtener', 'usuarios', 'turnos', 'registrar', 'roles-asignados'],
+            'staff' => ['iniciar-sesion', 'listar', 'usuarios']
+        ];
+
+        $permisos = $permisosPorRol[$rolActual] ?? [];
+        if (in_array('*', $permisos, true)) {
+            return true;
+        }
+        return in_array($accion, $permisos, true);
+    }
+
     public function jsonResponse($data, $message = "OK", $status = 200) {
         http_response_code($status);
         echo json_encode([

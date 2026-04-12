@@ -3,13 +3,13 @@
 class Sesion {
     private ?int $idSesion;
     private string $fechaInicio;
-    private string $fechaFin;
+    private bool $estado;
     private ?Usuario $usuarioActivo;
 
-    public function __construct(?int $idSesion, string $fechaInicio, string $fechaFin, ?Usuario $usuarioActivo) {
+    public function __construct(?int $idSesion = null, string $fechaInicio = '', bool $estado = true, ?Usuario $usuarioActivo = null) {
         $this->idSesion = $idSesion;
         $this->fechaInicio = $fechaInicio;
-        $this->fechaFin = $fechaFin;
+        $this->estado = $estado;
         $this->usuarioActivo = $usuarioActivo;
     }
 
@@ -29,12 +29,12 @@ class Sesion {
         $this->fechaInicio = $fechaInicio;
     }
 
-    public function getFechaFin(): string {
-        return $this->fechaFin;
+    public function getEstado(): bool {
+        return $this->estado;
     }
 
-    public function setFechaFin(string $fechaFin): void {
-        $this->fechaFin = $fechaFin;
+    public function setEstado(bool $estado): void {
+        $this->estado = $estado;
     }
 
     public function getUsuarioActivo(): ?Usuario {

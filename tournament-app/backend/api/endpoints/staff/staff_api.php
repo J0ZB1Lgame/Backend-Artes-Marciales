@@ -8,7 +8,7 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-W
 
 // ================== IMPORTS ==================
 
-require_once __DIR__ . '/../controllers/staff/StaffTorneoController.php';
+require_once __DIR__ . '/../../controllers/staff/StaffTorneoController.php';
 
 // ================== ROUTER ==================
 
@@ -54,6 +54,10 @@ try {
             $data = $controller->listarRolesAsignados($id_staff);
             $controller->jsonResponse($data, "Roles asignados listados");
 
+        } elseif ($action === 'permisos') {
+            $data = $controller->listarPermisos();
+            $controller->jsonResponse($data, "Permisos listados");
+
         } else {
             $controller->jsonError("Acción no válida", 404);
         }
@@ -90,6 +94,17 @@ try {
                 $controller->jsonResponse($resultado, "Turno asignado exitosamente", 201);
             } else {
                 $controller->jsonError("Error al asignar turno");
+            }
+
+        } elseif ($action === 'crear-permiso') {
+            if (!isset($datos['nombre'])) {
+                $controller->jsonError("Falta el nombre del permiso");
+            }
+            $resultado = $controller->crearPermiso($datos);
+            if ($resultado) {
+                $controller->jsonResponse($resultado, "Permiso creado exitosamente", 201);
+            } else {
+                $controller->jsonError("Error al crear permiso");
             }
 
         } else {

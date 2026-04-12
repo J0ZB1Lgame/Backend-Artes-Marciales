@@ -1,20 +1,32 @@
 <?php
 
-require_once __DIR__ . '/../../../../backend/config/conexion.php';
-require_once __DIR__ . '/../../../../backend/models/daos/staff/impl/StaffTorneoDAOImpl.php';
-require_once __DIR__ . '/../../../../backend/models/daos/staff/impl/ZonaDAOImpl.php';
-require_once __DIR__ . '/../../../../backend/models/daos/staff/impl/RolDAOImpl.php';
-require_once __DIR__ . '/../../../../backend/models/daos/staff/impl/LuchadorDAOImpl.php';
-require_once __DIR__ . '/../../../../backend/models/entities/staff/StaffTorneo.php';
-require_once __DIR__ . '/../../../../backend/models/entities/staff/Luchador.php';
-require_once __DIR__ . '/../../../../backend/models/entities/staff/Zona.php';
-require_once __DIR__ . '/../../../../backend/models/entities/staff/Rol.php';
+require_once __DIR__ . '/../../../config/conexion.php';
+require_once __DIR__ . '/../../../models/daos/staff/impl/StaffTorneoDAOImpl.php';
+require_once __DIR__ . '/../../../models/daos/staff/impl/ZonaDAOImpl.php';
+require_once __DIR__ . '/../../../models/daos/staff/impl/RolDAOImpl.php';
+require_once __DIR__ . '/../../../models/daos/staff/impl/LuchadorDAOImpl.php';
+require_once __DIR__ . '/../../../models/daos/staff/impl/PermisoDAOImpl.php';
+require_once __DIR__ . '/../../../models/daos/login/impl/UsuarioDAOImpl.php';
+require_once __DIR__ . '/../../../models/daos/login/impl/SesionDAOImpl.php';
+require_once __DIR__ . '/../../../models/daos/login/impl/LogDAOImpl.php';
+require_once __DIR__ . '/../../../models/entities/staff/StaffTorneo.php';
+require_once __DIR__ . '/../../../models/entities/staff/Luchador.php';
+require_once __DIR__ . '/../../../models/entities/staff/Zona.php';
+require_once __DIR__ . '/../../../models/entities/staff/Rol.php';
+require_once __DIR__ . '/../../../models/entities/staff/Permiso.php';
+require_once __DIR__ . '/../../../models/entities/login/Usuario.php';
+require_once __DIR__ . '/../../../models/entities/login/Sesion.php';
+require_once __DIR__ . '/../../../models/entities/login/Log.php';
 
 class StaffTorneoController {
     private $staffTorneoDAO;
     private $zonaDAO;
     private $rolDAO;
     private $luchadorDAO;
+    private $permisoDAO;
+    private $usuarioDAO;
+    private $sesionDAO;
+    private $logDAO;
     private $conn;
 
     public function __construct() {
@@ -24,6 +36,10 @@ class StaffTorneoController {
         $this->zonaDAO = new ZonaDAOImpl();
         $this->rolDAO = new RolDAOImpl();
         $this->luchadorDAO = new LuchadorDAOImpl();
+        $this->permisoDAO = new PermisoDAOImpl();
+        $this->usuarioDAO = new UsuarioDAOImpl();
+        $this->sesionDAO = new SesionDAOImpl();
+        $this->logDAO = new LogDAOImpl();
     }
 
     public function jsonResponse($data, $message = "OK", $status = 200) {
@@ -135,6 +151,18 @@ class StaffTorneoController {
             ];
         }
         return $response;
+    }
+
+    // ======= Permiso =======
+    public function listarPermisos(): array {
+        return $this->permisoDAO->obtenerTodos();
+    }
+
+    public function crearPermiso($permiso) {
+        if (is_array($permiso)) {
+            $permiso = new Permiso(null, $permiso['nombre'] ?? '');
+        }
+        return $this->permisoDAO->crear($permiso);
     }
 
     public function actualizarInformacionRol($rol) {
@@ -269,16 +297,6 @@ class StaffTorneoController {
 
     public function eliminarLuchador(int $id): bool {
         return $this->luchadorDAO->eliminarPorId($id);
-    }
-
-    public function modificarRolEnTorneo($ejecutor, $staff, $nuevoRol) {
-        // Log removed
-        return true;
-    }
-
-    public function modificarZonaEnTorneo($ejecutor, $staff, string $nuevaZona) {
-        // Log removed
-        return true;
     }
 
     public function eliminarStaffDeTorneo($ejecutor, $staff, $torneo) {
@@ -482,165 +500,5 @@ class StaffTorneoController {
         }
         return $response;
     }
-
-    // ======= Rol =======
-    public function crearRol($rol) {
-        if (is_array($rol)) {
-            $rol = new Rol(null, $rol['nombre'] ?? '', $rol['descripcion'] ?? '');
-        }
-        return $this->rolDAO->crear($rol);
-    }
-
-    public function buscarRol(int $id) {
-        return $this->rolDAO->obtenerPorId($id);
-    }
-
-    public function mostrarRol(): array {
-        $roles = $this->rolDAO->listarTodos();
-        $response = [];
-        foreach ($roles as $rol) {
-            $response[] = [
-                'id_rol' => $rol->getIdRol(),
-                'nombre' => $rol->getNombre(),
-                'descripcion' => $rol->getDescripcion()
-            ];
-        }
-        return $response;
-    }
-
-    public function actualizarInformacionRol($rol) {
-        if (is_array($rol)) {
-            $rolActual = $this->rolDAO->obtenerPorId($rol['id_rol'] ?? 0);
-            if (!$rolActual) {
-                return false;
-            }
-            if (isset($rol['nombre'])) {
-                $rolActual->setNombre($rol['nombre']);
-            }
-            if (isset($rol['descripcion'])) {
-                $rolActual->setDescripcion($rol['descripcion']);
-            }
-            return $this->rolDAO->actualizar($rolActual);
-        }
-        return $this->rolDAO->actualizar($rol);
-    }
-
-    public function eliminarRol(int $id): bool {
-        return $this->rolDAO->eliminarPorId($id);
-    }
-
-    // ======= Zona =======
-    public function crearZona($zona) {
-        if (is_array($zona)) {
-            $zona = new Zona(null, $zona['nombre'] ?? '', $zona['descripcion'] ?? '');
-        }
-        return $this->zonaDAO->crear($zona);
-    }
-
-    public function buscarZona(int $id) {
-        return $this->zonaDAO->obtenerPorId($id);
-    }
-
-    public function mostrarZona(): array {
-        $zonas = $this->zonaDAO->listarTodos();
-        $response = [];
-        foreach ($zonas as $zona) {
-            $response[] = [
-                'id_zona' => $zona->getIdZona(),
-                'nombre' => $zona->getNombre(),
-                'descripcion' => $zona->getDescripcion()
-            ];
-        }
-        return $response;
-    }
-
-    public function actualizarInformacionZona($zona) {
-        if (is_array($zona)) {
-            $zonaActual = $this->zonaDAO->obtenerPorId($zona['id_zona'] ?? 0);
-            if (!$zonaActual) {
-                return false;
-            }
-            if (isset($zona['nombre'])) {
-                $zonaActual->setNombre($zona['nombre']);
-            }
-            if (isset($zona['descripcion'])) {
-                $zonaActual->setDescripcion($zona['descripcion']);
-            }
-            return $this->zonaDAO->actualizar($zonaActual);
-        }
-        return $this->zonaDAO->actualizar($zona);
-    }
-
-    public function eliminarZona(int $id): bool {
-        return $this->zonaDAO->eliminarPorId($id);
-    }
-
-    // ======= Luchador =======
-    public function crearLuchador($luchador) {
-        if (is_array($luchador)) {
-            $luchador = new Luchador(
-                null,
-                $luchador['nombre'] ?? '',
-                $luchador['especie'] ?? '',
-                isset($luchador['nivelDePoderKi']) ? (float) $luchador['nivelDePoderKi'] : 0.0,
-                $luchador['origen'] ?? '',
-                isset($luchador['estado']) ? (bool) $luchador['estado'] : true
-            );
-        }
-        return $this->luchadorDAO->crear($luchador);
-    }
-
-    public function buscarLuchador(string $nombre) {
-        return $this->luchadorDAO->buscarPorNombre($nombre);
-    }
-
-    public function mostrarLuchadores(): array {
-        $luchadores = $this->luchadorDAO->listarTodos();
-        $response = [];
-        foreach ($luchadores as $luchador) {
-            $response[] = [
-                'id_luchador' => $luchador->getIdLuchador(),
-                'nombre' => $luchador->getNombre(),
-                'especie' => $luchador->getEspecie(),
-                'nivelDePoderKi' => $luchador->getNivelDePoderKi(),
-                'origen' => $luchador->getOrigen(),
-                'estado' => $luchador->getEstado()
-            ];
-        }
-        return $response;
-    }
-
-    public function actualizarInformacionLuchador($luchador) {
-        if (is_array($luchador)) {
-            $actual = $this->luchadorDAO->buscarPorNombre($luchador['nombre'] ?? '');
-            if (!$actual) {
-                return false;
-            }
-            if (isset($luchador['especie'])) {
-                $actual->setEspecie($luchador['especie']);
-            }
-            if (isset($luchador['nivelDePoderKi'])) {
-                $actual->setNivelDePoderKi((float) $luchador['nivelDePoderKi']);
-            }
-            if (isset($luchador['origen'])) {
-                $actual->setOrigen($luchador['origen']);
-            }
-            if (isset($luchador['estado'])) {
-                $actual->setEstado((bool) $luchador['estado']);
-            }
-            return $this->luchadorDAO->actualizar($actual);
-        }
-        return $this->luchadorDAO->actualizar($luchador);
-    }
-
-    public function verEstadoLuchador(int $id) {
-        $luchador = $this->luchadorDAO->obtenerPorId($id);
-        return $luchador ? $luchador->getEstado() : null;
-    }
-
-    public function eliminarLuchador(int $id): bool {
-        return $this->luchadorDAO->eliminarPorId($id);
-    }
 }
-
 ?>

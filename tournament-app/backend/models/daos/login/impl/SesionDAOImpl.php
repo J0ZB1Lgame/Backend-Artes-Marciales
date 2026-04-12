@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../daos/base/BaseDAO.php';
+require_once __DIR__ . '/../../base/BaseDAO.php';
 require_once __DIR__ . '/../interfaces/ISesionDAO.php';
 require_once __DIR__ . '/../../../entities/login/Sesion.php';
 require_once __DIR__ . '/../../../entities/login/Usuario.php';
@@ -13,26 +13,27 @@ class SesionDAOImpl extends BaseDAO implements ISesionDAO {
     }
 
     public function crearSesion($sesion): void {
-        $sql = "INSERT INTO sesion (fecha_inicio, fecha_fin, id_usuario) VALUES (?, ?, ?)";
+        $sql = "INSERT INTO sesion (fecha_inicio, fecha_fin, id_usuario_activo) VALUES (?, NULL, ?)";
         $stmt = $this->connection->prepare($sql);
         $idUsuario = $sesion->getUsuarioActivo() ? $sesion->getUsuarioActivo()->getIdUsuario() : null;
-        $stmt->bind_param("ssi", $sesion->getFechaInicio(), $sesion->getFechaFin(), $idUsuario);
+        $stmt->bind_param("si", $sesion->getFechaInicio(), $idUsuario);
         $stmt->execute();
         $sesion->setIdSesion($this->connection->insert_id);
     }
 
     public function buscarSesion(int $id) {
-        $sql = "SELECT s.*, u.username, u.rol FROM sesion s LEFT JOIN usuario u ON s.id_usuario = u.id_usuario WHERE s.id_sesion = ?";
+        $sql = "SELECT s.*, u.username, u.rol FROM sesion s LEFT JOIN usuario u ON s.id_usuario_activo = u.id_usuario WHERE s.id_sesion = ?";
         $stmt = $this->connection->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result();
         if ($row = $result->fetch_assoc()) {
             $usuario = null;
-            if ($row['id_usuario']) {
-                $usuario = new Usuario($row['id_usuario'], $row['username'], '', $row['rol'], true);
+            if ($row['id_usuario_activo']) {
+                $usuario = new Usuario($row['id_usuario_activo'], $row['username'], '', $row['rol'], true);
             }
-            return new Sesion($row['id_sesion'], $row['fecha_inicio'], $row['fecha_fin'], $usuario);
+            $estado = is_null($row['fecha_fin']);
+            return new Sesion($row['id_sesion'], $row['fecha_inicio'], $estado, $usuario);
         }
         return null;
     }
@@ -54,10 +55,11 @@ class SesionDAOImpl extends BaseDAO implements ISesionDAO {
     }
 
     public function actualizar($entidad) {
-        $sql = "UPDATE sesion SET fecha_inicio = ?, fecha_fin = ?, id_usuario = ? WHERE id_sesion = ?";
+        $sql = "UPDATE sesion SET fecha_inicio = ?, fecha_fin = ?, id_usuario_activo = ? WHERE id_sesion = ?";
         $stmt = $this->connection->prepare($sql);
         $idUsuario = $entidad->getUsuarioActivo() ? $entidad->getUsuarioActivo()->getIdUsuario() : null;
-        $stmt->bind_param("ssii", $entidad->getFechaInicio(), $entidad->getFechaFin(), $idUsuario, $entidad->getIdSesion());
+        $fechaFin = $entidad->getEstado() ? null : date('Y-m-d H:i:s');
+        $stmt->bind_param("ssii", $entidad->getFechaInicio(), $fechaFin, $idUsuario, $entidad->getIdSesion());
         return $stmt->execute();
     }
 

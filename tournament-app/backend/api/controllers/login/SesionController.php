@@ -18,22 +18,54 @@ class SesionController {
         $this->logDAO = new LogDAOImpl();
     }
 
-    public function iniciarSesion(string $username, string $password): array|false {
-        $usuario = $this->usuarioDAO->obtenerPorUsername($username);
-        if (!$usuario || !password_verify($password, $usuario->getPassword()) || !$usuario->getEstado()) {
+    public function iniciarSesion($usuario, $staffTorneo = null): array|false {
+        $username = null;
+        $password = null;
+        $staffTorneoInfo = null;
+
+        if (is_string($usuario)) {
+            $username = $usuario;
+        } elseif ($usuario instanceof Usuario) {
+            $username = $usuario->getUsername();
+            $password = $usuario->getPassword();
+        }
+
+        if (is_string($staffTorneo)) {
+            $password = $staffTorneo;
+        } elseif (is_int($staffTorneo)) {
+            $staffTorneoInfo = $staffTorneo;
+        } elseif (is_object($staffTorneo) && method_exists($staffTorneo, 'getIdStaffTorneo')) {
+            $staffTorneoInfo = $staffTorneo->getIdStaffTorneo();
+        }
+
+        if (!$username || !$password) {
             return false;
         }
-        $sesion = new Sesion(null, date('Y-m-d H:i:s'), '', $usuario);
+
+        $usuarioEntity = $this->usuarioDAO->obtenerPorUsername($username);
+        if (!$usuarioEntity || !password_verify($password, $usuarioEntity->getPassword()) || !$usuarioEntity->getEstado()) {
+            return false;
+        }
+
+        $sesion = new Sesion(null, date('Y-m-d H:i:s'), true, $usuarioEntity);
         $this->sesionDAO->crearSesion($sesion);
         $this->sesionActual = $sesion;
+
         // Registrar en log
-        $log = new Log(null, "Inicio de sesión: {$username}", date('Y-m-d H:i:s'), $usuario->getIdUsuario());
+        $log = new Log(null, "Inicio de sesión: {$username}", date('Y-m-d H:i:s'), $usuarioEntity->getIdUsuario());
         $this->logDAO->crearEvento($log);
-        return [
-            'idUsuario' => $usuario->getIdUsuario(),
-            'username' => $usuario->getUsername(),
-            'rol' => $usuario->getRol()
+
+        $response = [
+            'idUsuario' => $usuarioEntity->getIdUsuario(),
+            'username' => $usuarioEntity->getUsername(),
+            'rol' => $usuarioEntity->getRol()
         ];
+
+        if ($staffTorneoInfo !== null) {
+            $response['staffTorneo'] = $staffTorneoInfo;
+        }
+
+        return $response;
     }
 
     public function cerrarSesion(int $idSesion): void {
