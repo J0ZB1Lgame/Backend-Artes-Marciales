@@ -1,9 +1,9 @@
 <?php
 
-require_once __DIR__ . '/../../../../config/conexion.php';
-require_once __DIR__ . '/../../../../models/daos/login/impl/SesionDAOImpl.php';
-require_once __DIR__ . '/../../../../models/daos/login/impl/UsuarioDAOImpl.php';
-require_once __DIR__ . '/../../../../models/daos/login/impl/LogDAOImpl.php';
+require_once __DIR__ . '/../../../config/conexion.php';
+require_once __DIR__ . '/../../../models/daos/login/impl/SesionDAOImpl.php';
+require_once __DIR__ . '/../../../models/daos/login/impl/UsuarioDAOImpl.php';
+require_once __DIR__ . '/../../../models/daos/login/impl/LogDAOImpl.php';
 
 class SesionController {
     private $sesionDAO;

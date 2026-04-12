@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../../../../config/conexion.php';
-require_once __DIR__ . '/../../../../models/daos/login/impl/UsuarioDAOImpl.php';
+require_once __DIR__ . '/../../../config/conexion.php';
+require_once __DIR__ . '/../../../models/daos/login/impl/UsuarioDAOImpl.php';
 
 class UsuarioController {
     private $usuarioDAO;
