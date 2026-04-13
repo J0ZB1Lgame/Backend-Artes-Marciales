@@ -47,7 +47,7 @@ try {
         }
         switch ($action) {
             // ================== AUTENTICACIÓN ==================
-            
+            case 'login':
             case 'iniciar-sesion':
                 if (!isset($datos['username']) || !isset($datos['password'])) {
                     apiError('Faltan parámetros: username, password');
@@ -59,7 +59,7 @@ try {
                 apiError('Usuario o contraseña inválidos', 401);
                 break;
             
-            
+            case 'logout':
             case 'cerrar-sesion':
                 if (!isset($datos['id_sesion'])) {
                     apiError('Falta id_sesion');
@@ -75,6 +75,28 @@ try {
                     apiResponse($resultado, 'Usuario creado', 201);
                 }
                 apiError('Error al crear usuario');
+                break;
+            
+            case 'actualizar-usuario':
+                if (!isset($datos['id_usuario'])) {
+                    apiError('ID de usuario requerido');
+                }
+                $resultado = $usuarioController->actualizarInformacion($datos);
+                if ($resultado) {
+                    apiResponse(null, 'Usuario actualizado');
+                }
+                apiError('Error al actualizar usuario');
+                break;
+            
+            case 'actualizar-password':
+                if (!isset($datos['id_usuario']) || !isset($datos['password'])) {
+                    apiError('Faltan parámetros: id_usuario, password');
+                }
+                $resultado = $usuarioController->actualizarPassword((int) $datos['id_usuario'], $datos['password']);
+                if ($resultado) {
+                    apiResponse(null, 'Password actualizado');
+                }
+                apiError('Error al actualizar password');
                 break;
             
             default:

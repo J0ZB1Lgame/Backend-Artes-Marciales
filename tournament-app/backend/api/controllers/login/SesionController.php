@@ -47,6 +47,9 @@ class SesionController {
             return false;
         }
 
+        // Cerrar sesiones activas previas del mismo usuario
+        $this->sesionDAO->cerrarSesionesActivas($usuarioEntity->getIdUsuario());
+
         $sesion = new Sesion(null, date('Y-m-d H:i:s'), true, $usuarioEntity);
         $this->sesionDAO->crearSesion($sesion);
         $this->sesionActual = $sesion;

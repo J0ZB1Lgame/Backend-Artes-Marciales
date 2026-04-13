@@ -167,7 +167,7 @@ ALTER TABLE `rol`
 --
 ALTER TABLE `sesion`
   ADD PRIMARY KEY (`id_sesion`),
-  ADD UNIQUE KEY `id_usuario` (`id_usuario`);
+  ADD KEY `id_usuario` (`id_usuario`);
 
 --
 -- Indices de la tabla `staff_torneo`

@@ -50,6 +50,14 @@ class SesionDAOImpl extends BaseDAO implements ISesionDAO {
         $stmt->execute();
     }
 
+    public function cerrarSesionesActivas(int $idUsuario): void {
+        $sql = "UPDATE sesion SET fecha_fin = ? WHERE id_usuario = ? AND fecha_fin IS NULL";
+        $stmt = $this->connection->prepare($sql);
+        $fechaFin = date('Y-m-d H:i:s');
+        $stmt->bind_param("si", $fechaFin, $idUsuario);
+        $stmt->execute();
+    }
+
     public function crear($entidad) {
         $this->crearSesion($entidad);
     }

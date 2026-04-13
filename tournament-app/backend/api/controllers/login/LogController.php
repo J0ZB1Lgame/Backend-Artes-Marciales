@@ -17,7 +17,17 @@ class LogController {
     }
 
     public function consultarLog(): array {
-        return $this->logDAO->consultarHistorial();
+        $logs = $this->logDAO->consultarHistorial();
+        $logsArray = [];
+        foreach ($logs as $log) {
+            $logsArray[] = [
+                'idLog' => $log->getIdLog(),
+                'accion' => $log->getAccion(),
+                'fecha' => $log->getFecha(),
+                'idUsuario' => $log->getIdUsuario()
+            ];
+        }
+        return $logsArray;
     }
 
     public function jsonResponse($data, $message = "OK", $status = 200) {
