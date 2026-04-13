@@ -14,7 +14,13 @@ class LogDAOImpl extends BaseDAO implements ILogDAO {
     public function crearEvento($evento): void {
         $sql = "INSERT INTO log (accion, fecha, id_usuario) VALUES (?, ?, ?)";
         $stmt = $this->connection->prepare($sql);
-        $stmt->bind_param("ssi", $evento->getAccion(), $evento->getFecha(), $evento->getIdUsuario());
+        
+        // Guardar valores en variables locales para bind_param
+        $accion = $evento->getAccion();
+        $fecha = $evento->getFecha();
+        $idUsuario = $evento->getIdUsuario();
+        
+        $stmt->bind_param("ssi", $accion, $fecha, $idUsuario);
         $stmt->execute();
         $evento->setIdLog($this->connection->insert_id);
     }
@@ -48,7 +54,14 @@ class LogDAOImpl extends BaseDAO implements ILogDAO {
     public function actualizar($entidad) {
         $sql = "UPDATE log SET accion = ?, fecha = ?, id_usuario = ? WHERE id_log = ?";
         $stmt = $this->connection->prepare($sql);
-        $stmt->bind_param("ssii", $entidad->getAccion(), $entidad->getFecha(), $entidad->getIdUsuario(), $entidad->getIdLog());
+        
+        // Guardar valores en variables locales para bind_param
+        $accion = $entidad->getAccion();
+        $fecha = $entidad->getFecha();
+        $idUsuario = $entidad->getIdUsuario();
+        $idLog = $entidad->getIdLog();
+        
+        $stmt->bind_param("ssii", $accion, $fecha, $idUsuario, $idLog);
         return $stmt->execute();
     }
 

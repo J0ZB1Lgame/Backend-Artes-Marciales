@@ -46,6 +46,8 @@ try {
             $datos = [];
         }
         switch ($action) {
+            // ================== AUTENTICACIÓN ==================
+            
             case 'iniciar-sesion':
                 if (!isset($datos['username']) || !isset($datos['password'])) {
                     apiError('Faltan parámetros: username, password');
@@ -56,15 +58,8 @@ try {
                 }
                 apiError('Usuario o contraseña inválidos', 401);
                 break;
-            case 'crear-usuario':
-                // Validar que el solicitante sea admin (asumir que se pasa en header o algo, pero por simplicidad, permitir solo si rol es admin)
-                // Para este ejemplo, asumir que se valida en frontend o agregar lógica
-                $resultado = $usuarioController->crearUsuario($datos);
-                if ($resultado) {
-                    apiResponse($resultado, 'Usuario creado', 201);
-                }
-                apiError('Error al crear usuario');
-                break;
+            
+            
             case 'cerrar-sesion':
                 if (!isset($datos['id_sesion'])) {
                     apiError('Falta id_sesion');
@@ -72,6 +67,16 @@ try {
                 $sesionController->cerrarSesion((int) $datos['id_sesion']);
                 apiResponse(null, 'Sesión cerrada', 200);
                 break;
+            
+            // ================== USUARIOS ==================
+            case 'crear-usuario':
+                $resultado = $usuarioController->crearUsuario($datos);
+                if ($resultado) {
+                    apiResponse($resultado, 'Usuario creado', 201);
+                }
+                apiError('Error al crear usuario');
+                break;
+            
             default:
                 apiError('Acción no válida', 404);
         }

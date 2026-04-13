@@ -13,10 +13,14 @@ class SesionDAOImpl extends BaseDAO implements ISesionDAO {
     }
 
     public function crearSesion($sesion): void {
-        $sql = "INSERT INTO sesion (fecha_inicio, fecha_fin, id_usuario_activo) VALUES (?, NULL, ?)";
+        $sql = "INSERT INTO sesion (fecha_inicio, fecha_fin, id_usuario) VALUES (?, NULL, ?)";
         $stmt = $this->connection->prepare($sql);
+        
+        // Guardar valores en variables locales para bind_param
+        $fechaInicio = $sesion->getFechaInicio();
         $idUsuario = $sesion->getUsuarioActivo() ? $sesion->getUsuarioActivo()->getIdUsuario() : null;
-        $stmt->bind_param("si", $sesion->getFechaInicio(), $idUsuario);
+        
+        $stmt->bind_param("si", $fechaInicio, $idUsuario);
         $stmt->execute();
         $sesion->setIdSesion($this->connection->insert_id);
     }
@@ -57,9 +61,14 @@ class SesionDAOImpl extends BaseDAO implements ISesionDAO {
     public function actualizar($entidad) {
         $sql = "UPDATE sesion SET fecha_inicio = ?, fecha_fin = ?, id_usuario_activo = ? WHERE id_sesion = ?";
         $stmt = $this->connection->prepare($sql);
+        
+        // Guardar valores en variables locales para bind_param
+        $fechaInicio = $entidad->getFechaInicio();
         $idUsuario = $entidad->getUsuarioActivo() ? $entidad->getUsuarioActivo()->getIdUsuario() : null;
         $fechaFin = $entidad->getEstado() ? null : date('Y-m-d H:i:s');
-        $stmt->bind_param("ssii", $entidad->getFechaInicio(), $fechaFin, $idUsuario, $entidad->getIdSesion());
+        $idSesion = $entidad->getIdSesion();
+        
+        $stmt->bind_param("ssii", $fechaInicio, $fechaFin, $idUsuario, $idSesion);
         return $stmt->execute();
     }
 

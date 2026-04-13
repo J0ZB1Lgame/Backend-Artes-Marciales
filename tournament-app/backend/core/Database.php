@@ -29,7 +29,7 @@ class Database {
 
         // Variables con fallback a hardcoded defaults
         $host = $envVars['DB_HOST'] ?? 'localhost';
-        $dbname = $envVars['DB_NAME'] ?? 'torneo_db';
+        $dbname = $envVars['DB_NAME'] ?? 'torneo_new';
         $user = $envVars['DB_USER'] ?? 'root';
         $pass = $envVars['DB_PASS'] ?? '';
         $port = $envVars['DB_PORT'] ?? 3306;
