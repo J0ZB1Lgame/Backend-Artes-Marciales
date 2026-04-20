@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../interfaces/IRolDAO.php';
 require_once __DIR__ . '/../../../entities/staff/Rol.php';
-require_once __DIR__ . '/../../../config/conexion.php';
+require_once __DIR__ . '/../../../../config/conexion.php';
 require_once __DIR__ . '/../../base/BaseDAO.php';
 
 class RolDAOImpl extends BaseDAO implements IRolDAO {

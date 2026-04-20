@@ -361,7 +361,12 @@ class StaffTorneoController {
     }
 
     public function revocarRol(int $id_staff, int $id_tipo_rol): bool {
-        return false;
+        $sql = "UPDATE staff_torneo SET id_rol = NULL 
+            WHERE id_staff_torneo = ? AND id_rol = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param("ii", $id_staff, $id_tipo_rol);
+        $stmt->execute();
+        return $stmt->affected_rows > 0;
     }
 
     // ======= Usuario =======

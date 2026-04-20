@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../interfaces/IZonaDAO.php';
 require_once __DIR__ . '/../../../entities/staff/Zona.php';
-require_once __DIR__ . '/../../../config/conexion.php';
+require_once __DIR__ . '/../../../../config/conexion.php';
 require_once __DIR__ . '/../../base/BaseDAO.php';
 
 class ZonaDAOImpl extends BaseDAO implements IZonaDAO {

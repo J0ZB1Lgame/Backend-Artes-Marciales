@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../interfaces/IStaffDAO.php';
 require_once __DIR__ . '/../../../entities/staff/Staff.php';
-require_once __DIR__ . '/../../../config/conexion.php';
+require_once __DIR__ . '/../../../../config/conexion.php';
 require_once __DIR__ . '/../../base/BaseDAO.php';
 
 class StaffDAOImpl extends BaseDAO implements IStaffDAO {
