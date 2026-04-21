@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3307
--- Tiempo de generación: 13-04-2026 a las 01:57:24
+-- Tiempo de generación: 21-04-2026 a las 17:59:34
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -99,6 +99,13 @@ CREATE TABLE `staff_torneo` (
   `id_zona` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `staff_torneo`
+--
+
+INSERT INTO `staff_torneo` (`id_staff_torneo`, `nombre`, `id_rol`, `id_zona`) VALUES
+(2, 'Nuevo Nombre', 1, 1);
+
 -- --------------------------------------------------------
 
 --
@@ -110,7 +117,7 @@ CREATE TABLE `usuario` (
   `username` varchar(50) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
   `estado` tinyint(1) DEFAULT NULL,
-  `rol` varchar(50) DEFAULT NULL
+  `id_staff_torneo` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -167,7 +174,7 @@ ALTER TABLE `rol`
 --
 ALTER TABLE `sesion`
   ADD PRIMARY KEY (`id_sesion`),
-  ADD KEY `id_usuario` (`id_usuario`);
+  ADD UNIQUE KEY `id_usuario` (`id_usuario`);
 
 --
 -- Indices de la tabla `staff_torneo`
@@ -181,7 +188,8 @@ ALTER TABLE `staff_torneo`
 -- Indices de la tabla `usuario`
 --
 ALTER TABLE `usuario`
-  ADD PRIMARY KEY (`id_usuario`);
+  ADD PRIMARY KEY (`id_usuario`),
+  ADD KEY `fk_usuario_staff` (`id_staff_torneo`);
 
 --
 -- Indices de la tabla `zona`
@@ -221,7 +229,7 @@ ALTER TABLE `sesion`
 -- AUTO_INCREMENT de la tabla `staff_torneo`
 --
 ALTER TABLE `staff_torneo`
-  MODIFY `id_staff_torneo` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id_staff_torneo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`
@@ -263,6 +271,12 @@ ALTER TABLE `sesion`
 ALTER TABLE `staff_torneo`
   ADD CONSTRAINT `staff_torneo_ibfk_1` FOREIGN KEY (`id_rol`) REFERENCES `rol` (`id_rol`),
   ADD CONSTRAINT `staff_torneo_ibfk_2` FOREIGN KEY (`id_zona`) REFERENCES `zona` (`id_zona`);
+
+--
+-- Filtros para la tabla `usuario`
+--
+ALTER TABLE `usuario`
+  ADD CONSTRAINT `fk_usuario_staff` FOREIGN KEY (`id_staff_torneo`) REFERENCES `staff_torneo` (`id_staff_torneo`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
