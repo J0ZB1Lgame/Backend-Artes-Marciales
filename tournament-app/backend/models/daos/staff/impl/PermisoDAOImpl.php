@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../interfaces/IPermisoDAO.php';
 require_once __DIR__ . '/../../../entities/staff/Permiso.php';
-require_once __DIR__ . '/../../../config/conexion.php';
+require_once __DIR__ . '/../../../../config/conexion.php';
 require_once __DIR__ . '/../../base/BaseDAO.php';
 
 class PermisoDAOImpl extends BaseDAO implements IPermisoDAO {

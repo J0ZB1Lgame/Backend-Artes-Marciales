@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../interfaces/ILuchadorDAO.php';
 require_once __DIR__ . '/../../../entities/staff/Luchador.php';
-require_once __DIR__ . '/../../../config/conexion.php';
+require_once __DIR__ . '/../../../../config/conexion.php';
 require_once __DIR__ . '/../../base/BaseDAO.php';
 
 class LuchadorDAOImpl extends BaseDAO implements ILuchadorDAO {
