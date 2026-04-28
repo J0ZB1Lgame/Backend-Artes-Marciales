@@ -1,7 +1,7 @@
 // frontend/js/api.js
 const USE_MOCK = false; // ← cambiar a false cuando backend corrija .htaccess
 
-const BASE_URL = 'http://localhost/tournament-app/backend/api/endpoints';
+const BASE_URL = 'http://localhost/Backend-Artes-Marciales/tournament-app/backend/api/endpoints';
 
 // ── Endpoints correctos según staff_api.php y staff_extended_api.php ──
 const EP_STAFF = 'staff/staff_api.php';

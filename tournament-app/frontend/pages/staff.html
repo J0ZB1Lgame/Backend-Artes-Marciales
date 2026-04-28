@@ -4,80 +4,875 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión del Staff — World Martial Arts Tournament</title>
-    <link rel="stylesheet" href="../css/staff.css">
+    <title>Gestión de Staff — Budokai Martial Arts</title>
+    <style>
+        /* ══ Reset & Base ════════════════════════════════════════════ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #05050f;
+            --bg2: #0b0b1a;
+            --bg3: #0f0f22;
+            --surface: #11112a;
+            --surface2: #161630;
+            --border: #1e1e40;
+            --border2: #252550;
+            --cyan: #00e5ff;
+            --cyan-dim: rgba(0, 229, 255, .12);
+            --cyan-glow: rgba(0, 229, 255, .25);
+            --green: #00e676;
+            --green-dim: rgba(0, 230, 118, .15);
+            --orange: #ff9100;
+            --orange-dim: rgba(255, 145, 0, .15);
+            --blue-lt: #448aff;
+            --blue-dim: rgba(68, 138, 255, .15);
+            --red: #ff1744;
+            --red-dim: rgba(255, 23, 68, .15);
+            --txt: #e0e0ff;
+            --txt2: #8888aa;
+            --txt3: #44446a;
+            --sidebar-w: 68px;
+            --font: 'Segoe UI', system-ui, sans-serif;
+            --font-mono: 'Courier New', monospace;
+        }
+
+        html,
+        body {
+            height: 100%;
+            background: var(--bg);
+            color: var(--txt);
+            font-family: var(--font);
+            font-size: 13px;
+        }
+
+        /* ══ Layout ══════════════════════════════════════════════════ */
+        .layout {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* ══ Sidebar ═════════════════════════════════════════════════ */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 14px 0;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+
+        .logo-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--cyan);
+            background: var(--cyan-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 16px;
+            color: var(--cyan);
+            margin-bottom: 16px;
+            box-shadow: 0 0 14px var(--cyan-glow);
+        }
+
+        .nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 10px 6px;
+            width: 56px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--txt3);
+            font-size: 9px;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            transition: all .15s;
+            border: 1px solid transparent;
+        }
+
+        .nav-link:hover {
+            color: var(--txt2);
+            background: var(--surface);
+        }
+
+        .nav-link.active {
+            color: var(--cyan);
+            background: var(--cyan-dim);
+            border-color: rgba(0, 229, 255, .2);
+            box-shadow: 0 0 10px var(--cyan-glow);
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        /* ══ Main ════════════════════════════════════════════════════ */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ══ Topbar ══════════════════════════════════════════════════ */
+        .topbar {
+            background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .brand-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--cyan);
+        }
+
+        .brand-sub {
+            font-size: 9px;
+            color: var(--txt3);
+            letter-spacing: .08em;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--cyan-dim);
+            border: 1px solid rgba(0, 229, 255, .2);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 11px;
+            color: var(--cyan);
+        }
+
+        /* ══ Contenido ═══════════════════════════════════════════════ */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 28px;
+        }
+
+        .content::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 4px;
+        }
+
+        /* ══ Encabezado de página ════════════════════════════════════ */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .page-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-icon {
+            font-size: 20px;
+            color: var(--red);
+        }
+
+        .page-title {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--txt);
+        }
+
+        /* ══ Stats ═══════════════════════════════════════════════════ */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--txt2);
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .stat-num {
+            font-size: 28px;
+            font-weight: 900;
+        }
+
+        .stat--total .stat-num {
+            color: var(--cyan);
+        }
+
+        .stat--arb .stat-num {
+            color: var(--green);
+        }
+
+        .stat--seg .stat-num {
+            color: var(--orange);
+        }
+
+        .stat--mant .stat-num {
+            color: var(--blue-lt);
+        }
+
+        /* ══ Toolbar ═════════════════════════════════════════════════ */
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .search-wrap {
+            position: relative;
+            flex: 1;
+            max-width: 320px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--txt3);
+            font-size: 14px;
+        }
+
+        #search-input {
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 7px;
+            padding: 8px 12px 8px 32px;
+            color: var(--txt);
+            font-size: 12px;
+            outline: none;
+            transition: border-color .15s;
+        }
+
+        #search-input:focus {
+            border-color: var(--cyan);
+        }
+
+        #search-input::placeholder {
+            color: var(--txt3);
+        }
+
+        #filter-rol {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 7px;
+            padding: 8px 12px;
+            color: var(--txt);
+            font-size: 12px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        #filter-rol option {
+            background: var(--bg2);
+        }
+
+        .btn-reload {
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 7px;
+            padding: 8px 12px;
+            color: var(--txt2);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all .15s;
+        }
+
+        .btn-reload:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        /* Botón primario cyan */
+        .btn-primary {
+            background: var(--cyan);
+            color: #000;
+            border: none;
+            border-radius: 7px;
+            padding: 9px 20px;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: opacity .15s, box-shadow .15s;
+            box-shadow: 0 0 14px var(--cyan-glow);
+        }
+
+        .btn-primary:hover {
+            opacity: .88;
+            box-shadow: 0 0 22px var(--cyan-glow);
+        }
+
+        /* ══ Tabla ═══════════════════════════════════════════════════ */
+        .table-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background: var(--surface2);
+            border-bottom: 1px solid var(--border2);
+        }
+
+        th {
+            padding: 12px 16px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--txt3);
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background .12s;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: rgba(0, 229, 255, .04);
+        }
+
+        td {
+            padding: 12px 16px;
+        }
+
+        .td-num {
+            color: var(--txt3);
+            font-family: var(--font-mono);
+            font-size: 12px;
+        }
+
+        .td-id {
+            color: var(--txt2);
+            font-family: var(--font-mono);
+            font-size: 11px;
+        }
+
+        .td-nombre {
+            font-weight: 600;
+        }
+
+        .td-contacto {
+            color: var(--txt2);
+            font-size: 12px;
+        }
+
+        .td-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        /* ══ Badges ══════════════════════════════════════════════════ */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+
+        .badge-arb {
+            background: var(--green-dim);
+            color: var(--green);
+            border: 1px solid rgba(0, 230, 118, .3);
+        }
+
+        .badge-seg {
+            background: var(--orange-dim);
+            color: var(--orange);
+            border: 1px solid rgba(255, 145, 0, .3);
+        }
+
+        .badge-mant {
+            background: var(--blue-dim);
+            color: var(--blue-lt);
+            border: 1px solid rgba(68, 138, 255, .3);
+        }
+
+        .badge-default {
+            background: var(--surface2);
+            color: var(--txt2);
+            border: 1px solid var(--border2);
+        }
+
+        .badge-activo {
+            background: var(--green-dim);
+            color: var(--green);
+            border: 1px solid rgba(0, 230, 118, .3);
+        }
+
+        .badge-inactivo {
+            background: var(--red-dim);
+            color: var(--red);
+            border: 1px solid rgba(255, 23, 68, .3);
+        }
+
+        /* ══ Botones de acción ═══════════════════════════════════════ */
+        .btn-edit {
+            background: var(--cyan-dim);
+            border: 1px solid rgba(0, 229, 255, .3);
+            border-radius: 5px;
+            padding: 5px 12px;
+            color: var(--cyan);
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            transition: all .12s;
+        }
+
+        .btn-edit:hover {
+            background: rgba(0, 229, 255, .22);
+        }
+
+        .btn-delete {
+            background: var(--red-dim);
+            border: 1px solid rgba(255, 23, 68, .3);
+            border-radius: 5px;
+            padding: 5px 12px;
+            color: var(--red);
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            transition: all .12s;
+        }
+
+        .btn-delete:hover {
+            background: rgba(255, 23, 68, .22);
+        }
+
+        /* ══ Loading / empty ═════════════════════════════════════════ */
+        #loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: var(--txt3);
+            font-size: 13px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border2);
+            border-top-color: var(--cyan);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #no-data {
+            display: none;
+            text-align: center;
+            padding: 50px;
+            color: var(--txt3);
+        }
+
+        #no-data p {
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        /* ══ Modal overlay ═══════════════════════════════════════════ */
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .75);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            backdrop-filter: blur(4px);
+        }
+
+        .overlay.open {
+            display: flex;
+        }
+
+        /* ══ Modal form ══════════════════════════════════════════════ */
+        .modal-box {
+            background: var(--bg2);
+            border: 1px solid var(--border2);
+            border-radius: 12px;
+            width: 520px;
+            max-width: 95vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 26px;
+            animation: slideUp .2s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-box::before {
+            content: '';
+            display: block;
+            height: 2px;
+            margin: -26px -26px 20px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title-text {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--cyan);
+        }
+
+        .btn-x {
+            background: none;
+            border: 1px solid var(--border2);
+            border-radius: 5px;
+            width: 28px;
+            height: 28px;
+            color: var(--txt2);
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .12s;
+        }
+
+        .btn-x:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        /* Grid formulario */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--cyan);
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        select {
+            background: rgba(0, 229, 255, .05);
+            border: 1px solid var(--border2);
+            border-radius: 6px;
+            padding: 9px 11px;
+            color: var(--txt);
+            font-size: 12px;
+            outline: none;
+            transition: border-color .15s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--cyan);
+        }
+
+        input::placeholder {
+            color: var(--txt3);
+        }
+
+        select option {
+            background: var(--bg2);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-cancel {
+            background: none;
+            border: 1px solid var(--border2);
+            border-radius: 6px;
+            padding: 9px 18px;
+            color: var(--txt2);
+            cursor: pointer;
+            font-size: 12px;
+            transition: all .12s;
+        }
+
+        .btn-cancel:hover {
+            border-color: var(--txt2);
+            color: var(--txt);
+        }
+
+        #btn-submit:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+        }
+
+        /* ══ Confirm ═════════════════════════════════════════════════ */
+        .confirm-box {
+            background: var(--bg2);
+            border: 1px solid rgba(255, 23, 68, .4);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            width: 360px;
+            max-width: 92vw;
+            animation: slideUp .2s ease;
+        }
+
+        .confirm-box::before {
+            content: '';
+            display: block;
+            height: 2px;
+            margin: -30px -30px 22px;
+            background: linear-gradient(90deg, transparent, var(--red), transparent);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .confirm-box h3 {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--red);
+            margin-bottom: 10px;
+        }
+
+        .confirm-box p {
+            color: var(--txt2);
+            font-size: 13px;
+            margin-bottom: 22px;
+            line-height: 1.5;
+        }
+
+        .confirm-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-danger {
+            background: var(--red);
+            border: none;
+            border-radius: 6px;
+            padding: 9px 20px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            transition: opacity .12s;
+        }
+
+        .btn-danger:hover {
+            opacity: .85;
+        }
+
+        /* ══ Toast ═══════════════════════════════════════════════════ */
+        .toast {
+            position: fixed;
+            bottom: 26px;
+            right: 26px;
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            border-radius: 8px;
+            padding: 12px 18px;
+            font-size: 13px;
+            color: var(--txt);
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity .2s, transform .2s;
+            pointer-events: none;
+            z-index: 200;
+            max-width: 320px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: none;
+        }
+
+        .toast.toast--ok {
+            border-left: 3px solid var(--green);
+        }
+
+        .toast.toast--err {
+            border-left: 3px solid var(--red);
+        }
+    </style>
 </head>
 
 <body>
 
     <div class="layout">
 
-        <!-- ══ Sidebar ══════════════════════════════════════════════════════════ -->
+        <!-- ══ Sidebar ══ -->
         <aside class="sidebar">
-            <div class="sidebar-logo">
-                <!-- Reemplaza con: <img src="../assets/logo.png" alt="Logo"> si tienes el logo -->
-                <span class="sidebar-logo-text">B</span>
-            </div>
-            <a class="nav-item active" href="staff.html">
-                <span class="nav-icon">👥</span>Personal
+            <div class="logo-box">B</div>
+            <a class="nav-link" href="index.html">
+                <span class="nav-icon">🏠</span>Inicio
             </a>
-            <a class="nav-item" href="turnos.html">
-                <span class="nav-icon">📅</span>Turnos
+            <a class="nav-link active" href="staff.html">
+                <span class="nav-icon">👥</span>Staff
             </a>
-            <a class="nav-item" href="zonas.html">
-                <span class="nav-icon">📍</span>Zonas
+            <a class="nav-link" href="luchadores.html">
+                <span class="nav-icon">⚔</span>Luch.
             </a>
-            <a class="nav-item" href="alertas.html">
-                <span class="nav-icon">⚠</span>Alertas
+            <a class="nav-link" href="combates.html">
+                <span class="nav-icon">🥊</span>Combat.
+            </a>
+            <a class="nav-link" href="sistema.html">
+                <span class="nav-icon">⚙</span>Sistema
             </a>
         </aside>
 
-        <!-- ══ Main ═════════════════════════════════════════════════════════════ -->
+        <!-- ══ Main ══ -->
         <div class="main">
 
             <!-- Topbar -->
             <header class="topbar">
-                <div class="topbar-brand">
-                    <div class="topbar-title">World Martial Arts Tournament</div>
-                    <div class="topbar-sub">Staff Management System</div>
+                <div>
+                    <div class="brand-title">Budokai Martial Arts Tournament</div>
+                    <div class="brand-sub">Sistema Integral de Gestión</div>
                 </div>
-                <div class="topbar-divider"></div>
-                <div class="topbar-sub">Módulo 5 — Personal del Torneo</div>
+                <div class="user-badge">👑 Administrador del Sistema</div>
             </header>
 
             <!-- Content -->
             <div class="content">
 
-                <!-- Page header -->
+                <!-- Header página -->
                 <div class="page-header">
-                    <div class="page-title-wrap">
-                        <span class="page-pretitle">Módulo de Gestión</span>
-                        <h1 class="page-title">Gestión Integral del Staff</h1>
+                    <div class="page-title-row">
+                        <span class="page-icon">✕</span>
+                        <h1 class="page-title">Gestión de Staff</h1>
                     </div>
-                    <button class="btn-primary" id="btn-nuevo">+ Registrar nuevo</button>
+                    <button class="btn-primary" id="btn-nuevo">+ REGISTRAR MIEMBRO</button>
                 </div>
 
-                <!-- Stat cards -->
+                <!-- Stats -->
                 <div class="stats-row">
                     <div class="stat-card stat--total">
-                        <span class="stat-label">Total Staff</span>
-                        <span class="stat-number" id="stat-total">0</span>
-                        <span class="stat-sub">Miembros registrados</span>
-                    </div>
-                    <div class="stat-card stat--seg">
-                        <span class="stat-label">Seguridad</span>
-                        <span class="stat-number" id="stat-seguridad">0</span>
-                        <span class="stat-sub">Agentes activos</span>
+                        <div>
+                            <div class="stat-label">Total Staff</div>
+                            <div class="stat-num" id="stat-total">0</div>
+                        </div>
+                        <span style="font-size:22px">👥</span>
                     </div>
                     <div class="stat-card stat--arb">
-                        <span class="stat-label">Árbitros</span>
-                        <span class="stat-number" id="stat-arbitros">0</span>
-                        <span class="stat-sub">Jueces de campo</span>
+                        <div>
+                            <div class="stat-label">Árbitros</div>
+                            <div class="stat-num" id="stat-arb">0</div>
+                        </div>
+                        <span style="font-size:22px">⚖</span>
+                    </div>
+                    <div class="stat-card stat--seg">
+                        <div>
+                            <div class="stat-label">Seguridad</div>
+                            <div class="stat-num" id="stat-seg">0</div>
+                        </div>
+                        <span style="font-size:22px">🛡</span>
                     </div>
                     <div class="stat-card stat--mant">
-                        <span class="stat-label">Mantenimiento</span>
-                        <span class="stat-number" id="stat-mantenimiento">0</span>
-                        <span class="stat-sub">Equipo técnico</span>
+                        <div>
+                            <div class="stat-label">Mantenimiento</div>
+                            <div class="stat-num" id="stat-mant">0</div>
+                        </div>
+                        <span style="font-size:22px">🔧</span>
                     </div>
                 </div>
 
@@ -85,9 +880,15 @@
                 <div class="toolbar">
                     <div class="search-wrap">
                         <span class="search-icon">🔍</span>
-                        <input type="text" id="search-input" placeholder="Buscar por nombre, rol o email…">
+                        <input type="text" id="search-input" placeholder="Buscar por nombre o identificación…">
                     </div>
-                    <button class="btn-icon-sm" id="btn-reload" title="Recargar lista">↻</button>
+                    <select id="filter-rol">
+                        <option value="">Todos los roles</option>
+                        <option value="árbitro">Árbitro</option>
+                        <option value="seguridad">Seguridad</option>
+                        <option value="mantenimiento">Mantenimiento</option>
+                    </select>
+                    <button class="btn-reload" id="btn-reload" title="Recargar">↻</button>
                 </div>
 
                 <!-- Tabla -->
@@ -95,73 +896,75 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>#</th>
+                                <th>Identificación</th>
                                 <th>Nombre</th>
-                                <th>Rol / Cargo</th>
-                                <th>Zona asignada</th>
+                                <th>Rol</th>
+                                <th>Área</th>
                                 <th>Estado</th>
+                                <th>Contacto</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="staff-tbody">
-                            <tr class="tr-info" id="tr-loading">
-                                <td colspan="6">
-                                    <span class="spinner"></span>Cargando datos del torneo…
-                                </td>
-                            </tr>
-                            <tr class="tr-info" id="tr-empty" style="display:none">
-                                <td colspan="6">No hay miembros de staff registrados</td>
-                            </tr>
-                        </tbody>
+                        <tbody id="staff-tbody"></tbody>
                     </table>
+
+                    <div id="loading">
+                        <span class="spinner"></span>Cargando…
+                    </div>
+                    <div id="no-data">
+                        <div style="font-size:32px">👥</div>
+                        <p>No hay miembros de staff registrados.<br>Usa el botón "+ REGISTRAR MIEMBRO" para agregar uno.
+                        </p>
+                    </div>
                 </div>
 
-            </div><!-- /content -->
-        </div><!-- /main -->
-    </div><!-- /layout -->
+            </div>
+        </div>
+    </div>
 
 
-    <!-- ══ Modal: Registrar / Editar ══════════════════════════════════════════ -->
-    <div class="modal-overlay" id="modal-overlay">
-        <div class="modal">
+    <!-- ══ Modal: Registrar / Editar ══ -->
+    <div class="overlay" id="modal">
+        <div class="modal-box">
             <div class="modal-header">
-                <span class="modal-title" id="modal-title">Registrar nuevo staff</span>
-                <button class="btn-close" id="btn-cerrar-modal">✕</button>
+                <span class="modal-title-text" id="modal-title">Registrar miembro</span>
+                <button class="btn-x" id="btn-cerrar-modal">✕</button>
             </div>
             <form id="form-staff" novalidate>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="field-nombre">Nombre *</label>
-                        <input type="text" id="field-nombre" placeholder="Ej: Goku" required>
+                        <label for="f-nombre">Nombre *</label>
+                        <input type="text" id="f-nombre" placeholder="Carlos" required>
                     </div>
                     <div class="form-group">
-                        <label for="field-apellido">Apellido *</label>
-                        <input type="text" id="field-apellido" placeholder="Ej: Son" required>
+                        <label for="f-apellido">Apellido *</label>
+                        <input type="text" id="f-apellido" placeholder="Gutiérrez" required>
                     </div>
                     <div class="form-group">
-                        <label for="field-tipo-doc">Tipo de documento</label>
-                        <select id="field-tipo-doc">
-                            <option value="CC">Cédula de ciudadanía</option>
-                            <option value="TI">Tarjeta de identidad</option>
-                            <option value="CE">Cédula de extranjería</option>
-                            <option value="PA">Pasaporte</option>
+                        <label for="f-tipo-doc">Tipo documento</label>
+                        <select id="f-tipo-doc">
+                            <option value="CC">Cédula (CC)</option>
+                            <option value="TI">Tarjeta identidad (TI)</option>
+                            <option value="CE">Cédula extranjería (CE)</option>
+                            <option value="PA">Pasaporte (PA)</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="field-num-doc">Número de documento</label>
-                        <input type="text" id="field-num-doc" placeholder="123456789">
+                        <label for="f-num-doc">Número documento *</label>
+                        <input type="text" id="f-num-doc" placeholder="1001001001" required>
                     </div>
                     <div class="form-group">
-                        <label for="field-telefono">Teléfono *</label>
-                        <input type="text" id="field-telefono" placeholder="300 000 0000" required>
+                        <label for="f-telefono">Teléfono</label>
+                        <input type="text" id="f-telefono" placeholder="300 000 0000">
                     </div>
                     <div class="form-group">
-                        <label for="field-email">Email *</label>
-                        <input type="email" id="field-email" placeholder="correo@torneo.com" required>
+                        <label for="f-email">Email</label>
+                        <input type="email" id="f-email" placeholder="correo@torneo.com">
                     </div>
                     <div class="form-group">
-                        <label for="field-cargo">Rol / Cargo</label>
-                        <select id="field-cargo">
+                        <label for="f-cargo">Rol / Cargo</label>
+                        <select id="f-cargo">
                             <option value="">Sin asignar</option>
                             <option value="Árbitro">Árbitro</option>
                             <option value="Seguridad">Seguridad</option>
@@ -169,52 +972,51 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="field-turno">Zona / Turno asignado</label>
-                        <input type="text" id="field-turno" placeholder="Ej: Arena Norte – Turno A">
+                        <label for="f-turno">Área / Turno</label>
+                        <input type="text" id="f-turno" placeholder="Ej: Tatami A">
                     </div>
                     <div class="form-group">
-                        <label for="field-estado">Estado</label>
-                        <select id="field-estado">
+                        <label for="f-estado">Estado</label>
+                        <select id="f-estado">
                             <option value="activo">Activo</option>
                             <option value="inactivo">Inactivo</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="field-id-usuario">ID usuario del sistema</label>
-                        <input type="number" id="field-id-usuario" placeholder="1" min="1">
+                        <label for="f-id-usuario">ID usuario del sistema</label>
+                        <input type="number" id="f-id-usuario" placeholder="1" min="1">
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn-secondary"
-                        onclick="document.getElementById('modal-overlay').classList.remove('modal--open')">
+                    <button type="button" class="btn-cancel"
+                        onclick="document.getElementById('modal').classList.remove('open')">
                         Cancelar
                     </button>
-                    <button type="submit" class="btn-primary" id="btn-submit-form">Registrar</button>
+                    <button type="submit" class="btn-primary" id="btn-submit">Registrar</button>
                 </div>
             </form>
         </div>
     </div>
 
 
-    <!-- ══ Modal: Confirmar eliminación ═══════════════════════════════════════ -->
-    <div class="modal-overlay" id="confirm-overlay">
+    <!-- ══ Confirm eliminar ══ -->
+    <div class="overlay" id="confirm">
         <div class="confirm-box">
-            <span class="confirm-icon">⚠️</span>
-            <h3>Confirmar eliminación</h3>
-            <p id="confirm-msg">¿Estás seguro de eliminar este miembro del staff?</p>
+            <h3>⚠ Confirmar eliminación</h3>
+            <p id="confirm-msg">¿Estás seguro?</p>
             <div class="confirm-actions">
-                <button class="btn-secondary" id="btn-confirm-cancel">Cancelar</button>
+                <button class="btn-cancel" id="btn-confirm-cancel">Cancelar</button>
                 <button class="btn-danger" id="btn-confirm-ok">Sí, eliminar</button>
             </div>
         </div>
     </div>
 
 
-    <!-- ══ Toast ═══════════════════════════════════════════════════════════════ -->
+    <!-- ══ Toast ══ -->
     <div class="toast" id="toast"></div>
 
 
-    <!-- ══ Scripts ═════════════════════════════════════════════════════════════ -->
+    <!-- ══ Scripts ══ -->
     <script src="../js/api.js"></script>
     <script src="../js/modules/staff.js"></script>
 
