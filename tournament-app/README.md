@@ -43,7 +43,7 @@ DB_HOST=localhost
 DB_NAME=torneo_db
 DB_USER=root
 DB_PASS=tu_contraseña
-DB_PORT=3306
+DB_PORT=3309
 ```
 
 ### 2. Crear Base de Datos

@@ -6,6 +6,7 @@ const BASE_URL = 'http://localhost/Backend-Artes-Marciales/tournament-app/backen
 // ── Endpoints correctos según staff_api.php y staff_extended_api.php ──
 const EP_STAFF = 'staff/staff_api.php';
 const EP_EXTENDED = 'staff/staff_extended_api.php';
+const EP_LUCHADOR = 'luchador/luchador_api.php';
 
 // ── Mock data ────────────────────────────────────────────────────────
 let MOCK_STAFF = [
@@ -53,6 +54,14 @@ const MOCK_ZONAS = [
     { id_zona: 3, nombre: 'Arena Central', descripcion: 'Zona de finales' },
     { id_zona: 4, nombre: 'Zona Técnica', descripcion: 'Soporte y mantenimiento' },
 ];
+let MOCK_LUCHADORES = [
+    { id_luchador: 1, nombre: 'Son Goku', especie: 'Humano', nivel_poder_ki: 9000, origen: 'Tierra', estado: 'activo' },
+    { id_luchador: 2, nombre: 'Vegeta', especie: 'Alien', nivel_poder_ki: 8500, origen: 'Planeta Vegeta', estado: 'activo' },
+    { id_luchador: 3, nombre: 'Piccolo', especie: 'Alien', nivel_poder_ki: 7000, origen: 'Planeta Namekiano', estado: 'activo' },
+    { id_luchador: 4, nombre: 'Krillin', especie: 'Humano', nivel_poder_ki: 1500, origen: 'Tierra', estado: 'activo' },
+    { id_luchador: 5, nombre: '18', especie: 'Androide', nivel_poder_ki: 6000, origen: 'Laboratorio Dr. Gero', estado: 'activo' },
+];
+let _nextLuchadorId = 6;
 
 // ── Mock handler ──────────────────────────────────────────────────────
 function handleMock(endpoint, method, body, params) {
@@ -97,6 +106,30 @@ function handleMock(endpoint, method, body, params) {
         if (method === 'POST') {
             if (action === 'staff_torneo/asignar-zona') return true;
             if (action === 'staff_torneo/asignar-rol') return true;
+        }
+    }
+
+    // ── luchador_api.php ──────────────────────────────────
+    if (endpoint === EP_LUCHADOR) {
+        if (method === 'GET') {
+            if (!action) return [...MOCK_LUCHADORES];
+            if (action === 'obtener' && params.id)
+                return MOCK_LUCHADORES.find(l => l.id_luchador === +params.id) ?? null;
+        }
+        if (method === 'POST' && !action) {
+            const nuevo = { ...body, id_luchador: _nextLuchadorId++ };
+            MOCK_LUCHADORES.push(nuevo);
+            return nuevo.id_luchador;
+        }
+        if (method === 'PUT') {
+            const idx = MOCK_LUCHADORES.findIndex(l => l.id_luchador === +body.id_luchador);
+            if (idx !== -1) Object.assign(MOCK_LUCHADORES[idx], body);
+            return true;
+        }
+        if (method === 'DELETE' && action === 'eliminar' && params.id) {
+            const idx = MOCK_LUCHADORES.findIndex(l => l.id_luchador === +params.id);
+            if (idx !== -1) MOCK_LUCHADORES.splice(idx, 1);
+            return true;
         }
     }
 
