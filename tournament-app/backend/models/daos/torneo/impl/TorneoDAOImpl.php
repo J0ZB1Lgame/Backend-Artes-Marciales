@@ -82,6 +82,23 @@ class TorneoDAOImpl extends BaseDAO implements ITorneoDAO {
         }
         return $torneoList;
     }
+
+    public function buscarPorNombre($nombre){
+         $sql = "SELECT * FROM torneo WHERE nombre= ?";
+         $stmt = $conn->prepare($sql);
+         $stmt->bind_param("s", $nombre);
+         $stmt->execute();
+         $result = $stmt->get_result();
+
+         if ($row = $result->fetch_assoc()) {
+            return new Torneo(
+                $row['id_torneo'],
+                $row['nombre'],
+                $row['estado']
+            );
+         }
+         return null;
+    }
 }
 
 ?>
