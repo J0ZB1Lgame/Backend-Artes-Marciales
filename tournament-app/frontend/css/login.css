@@ -1,0 +1,510 @@
+/* ═══════════════════════════════════════════════════════════════
+   login.css  —  Budokai System · Pantalla de Login
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Google Fonts ─────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Exo+2:wght@400;500;600;700&display=swap');
+
+/* ── Variables ────────────────────────────────────────────────── */
+:root {
+  --yellow:        #f5d800;
+  --yellow-glow:   rgba(245, 216, 0, 0.55);
+  --yellow-dim:    rgba(245, 216, 0, 0.12);
+  --yellow-border: rgba(245, 216, 0, 0.35);
+  --card-bg:       rgba(10, 8, 20, 0.82);
+  --card-border:   rgba(255, 255, 255, 0.08);
+  --input-bg:      rgba(255, 255, 255, 0.93);
+  --input-focus:   #ffffff;
+  --txt-light:     #e8e8ff;
+  --txt-muted:     rgba(200, 200, 230, 0.65);
+  --red:           #ff3b3b;
+  --red-dim:       rgba(255, 59, 59, 0.15);
+  --green:         #00e676;
+  --font-display:  'Cinzel', serif;
+  --font-body:     'Exo 2', sans-serif;
+  --transition:    0.25s ease;
+}
+
+/* ── Reset ────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: var(--font-body);
+  overflow: hidden;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   FONDO
+   ══════════════════════════════════════════════════════════════ */
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+/* Imagen de fondo — se activa si existe el archivo */
+.bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Video de fondo */
+.bg-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Overlay oscuro sobre el fondo para legibilidad */
+.bg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    135deg,
+    rgba(5, 0, 18, 0.62) 0%,
+    rgba(10, 0, 30, 0.50) 50%,
+    rgba(5, 0, 18, 0.62) 100%
+  );
+}
+
+/* Fallback: gradiente si no hay imagen/video */
+.bg-fallback {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse at 20% 50%, #1a0040 0%, #05000f 60%),
+              radial-gradient(ellipse at 80% 50%, #2a1000 0%, transparent 60%);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   LAYOUT PRINCIPAL
+   ══════════════════════════════════════════════════════════════ */
+.login-wrapper {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px 16px;
+  gap: 0;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   HEADER — Logo + Título
+   ══════════════════════════════════════════════════════════════ */
+.login-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  animation: fadeDown 0.6s ease both;
+}
+
+/* Círculo del logo */
+.logo-circle {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid var(--yellow);
+  background: rgba(10, 8, 20, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 18px var(--yellow-glow),
+    0 0 40px rgba(245, 216, 0, 0.20),
+    inset 0 0 12px rgba(245, 216, 0, 0.08);
+  animation: pulseLogo 3s ease-in-out infinite;
+}
+
+.logo-circle img {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 6px var(--yellow-glow));
+}
+
+/* Emoji fallback si no hay imagen de logo */
+.logo-circle .logo-emoji {
+  font-size: 32px;
+  line-height: 1;
+}
+
+/* Título principal */
+.brand-title {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 5vw, 46px);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: var(--yellow);
+  text-shadow:
+    0 0 20px var(--yellow-glow),
+    0 0 50px rgba(245, 216, 0, 0.30),
+    2px 2px 0 rgba(0, 0, 0, 0.8);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CARD DEL FORMULARIO
+   ══════════════════════════════════════════════════════════════ */
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 36px 36px 28px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  animation: fadeUp 0.6s ease 0.1s both;
+}
+
+/* Título dentro de la card */
+.card-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.10em;
+  color: var(--txt-light);
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.card-subtitle {
+  font-size: 12px;
+  color: var(--yellow);
+  text-align: center;
+  margin-bottom: 28px;
+  letter-spacing: 0.02em;
+  opacity: 0.85;
+}
+
+/* ── Grupos de campo ──────────────────────────────────────────── */
+.field-group {
+  margin-bottom: 20px;
+}
+
+.field-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--txt-light);
+  letter-spacing: 0.04em;
+  margin-bottom: 7px;
+  text-transform: uppercase;
+}
+
+.field-label .icon {
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+/* Input */
+.field-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  background: var(--input-bg);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: #111;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+}
+
+.field-input::placeholder {
+  color: #999;
+  font-weight: 400;
+}
+
+.field-input:focus {
+  background: var(--input-focus);
+  border-color: var(--yellow);
+  box-shadow: 0 0 0 3px var(--yellow-dim), 0 0 12px var(--yellow-dim);
+}
+
+/* Estado de error en el input */
+.field-input.is-error {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px var(--red-dim);
+}
+
+/* ── Wrapper de password con toggle ──────────────────────────── */
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper .field-input {
+  padding-right: 44px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  font-size: 16px;
+  padding: 4px;
+  line-height: 1;
+  transition: color var(--transition);
+  display: flex;
+  align-items: center;
+}
+
+.toggle-password:hover { color: #333; }
+
+/* ── Mensaje de error ─────────────────────────────────────────── */
+.error-banner {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: var(--red-dim);
+  border: 1px solid rgba(255, 59, 59, 0.35);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+  font-size: 13px;
+  color: #ff8080;
+  animation: shake 0.4s ease;
+}
+
+.error-banner.visible {
+  display: flex;
+}
+
+.error-banner .err-icon { font-size: 15px; flex-shrink: 0; }
+
+/* ── Botón principal ──────────────────────────────────────────── */
+.btn-login {
+  width: 100%;
+  height: 48px;
+  background: var(--yellow);
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #0a0800;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
+  box-shadow: 0 4px 20px rgba(245, 216, 0, 0.35);
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-login:hover:not(:disabled) {
+  background: #ffe033;
+  box-shadow: 0 6px 28px rgba(245, 216, 0, 0.55);
+  transform: translateY(-1px);
+}
+
+.btn-login:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 12px rgba(245, 216, 0, 0.30);
+}
+
+.btn-login:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Spinner dentro del botón */
+.btn-spinner {
+  display: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(10, 8, 0, 0.3);
+  border-top-color: #0a0800;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.btn-login.loading .btn-spinner { display: block; }
+.btn-login.loading .btn-text    { display: none; }
+
+/* ── Intentos restantes ───────────────────────────────────────── */
+.attempts-info {
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--txt-muted);
+  margin-top: 14px;
+  letter-spacing: 0.02em;
+  min-height: 18px;
+  transition: color var(--transition);
+}
+
+.attempts-info.warning { color: #ffaa00; }
+.attempts-info.danger  { color: var(--red); font-weight: 600; }
+
+/* ── Footer de la card ────────────────────────────────────────── */
+.card-footer {
+  text-align: center;
+  font-size: 11px;
+  color: var(--txt-muted);
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  letter-spacing: 0.03em;
+}
+
+/* ── Bloqueo de cuenta ────────────────────────────────────────── */
+.lockout-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 8, 20, 0.92);
+  border-radius: 14px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  z-index: 10;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease;
+}
+
+.lockout-overlay.visible { display: flex; }
+
+.lockout-icon { font-size: 42px; }
+
+.lockout-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--red);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lockout-msg {
+  font-size: 13px;
+  color: var(--txt-muted);
+  text-align: center;
+  max-width: 260px;
+  line-height: 1.5;
+}
+
+.lockout-timer {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--yellow);
+  font-family: var(--font-display);
+  letter-spacing: 0.05em;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TOAST DE ÉXITO
+   ══════════════════════════════════════════════════════════════ */
+.toast-success {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: rgba(0, 230, 118, 0.15);
+  border: 1px solid rgba(0, 230, 118, 0.40);
+  border-radius: 10px;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--green);
+  font-weight: 600;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s ease;
+  opacity: 0;
+  white-space: nowrap;
+}
+
+.toast-success.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ANIMACIONES
+   ══════════════════════════════════════════════════════════════ */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pulseLogo {
+  0%, 100% { box-shadow: 0 0 18px var(--yellow-glow), 0 0 40px rgba(245,216,0,.20), inset 0 0 12px rgba(245,216,0,.08); }
+  50%       { box-shadow: 0 0 28px var(--yellow-glow), 0 0 60px rgba(245,216,0,.35), inset 0 0 18px rgba(245,216,0,.14); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 28px 22px 22px;
+    border-radius: 12px;
+  }
+
+  .brand-title {
+    font-size: 26px;
+    letter-spacing: 0.08em;
+  }
+
+  .logo-circle {
+    width: 60px;
+    height: 60px;
+  }
+
+  .logo-circle img { width: 36px; height: 36px; }
+}

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar Sesión — Budokai System</title>
+
+  <!-- Favicon emoji fallback -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐉</text></svg>" />
+
+  <!-- Estilos -->
+  <link rel="stylesheet" href="../css/login.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════════
+       FONDO
+       Opciones (descomenta la que quieras usar):
+
+       A) IMAGEN  → coloca login-bg.jpg en /frontend/assets/bg/
+       B) VIDEO   → coloca login-bg.mp4 en /frontend/assets/bg/
+       C) FALLBACK → gradiente automático si no hay archivo
+       ══════════════════════════════════════════════════════════ -->
+
+  <!-- OPCIÓN A: Imagen de fondo -->
+  <div class="bg-layer" id="bgLayer">
+    <img
+      id="bgImage"
+      class="bg-image"
+      src="../assets/bg/login-bg.jpg"
+      alt=""
+      aria-hidden="true"
+    />
+  </div>
+
+  <!-- OPCIÓN B: Video de fondo (descomenta y comenta la opción A)
+  <div class="bg-layer" id="bgLayer">
+    <video
+      id="bgVideo"
+      class="bg-video"
+      autoplay muted loop playsinline
+      aria-hidden="true"
+    >
+      <source src="../assets/bg/login-bg.mp4" type="video/mp4" />
+      <source src="../assets/bg/login-bg.webm" type="video/webm" />
+    </video>
+  </div>
+  -->
+
+  <!-- Fallback: gradiente si no hay imagen/video -->
+  <div class="bg-fallback" id="bgFallback" style="display:none;"></div>
+
+  <!-- Overlay de oscurecimiento -->
+  <div class="bg-overlay" aria-hidden="true"></div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       CONTENIDO PRINCIPAL
+       ══════════════════════════════════════════════════════════ -->
+  <main class="login-wrapper" role="main">
+
+    <!-- ── Header: Logo + Título ─────────────────────────────── -->
+    <header class="login-header" aria-label="Budokai System">
+      <div class="logo-circle" aria-hidden="true">
+        <!--
+          Coloca tu logo en /frontend/assets/bg/ con el nombre logo.png
+          Si no existe, se muestra el emoji de dragón como fallback.
+        -->
+        <img
+          src="../assets/bg/logo.png"
+          alt="Logo Budokai"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+        />
+        <span class="logo-emoji" style="display:none;">🐉</span>
+      </div>
+
+      <h1 class="brand-title">Budokai System</h1>
+    </header>
+
+    <!-- ── Card del formulario ───────────────────────────────── -->
+    <div class="login-card" role="region" aria-label="Formulario de inicio de sesión">
+
+      <!-- Bloqueo de cuenta (overlay interno) -->
+      <div class="lockout-overlay" id="lockoutOverlay" role="alert" aria-live="assertive">
+        <span class="lockout-icon" aria-hidden="true">🔒</span>
+        <p class="lockout-title">Cuenta bloqueada</p>
+        <p class="lockout-msg">
+          Demasiados intentos fallidos.<br />
+          Intenta de nuevo en:
+        </p>
+        <p class="lockout-timer" id="lockoutTimer" aria-label="Tiempo restante">10:00</p>
+      </div>
+
+      <h2 class="card-title">Iniciar Sesión</h2>
+      <p class="card-subtitle">Accede al sistema de gestión del torneo</p>
+
+      <!-- Banner de error -->
+      <div class="error-banner" id="errorBanner" role="alert" aria-live="polite">
+        <span class="err-icon" aria-hidden="true">⚠️</span>
+        <span id="errorMsg">Error de autenticación.</span>
+      </div>
+
+      <!-- Formulario -->
+      <form id="loginForm" novalidate autocomplete="off">
+
+        <!-- Campo: Usuario -->
+        <div class="field-group">
+          <label class="field-label" for="username">
+            <span class="icon" aria-hidden="true">👤</span>
+            Nombre de Usuario
+          </label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            class="field-input"
+            placeholder="admin"
+            autocomplete="username"
+            spellcheck="false"
+            maxlength="50"
+            required
+            aria-required="true"
+            aria-describedby="errorBanner"
+          />
+        </div>
+
+        <!-- Campo: Contraseña -->
+        <div class="field-group">
+          <label class="field-label" for="password">
+            <span class="icon" aria-hidden="true">🔒</span>
+            Contraseña
+          </label>
+          <div class="password-wrapper">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              class="field-input"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              maxlength="100"
+              required
+              aria-required="true"
+              aria-describedby="errorBanner"
+            />
+            <button
+              type="button"
+              id="togglePassword"
+              class="toggle-password"
+              aria-label="Mostrar contraseña"
+              title="Mostrar / ocultar contraseña"
+            >👁️</button>
+          </div>
+        </div>
+
+        <!-- Botón de submit -->
+        <button
+          type="submit"
+          id="btnLogin"
+          class="btn-login"
+          aria-label="Iniciar sesión"
+        >
+          <span class="btn-spinner" aria-hidden="true"></span>
+          <span class="btn-text">Iniciar Sesión</span>
+        </button>
+
+      </form>
+
+      <!-- Intentos restantes -->
+      <p class="attempts-info" id="attemptsInfo" aria-live="polite">
+        Intentos restantes: 3
+      </p>
+
+      <!-- Footer de la card -->
+      <footer class="card-footer">
+        © 2026 Budokai Torneo Artes Marciales
+      </footer>
+
+    </div><!-- /.login-card -->
+
+  </main>
+
+  <!-- ══════════════════════════════════════════════════════════
+       TOAST DE ÉXITO
+       ══════════════════════════════════════════════════════════ -->
+  <div class="toast-success" id="toastSuccess" role="status" aria-live="polite">
+    <span aria-hidden="true">✅</span>
+    <span class="toast-msg">Bienvenido</span>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       SCRIPTS
+       ══════════════════════════════════════════════════════════ -->
+  <script src="../js/modules/login.js"></script>
+
+</body>
+</html>

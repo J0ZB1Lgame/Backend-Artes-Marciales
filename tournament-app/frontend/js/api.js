@@ -163,3 +163,59 @@ const apiGet = (ep, params = {}) => apiRequest(ep, 'GET', null, params);
 const apiPost = (ep, body, params = {}) => apiRequest(ep, 'POST', body, params);
 const apiPut = (ep, body, params = {}) => apiRequest(ep, 'PUT', body, params);
 const apiDelete = (ep, params = {}) => apiRequest(ep, 'DELETE', null, params);
+
+
+// ── Endpoint de Login ─────────────────────────────────────────────────
+const EP_LOGIN = 'login/login_api.php';
+
+// ── Helpers de sesión (usados por login.js y otras páginas) ──────────
+const SESSION_KEY = 'budokai_session';
+
+/**
+ * Devuelve el objeto de sesión guardado en sessionStorage, o null si no hay.
+ * @returns {{ idUsuario: number, username: string, rol: string, idSesion: number|null }|null}
+ */
+function getSession() {
+    try {
+        const raw = sessionStorage.getItem(SESSION_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Elimina la sesión del cliente y redirige al login.
+ * Llama al backend para cerrar la sesión si hay id_sesion disponible.
+ */
+async function logout() {
+    const session = getSession();
+    sessionStorage.removeItem(SESSION_KEY);
+
+    if (session?.idSesion) {
+        try {
+            await fetch(
+                `${BASE_URL}/${EP_LOGIN}?action=cerrar-sesion`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_sesion: session.idSesion }),
+                }
+            );
+        } catch {
+            // Si falla el backend, igual redirigimos
+        }
+    }
+
+    window.location.href = 'login.html';
+}
+
+/**
+ * Guard de autenticación: si no hay sesión activa, redirige al login.
+ * Llama esto al inicio de cada página protegida.
+ */
+function requireAuth() {
+    if (!getSession()) {
+        window.location.href = 'login.html';
+    }
+}

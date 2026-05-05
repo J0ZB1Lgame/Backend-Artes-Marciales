@@ -47,3 +47,14 @@ private_keys/
 # Respaldos
 *.backup
 Backend-Artes-Marciales.backup/
+
+# Assets de fondo del login (archivos pesados — cada dev pone el suyo localmente)
+frontend/assets/bg/*.jpg
+frontend/assets/bg/*.jpeg
+frontend/assets/bg/*.png
+frontend/assets/bg/*.webp
+frontend/assets/bg/*.mp4
+frontend/assets/bg/*.webm
+frontend/assets/bg/*.gif
+# El README de la carpeta SÍ se sube
+!frontend/assets/bg/README.md
