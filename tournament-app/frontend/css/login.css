@@ -3,26 +3,26 @@
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── Google Fonts ─────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Exo+2:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
 
 /* ── Variables ────────────────────────────────────────────────── */
 :root {
-  --yellow:        #f5d800;
-  --yellow-glow:   rgba(245, 216, 0, 0.55);
-  --yellow-dim:    rgba(245, 216, 0, 0.12);
-  --yellow-border: rgba(245, 216, 0, 0.35);
-  --card-bg:       rgba(10, 8, 20, 0.82);
-  --card-border:   rgba(255, 255, 255, 0.08);
-  --input-bg:      rgba(255, 255, 255, 0.93);
-  --input-focus:   #ffffff;
-  --txt-light:     #e8e8ff;
-  --txt-muted:     rgba(200, 200, 230, 0.65);
-  --red:           #ff3b3b;
-  --red-dim:       rgba(255, 59, 59, 0.15);
-  --green:         #00e676;
-  --font-display:  'Cinzel', serif;
-  --font-body:     'Exo 2', sans-serif;
-  --transition:    0.25s ease;
+  --yellow:        #FFD000;
+  --yellow-glow:   rgba(255, 208, 0, 0.85);
+  --yellow-dim:    rgba(255, 208, 0, 0.20);
+  --yellow-border: rgba(255, 208, 0, 0.60);
+  --card-bg:       rgba(6, 8, 32, 0.90);
+  --card-border:   rgba(0, 229, 255, 0.25);
+  --input-bg:      rgba(255, 255, 255, 0.95);
+  --input-focus:   #00E5FF;
+  --txt-light:     #FFFFFF;
+  --txt-muted:     rgba(255, 255, 255, 0.80);
+  --red:           #FF2A2A;
+  --red-dim:       rgba(255, 42, 42, 0.25);
+  --green:         #00FF88;
+  --font-display:  'Orbitron', sans-serif;
+  --font-body:     'Rajdhani', sans-serif;
+  --transition:    0.3s ease;
 }
 
 /* ── Reset ────────────────────────────────────────────────────── */
@@ -32,6 +32,11 @@ html, body {
   height: 100%;
   font-family: var(--font-body);
   overflow: hidden;
+  background:
+    radial-gradient(ellipse at 20% 80%, rgba(255, 208, 0, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(0, 229, 255, 0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(255, 42, 42, 0.08) 0%, transparent 60%),
+    #060818;
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -112,19 +117,22 @@ html, body {
 
 /* Círculo del logo */
 .logo-circle {
-  width: 72px;
-  height: 72px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  border: 3px solid var(--yellow);
-  background: rgba(10, 8, 20, 0.75);
+  border: 4px solid var(--yellow);
+  background: rgba(6, 8, 32, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow:
-    0 0 18px var(--yellow-glow),
-    0 0 40px rgba(245, 216, 0, 0.20),
-    inset 0 0 12px rgba(245, 216, 0, 0.08);
-  animation: pulseLogo 3s ease-in-out infinite;
+    0 0 24px var(--yellow-glow),
+    0 0 48px rgba(255, 208, 0, 0.5),
+    0 0 72px rgba(255, 208, 0, 0.3),
+    inset 0 0 16px rgba(255, 208, 0, 0.3);
+  animation: float 4s ease-in-out infinite, energy-pulse 2s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
 }
 
 .logo-circle img {
@@ -455,19 +463,41 @@ html, body {
 /* ══════════════════════════════════════════════════════════════
    ANIMACIONES
    ══════════════════════════════════════════════════════════════ */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
 @keyframes fadeDown {
-  from { opacity: 0; transform: translateY(-24px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+@keyframes energy-pulse {
+  0%, 100% { 
+    box-shadow: 
+      0 0 24px var(--yellow-glow),
+      0 0 48px rgba(255, 208, 0, 0.5),
+      inset 0 0 16px rgba(255, 208, 0, 0.3);
+  }
+  50% { 
+    box-shadow: 
+      0 0 32px var(--yellow-glow),
+      0 0 64px rgba(255, 208, 0, 0.7),
+      inset 0 0 20px rgba(255, 208, 0, 0.4);
+  }
 }
 
 @keyframes pulseLogo {

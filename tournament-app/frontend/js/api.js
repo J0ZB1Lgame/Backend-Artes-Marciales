@@ -1,5 +1,5 @@
 // frontend/js/api.js
-const USE_MOCK = false; // ← cambiar a false cuando backend corrija .htaccess
+const USE_MOCK = false; // Backend listo, usar endpoints reales
 
 const BASE_URL = 'http://localhost/Backend-Artes-Marciales/tournament-app/backend/api/endpoints';
 

@@ -1,0 +1,19 @@
+# Configuración para servir archivos de video
+<IfModule mod_mime.c>
+    AddType video/mp4 .mp4
+    AddType video/webm .webm
+    AddType video/ogg .ogv
+</IfModule>
+
+# Permitir acceso a archivos de video
+<Files "*.mp4">
+    Require all granted
+</Files>
+
+<Files "*.webm">
+    Require all granted
+</Files>
+
+<Files "*.ogv">
+    Require all granted
+</Files>
