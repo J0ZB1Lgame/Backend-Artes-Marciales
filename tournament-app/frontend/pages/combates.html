@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Staff — Budokai System</title>
+    <title>Combates — Budokai System</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,60 +26,57 @@
             background: #000;
             color: white;
         }
-        /* FONDO */
+        /* VIDEO */
         
-        .background {
+        .video-bg {
             position: fixed;
             inset: 0;
-            background-image: url('../assets/bg/staff.jpeg');
-            background-position: center;
-            background-size: cover;
-            background-repeat: no-repeat;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
         }
         
-        .background::after {
-            content: '';
-            position: absolute;
+        .video-overlay {
+            position: fixed;
             inset: 0;
-            background: linear-gradient( 90deg, rgba(0, 0, 0, .88) 0%, rgba(0, 0, 0, .60) 45%, rgba(0, 0, 0, .30) 100%);
+            background: linear-gradient( 90deg, rgba(0, 0, 0, .90) 0%, rgba(0, 0, 0, .58) 45%, rgba(0, 0, 0, .22) 100%);
+            z-index: -1;
         }
         /* LAYOUT */
         
         .layout {
-            position: relative;
-            z-index: 2;
-            display: flex;
             width: 100%;
             height: 100vh;
+            display: flex;
         }
-        /* INVENTARIO */
+        /* CONTENIDO */
         
-        .inventory-section {
+        .combat-section {
             flex: 1;
             padding: 40px;
             overflow: auto;
         }
         
-        .inventory-header {
+        .combat-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 30px;
         }
         
-        .inventory-title {
-            font-size: 48px;
+        .combat-title {
+            font-size: 52px;
             font-weight: 900;
             letter-spacing: .05em;
             text-transform: uppercase;
-            color: white;
-            text-shadow: 0 0 20px rgba(0, 229, 255, .22);
+            text-shadow: 0 0 24px rgba(255, 60, 60, .22);
         }
         
-        .inventory-sub {
+        .combat-sub {
             margin-top: 10px;
-            color: rgba(255, 255, 255, .72);
             font-size: 14px;
+            color: rgba(255, 255, 255, .72);
         }
         /* BOTONES */
         
@@ -103,9 +100,9 @@
         }
         
         .create-btn {
-            color: #001018;
-            background: linear-gradient( 90deg, #00E5FF, #00B8FF);
-            box-shadow: 0 0 24px rgba(0, 229, 255, .25);
+            color: white;
+            background: linear-gradient( 90deg, #ff3b30, #ff6b45);
+            box-shadow: 0 0 24px rgba(255, 70, 70, .25);
         }
         
         .panel-btn {
@@ -115,65 +112,91 @@
         }
         /* GRID */
         
-        .staff-grid {
+        .combat-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 22px;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 24px;
         }
         /* CARD */
         
-        .staff-card {
-            border-radius: 24px;
-            padding: 24px;
-            background: linear-gradient( 180deg, rgba(10, 18, 42, .88), rgba(4, 8, 24, .94));
+        .combat-card {
+            border-radius: 28px;
+            overflow: hidden;
+            background: linear-gradient( 180deg, rgba(18, 10, 10, .90), rgba(12, 5, 5, .96));
             border: 1px solid rgba(255, 255, 255, .08);
             backdrop-filter: blur(18px);
             transition: .22s ease;
         }
         
-        .staff-card:hover {
+        .combat-card:hover {
             transform: translateY(-6px);
-            border-color: rgba(0, 229, 255, .25);
-            box-shadow: 0 0 28px rgba(0, 229, 255, .12);
+            border-color: rgba(255, 80, 80, .25);
+            box-shadow: 0 0 28px rgba(255, 60, 60, .12);
+        }
+        /* TOP */
+        
+        .combat-top {
+            padding: 26px;
+            background: linear-gradient( 90deg, rgba(255, 60, 60, .22), rgba(255, 120, 80, .10));
         }
         
-        .staff-top {
+        .combat-status {
+            display: inline-flex;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255, 60, 60, .15);
+            border: 1px solid rgba(255, 60, 60, .22);
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: #ff6b45;
+            margin-bottom: 18px;
+        }
+        /* VS */
+        
+        .vs-container {
             display: flex;
             align-items: center;
-            gap: 16px;
-            margin-bottom: 20px;
+            justify-content: space-between;
         }
         
-        .staff-avatar {
-            width: 74px;
-            height: 74px;
+        .fighter {
+            width: 120px;
+            text-align: center;
+        }
+        
+        .fighter-avatar {
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 32px;
-            background: linear-gradient( 180deg, #00E5FF, #00B8FF);
-            color: #001018;
-            font-weight: 900;
+            margin: auto;
+            font-size: 42px;
+            background: linear-gradient( 180deg, #ff3b30, #ff8845);
         }
         
-        .staff-name {
-            font-size: 18px;
+        .fighter-name {
+            margin-top: 14px;
+            font-size: 14px;
             font-weight: 700;
-            margin-bottom: 6px;
         }
         
-        .staff-role {
-            font-size: 11px;
-            letter-spacing: .10em;
-            text-transform: uppercase;
-            color: #00E5FF;
+        .vs-text {
+            font-size: 38px;
+            font-weight: 900;
+            color: #ff6b45;
+            text-shadow: 0 0 20px rgba(255, 60, 60, .35);
         }
+        /* INFO */
         
-        .staff-info {
+        .combat-info {
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
         
         .info-row {
@@ -184,23 +207,22 @@
         }
         
         .info-label {
-            color: rgba(255, 255, 255, .48);
             font-size: 11px;
             letter-spacing: .08em;
             text-transform: uppercase;
+            color: rgba(255, 255, 255, .48);
         }
         
         .info-value {
-            color: white;
             font-size: 12px;
         }
-        /* PANEL DERECHO */
+        /* PANEL */
         
         .side-panel {
             width: 360px;
             height: 100vh;
-            background: linear-gradient( 180deg, rgba(8, 15, 35, .96), rgba(3, 8, 22, .98));
-            border-left: 1px solid rgba(0, 229, 255, .18);
+            background: linear-gradient( 180deg, rgba(20, 8, 8, .96), rgba(8, 3, 3, .98));
+            border-left: 1px solid rgba(255, 70, 70, .18);
             backdrop-filter: blur(18px);
             padding: 30px 24px;
             display: flex;
@@ -216,14 +238,13 @@
         .side-panel.active {
             transform: translateX(0);
         }
-        /* TITULOS */
+        /* PANEL TITLES */
         
         .panel-title {
             font-size: 28px;
             font-weight: 900;
             letter-spacing: .08em;
             text-transform: uppercase;
-            color: white;
             margin-bottom: 8px;
         }
         
@@ -231,7 +252,7 @@
             font-size: 11px;
             letter-spacing: .12em;
             text-transform: uppercase;
-            color: #00E5FF;
+            color: #ff6b45;
             margin-bottom: 30px;
         }
         /* MENU */
@@ -258,24 +279,39 @@
             letter-spacing: .08em;
             text-transform: uppercase;
             color: white;
-            background: linear-gradient( 90deg, rgba(12, 20, 45, .95), rgba(20, 32, 68, .92));
+            background: linear-gradient( 90deg, rgba(45, 12, 12, .95), rgba(68, 20, 20, .92));
             border: 1px solid rgba(255, 255, 255, .05);
             transition: .22s ease;
         }
         
         .menu-btn:hover {
             transform: translateX(-4px);
-            border-color: rgba(0, 229, 255, .25);
-            box-shadow: 0 0 18px rgba(0, 229, 255, .14);
+            border-color: rgba(255, 70, 70, .25);
+            box-shadow: 0 0 18px rgba(255, 70, 70, .14);
         }
         
         .menu-btn.active {
-            background: linear-gradient( 90deg, #00E5FF, #00B8FF);
-            color: #001018;
+            background: linear-gradient( 90deg, #ff3b30, #ff6b45);
         }
         
         .menu-icon {
             font-size: 22px;
+        }
+        /* CERRAR */
+        
+        .close-panel-btn {
+            margin-top: auto;
+            height: 56px;
+            border: none;
+            border-radius: 18px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: .10em;
+            text-transform: uppercase;
+            color: white;
+            background: linear-gradient( 90deg, #00E5FF, #00B8FF);
         }
         /* MODAL */
         
@@ -294,11 +330,11 @@
         }
         
         .modal-box {
-            width: 520px;
+            width: 560px;
             max-width: 94vw;
             border-radius: 28px;
-            background: linear-gradient( 180deg, rgba(8, 15, 35, .96), rgba(3, 8, 22, .98));
-            border: 1px solid rgba(0, 229, 255, .18);
+            background: linear-gradient( 180deg, rgba(20, 8, 8, .96), rgba(8, 3, 3, .98));
+            border: 1px solid rgba(255, 70, 70, .18);
             padding: 32px;
         }
         
@@ -307,7 +343,6 @@
             font-weight: 900;
             letter-spacing: .08em;
             text-transform: uppercase;
-            color: white;
             margin-bottom: 26px;
         }
         /* FORM */
@@ -332,7 +367,7 @@
             font-size: 10px;
             letter-spacing: .10em;
             text-transform: uppercase;
-            color: #00E5FF;
+            color: #ff6b45;
         }
         
         input,
@@ -375,8 +410,8 @@
         }
         
         .save-btn {
-            color: #001018;
-            background: linear-gradient( 90deg, #00E5FF, #00B8FF);
+            color: white;
+            background: linear-gradient( 90deg, #ff3b30, #ff6b45);
         }
     </style>
 
@@ -384,39 +419,49 @@
 
 <body>
 
-    <div class="background"></div>
+    <!-- VIDEO -->
+
+    <video class="video-bg" autoplay muted loop playsinline>
+
+    <source
+    src="../assets/bg/combates.mp4"
+    type="video/mp4">
+
+</video>
+
+    <div class="video-overlay"></div>
 
     <div class="layout">
 
-        <!-- INVENTARIO -->
+        <!-- CONTENIDO -->
 
-        <section class="inventory-section">
+        <section class="combat-section">
 
-            <div class="inventory-header">
+            <div class="combat-header">
 
                 <div>
 
-                    <h1 class="inventory-title">
-                        STAFF DEL TORNEO
+                    <h1 class="combat-title">
+                        COMBATES
                     </h1>
 
-                    <div class="inventory-sub">
-                        Gestión completa del personal del Budokai Tournament
+                    <div class="combat-sub">
+                        Gestión de enfrentamientos del torneo
                     </div>
 
                 </div>
 
                 <div class="top-actions">
 
-                    <button class="panel-btn" id="toggleStaffPanel">
+                    <button class="panel-btn" id="togglePanel">
 
-                    ☰ PANEL STAFF
+                    ☰ PANEL COMBATES
 
                 </button>
 
                     <button class="create-btn" id="openModal">
 
-                    + Crear Staff
+                    + Crear Combate
 
                 </button>
 
@@ -426,60 +471,86 @@
 
             <!-- GRID -->
 
-            <div class="staff-grid" id="staffGrid">
+            <div class="combat-grid" id="combatGrid">
 
-                <div class="staff-card">
+                <div class="combat-card">
 
-                    <div class="staff-top">
+                    <div class="combat-top">
 
-                        <div class="staff-avatar">
-                            👤
+                        <div class="combat-status">
+                            En preparación
                         </div>
 
-                        <div>
+                        <div class="vs-container">
 
-                            <div class="staff-name">
-                                Admin Staff
+                            <div class="fighter">
+
+                                <div class="fighter-avatar">
+                                    🥋
+                                </div>
+
+                                <div class="fighter-name">
+                                    Goku
+                                </div>
+
                             </div>
 
-                            <div class="staff-role">
-                                Director del torneo
+                            <div class="vs-text">
+                                VS
+                            </div>
+
+                            <div class="fighter">
+
+                                <div class="fighter-avatar">
+                                    ⚔️
+                                </div>
+
+                                <div class="fighter-name">
+                                    Vegeta
+                                </div>
+
                             </div>
 
                         </div>
 
                     </div>
 
-                    <div class="staff-info">
+                    <div class="combat-info">
 
                         <div class="info-row">
+
                             <span class="info-label">
-                            Zona
+                            Arena
                         </span>
 
                             <span class="info-value">
-                            Administración
+                            Arena Central
                         </span>
+
                         </div>
 
                         <div class="info-row">
+
                             <span class="info-label">
-                            Estado
+                            Categoría
                         </span>
 
                             <span class="info-value">
-                            Activo
+                            Elite
                         </span>
+
                         </div>
 
                         <div class="info-row">
+
                             <span class="info-label">
-                            ID
+                            Hora
                         </span>
 
                             <span class="info-value">
-                            #001
+                            18:00
                         </span>
+
                         </div>
 
                     </div>
@@ -492,10 +563,10 @@
 
         <!-- PANEL -->
 
-        <aside class="side-panel" id="staffPanel">
+        <aside class="side-panel" id="combatPanel">
 
             <div class="panel-title">
-                STAFF
+                COMBATES
             </div>
 
             <div class="panel-sub">
@@ -511,44 +582,54 @@
 
             </button>
 
-                <button class="menu-btn active">
+                <button class="menu-btn" onclick="window.location.href='staff.html'">
 
                 <span class="menu-icon">👥</span>
                 Staff
 
             </button>
 
+                <button class="menu-btn" onclick="window.location.href='luchadores.html'">
+
+                <span class="menu-icon">⚔️</span>
+                Luchadores
+
+            </button>
+
+                <button class="menu-btn active">
+
+                <span class="menu-icon">🥊</span>
+                Combates
+
+            </button>
+
                 <button class="menu-btn">
                 <span class="menu-icon">➕</span>
-                Crear Staff
+                Crear Combate
             </button>
 
                 <button class="menu-btn">
-                <span class="menu-icon">✏️</span>
-                Editar Staff
+                <span class="menu-icon">🏟️</span>
+                Arenas
             </button>
 
                 <button class="menu-btn">
-                <span class="menu-icon">🗑️</span>
-                Eliminar Staff
-            </button>
-
-                <button class="menu-btn">
-                <span class="menu-icon">🛡️</span>
-                Roles
-            </button>
-
-                <button class="menu-btn">
-                <span class="menu-icon">📍</span>
-                Zonas
+                <span class="menu-icon">📅</span>
+                Horarios
             </button>
 
                 <button class="menu-btn">
                 <span class="menu-icon">📊</span>
-                Estadísticas
+                Resultados
             </button>
 
             </div>
+
+            <button class="close-panel-btn" id="closePanel">
+
+            ✕ Cerrar Panel
+
+        </button>
 
         </aside>
 
@@ -556,12 +637,12 @@
 
     <!-- MODAL -->
 
-    <div class="modal" id="staffModal">
+    <div class="modal" id="combatModal">
 
         <div class="modal-box">
 
             <div class="modal-title">
-                Crear Staff
+                Crear Combate
             </div>
 
             <div class="form-grid">
@@ -569,48 +650,40 @@
                 <div class="form-group">
 
                     <label>
-                    Nombre
+                    Luchador 1
                 </label>
 
-                    <input type="text" id="staffNombre" placeholder="Nombre completo">
+                    <input type="text" id="fighter1" placeholder="Nombre">
 
                 </div>
 
                 <div class="form-group">
 
                     <label>
-                    Rol
+                    Luchador 2
                 </label>
 
-                    <select id="staffRol">
-
-                    <option>
-                        Director del torneo
-                    </option>
-
-                    <option>
-                        Árbitro
-                    </option>
-
-                    <option>
-                        Seguridad
-                    </option>
-
-                    <option>
-                        Médico
-                    </option>
-
-                </select>
+                    <input type="text" id="fighter2" placeholder="Nombre">
 
                 </div>
 
-                <div class="form-group full">
+                <div class="form-group">
 
                     <label>
-                    Zona
+                    Arena
                 </label>
 
-                    <input type="text" id="staffZona" placeholder="Zona asignada">
+                    <input type="text" id="arena" placeholder="Arena">
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>
+                    Hora
+                </label>
+
+                    <input type="time" id="hora">
 
                 </div>
 
@@ -624,7 +697,7 @@
 
             </button>
 
-                <button class="save-btn" id="saveStaff">
+                <button class="save-btn" id="saveCombat">
 
                 Guardar
 
@@ -637,23 +710,31 @@
     </div>
 
     <script>
-        /* PANEL STAFF */
+        /* PANEL */
 
-        const staffPanel =
-            document.getElementById('staffPanel');
+        const panel =
+            document.getElementById('combatPanel');
 
         document
-            .getElementById('toggleStaffPanel')
+            .getElementById('togglePanel')
             .onclick = () => {
 
-                staffPanel.classList.toggle('active');
+                panel.classList.add('active');
+
+            };
+
+        document
+            .getElementById('closePanel')
+            .onclick = () => {
+
+                panel.classList.remove('active');
 
             };
 
         /* MODAL */
 
         const modal =
-            document.getElementById('staffModal');
+            document.getElementById('combatModal');
 
         document
             .getElementById('openModal')
@@ -681,22 +762,25 @@
 
         };
 
-        /* CREAR STAFF */
+        /* CREAR COMBATE */
 
         document
-            .getElementById('saveStaff')
+            .getElementById('saveCombat')
             .onclick = () => {
 
-                const nombre =
-                    document.getElementById('staffNombre').value;
+                const f1 =
+                    document.getElementById('fighter1').value;
 
-                const rol =
-                    document.getElementById('staffRol').value;
+                const f2 =
+                    document.getElementById('fighter2').value;
 
-                const zona =
-                    document.getElementById('staffZona').value;
+                const arena =
+                    document.getElementById('arena').value;
 
-                if (!nombre || !zona) {
+                const hora =
+                    document.getElementById('hora').value;
+
+                if (!f1 || !f2 || !arena || !hora) {
 
                     alert('Completa todos los campos');
 
@@ -707,60 +791,86 @@
                     document.createElement('div');
 
                 card.className =
-                    'staff-card';
+                    'combat-card';
 
                 card.innerHTML = `
 
-        <div class="staff-top">
+        <div class="combat-top">
 
-            <div class="staff-avatar">
-                👤
+            <div class="combat-status">
+                Programado
             </div>
 
-            <div>
+            <div class="vs-container">
 
-                <div class="staff-name">
-                    ${nombre}
+                <div class="fighter">
+
+                    <div class="fighter-avatar">
+                        🥋
+                    </div>
+
+                    <div class="fighter-name">
+                        ${f1}
+                    </div>
+
                 </div>
 
-                <div class="staff-role">
-                    ${rol}
+                <div class="vs-text">
+                    VS
+                </div>
+
+                <div class="fighter">
+
+                    <div class="fighter-avatar">
+                        ⚔️
+                    </div>
+
+                    <div class="fighter-name">
+                        ${f2}
+                    </div>
+
                 </div>
 
             </div>
 
         </div>
 
-        <div class="staff-info">
+        <div class="combat-info">
 
             <div class="info-row">
+
                 <span class="info-label">
-                    Zona
+                    Arena
                 </span>
 
                 <span class="info-value">
-                    ${zona}
+                    ${arena}
                 </span>
+
             </div>
 
             <div class="info-row">
+
+                <span class="info-label">
+                    Hora
+                </span>
+
+                <span class="info-value">
+                    ${hora}
+                </span>
+
+            </div>
+
+            <div class="info-row">
+
                 <span class="info-label">
                     Estado
                 </span>
 
                 <span class="info-value">
-                    Activo
-                </span>
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">
-                    ID
+                    Programado
                 </span>
 
-                <span class="info-value">
-                    #00${Math.floor(Math.random()*99)}
-                </span>
             </div>
 
         </div>
@@ -768,18 +878,10 @@
     `;
 
                 document
-                    .getElementById('staffGrid')
+                    .getElementById('combatGrid')
                     .appendChild(card);
 
                 modal.classList.remove('active');
-
-                document
-                    .getElementById('staffNombre')
-                    .value = '';
-
-                document
-                    .getElementById('staffZona')
-                    .value = '';
 
             };
     </script>

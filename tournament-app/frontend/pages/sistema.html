@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sistema — Budokai System</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            overflow: hidden;
+            background: #000;
+            color: white;
+        }
+        /* VIDEO */
+        
+        .video-bg {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+        }
+        
+        .video-overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient( 90deg, rgba(0, 0, 0, .94) 0%, rgba(0, 0, 0, .64) 45%, rgba(0, 0, 0, .26) 100%);
+            z-index: -1;
+        }
+        /* LAYOUT */
+        
+        .layout {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+        }
+        /* CONTENT */
+        
+        .system-section {
+            flex: 1;
+            padding: 40px;
+            overflow: auto;
+        }
+        
+        .system-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        
+        .system-title {
+            font-size: 52px;
+            font-weight: 900;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            text-shadow: 0 0 24px rgba(0, 180, 255, .24);
+        }
+        
+        .system-sub {
+            margin-top: 10px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, .72);
+        }
+        /* BUTTONS */
+        
+        .top-actions {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .panel-btn {
+            height: 58px;
+            padding: 0 28px;
+            border: none;
+            border-radius: 18px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: .10em;
+            text-transform: uppercase;
+            color: white;
+            background: rgba(255, 255, 255, .08);
+            border: 1px solid rgba(255, 255, 255, .08);
+        }
+        /* GRID */
+        
+        .system-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+        /* CARD */
+        
+        .system-card {
+            border-radius: 28px;
+            padding: 28px;
+            background: linear-gradient( 180deg, rgba(5, 15, 30, .90), rgba(2, 6, 12, .96));
+            border: 1px solid rgba(255, 255, 255, .08);
+            backdrop-filter: blur(18px);
+            transition: .22s ease;
+        }
+        
+        .system-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(0, 180, 255, .28);
+            box-shadow: 0 0 30px rgba(0, 180, 255, .14);
+        }
+        
+        .system-icon {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 44px;
+            background: linear-gradient( 180deg, #00B4FF, #006CFF);
+            margin-bottom: 24px;
+            box-shadow: 0 0 24px rgba(0, 180, 255, .30);
+        }
+        
+        .system-card-title {
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 14px;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+        
+        .system-card-desc {
+            font-size: 13px;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, .70);
+            margin-bottom: 24px;
+        }
+        
+        .system-btn {
+            width: 100%;
+            height: 52px;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 900;
+            letter-spacing: .10em;
+            text-transform: uppercase;
+            color: white;
+            background: linear-gradient( 90deg, #00B4FF, #006CFF);
+        }
+        /* PANEL */
+        
+        .side-panel {
+            width: 360px;
+            height: 100vh;
+            background: linear-gradient( 180deg, rgba(5, 15, 30, .96), rgba(2, 6, 12, .98));
+            border-left: 1px solid rgba(0, 180, 255, .18);
+            backdrop-filter: blur(18px);
+            padding: 30px 24px;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            right: 0;
+            z-index: 50;
+            transform: translateX(110%);
+            transition: .35s ease;
+        }
+        
+        .side-panel.active {
+            transform: translateX(0);
+        }
+        /* TITLES */
+        
+        .panel-title {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        
+        .panel-sub {
+            font-size: 11px;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: #00B4FF;
+            margin-bottom: 30px;
+        }
+        /* MENU */
+        
+        .panel-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        
+        .menu-btn {
+            width: 100%;
+            height: 58px;
+            border: none;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 18px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: white;
+            background: linear-gradient( 90deg, rgba(5, 20, 40, .95), rgba(8, 35, 70, .92));
+            border: 1px solid rgba(255, 255, 255, .05);
+            transition: .22s ease;
+        }
+        
+        .menu-btn:hover {
+            transform: translateX(-4px);
+            border-color: rgba(0, 180, 255, .25);
+            box-shadow: 0 0 18px rgba(0, 180, 255, .14);
+        }
+        
+        .menu-btn.active {
+            background: linear-gradient( 90deg, #00B4FF, #006CFF);
+        }
+        
+        .menu-icon {
+            font-size: 22px;
+        }
+        /* CLOSE */
+        
+        .close-panel-btn {
+            margin-top: auto;
+            height: 56px;
+            border: none;
+            border-radius: 18px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: .10em;
+            text-transform: uppercase;
+            color: white;
+            background: linear-gradient( 90deg, #00B4FF, #006CFF);
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- VIDEO -->
+
+    <video class="video-bg" autoplay muted loop playsinline>
+
+    <source
+    src="../assets/bg/sistema.mp4"
+    type="video/mp4">
+
+</video>
+
+    <div class="video-overlay"></div>
+
+    <div class="layout">
+
+        <!-- CONTENT -->
+
+        <section class="system-section">
+
+            <div class="system-header">
+
+                <div>
+
+                    <h1 class="system-title">
+                        SISTEMA
+                    </h1>
+
+                    <div class="system-sub">
+                        Configuración central del Budokai Tournament System
+                    </div>
+
+                </div>
+
+                <div class="top-actions">
+
+                    <button class="panel-btn" id="togglePanel">
+
+                    ☰ PANEL SISTEMA
+
+                </button>
+
+                </div>
+
+            </div>
+
+            <!-- GRID -->
+
+            <div class="system-grid">
+
+                <div class="system-card">
+
+                    <div class="system-icon">
+                        👤
+                    </div>
+
+                    <div class="system-card-title">
+                        Usuarios
+                    </div>
+
+                    <div class="system-card-desc">
+                        Gestión completa de cuentas, permisos y accesos del sistema.
+                    </div>
+
+                    <button class="system-btn">
+                    Administrar Usuarios
+                </button>
+
+                </div>
+
+                <div class="system-card">
+
+                    <div class="system-icon">
+                        🔐
+                    </div>
+
+                    <div class="system-card-title">
+                        Seguridad
+                    </div>
+
+                    <div class="system-card-desc">
+                        Control de autenticación, sesiones y protección del sistema.
+                    </div>
+
+                    <button class="system-btn">
+                    Configurar Seguridad
+                </button>
+
+                </div>
+
+                <div class="system-card">
+
+                    <div class="system-icon">
+                        🗄️
+                    </div>
+
+                    <div class="system-card-title">
+                        Base de Datos
+                    </div>
+
+                    <div class="system-card-desc">
+                        Administración de tablas, registros y conexiones internas.
+                    </div>
+
+                    <button class="system-btn">
+                    Gestionar Base de Datos
+                </button>
+
+                </div>
+
+                <div class="system-card">
+
+                    <div class="system-icon">
+                        📊
+                    </div>
+
+                    <div class="system-card-title">
+                        Logs
+                    </div>
+
+                    <div class="system-card-desc">
+                        Historial de acciones realizadas dentro del torneo y usuarios.
+                    </div>
+
+                    <button class="system-btn">
+                    Ver Logs
+                </button>
+
+                </div>
+
+                <div class="system-card">
+
+                    <div class="system-icon">
+                        ⚙️
+                    </div>
+
+                    <div class="system-card-title">
+                        Configuración
+                    </div>
+
+                    <div class="system-card-desc">
+                        Ajustes generales visuales y operativos del sistema Budokai.
+                    </div>
+
+                    <button class="system-btn">
+                    Abrir Configuración
+                </button>
+
+                </div>
+
+                <div class="system-card">
+
+                    <div class="system-icon">
+                        ☁️
+                    </div>
+
+                    <div class="system-card-title">
+                        Respaldos
+                    </div>
+
+                    <div class="system-card-desc">
+                        Copias de seguridad automáticas y restauración de información.
+                    </div>
+
+                    <button class="system-btn">
+                    Gestionar Backups
+                </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- PANEL -->
+
+        <aside class="side-panel" id="systemPanel">
+
+            <div class="panel-title">
+                SISTEMA
+            </div>
+
+            <div class="panel-sub">
+                Budokai Tournament System
+            </div>
+
+            <div class="panel-menu">
+
+                <button class="menu-btn" onclick="window.location.href='index.html'">
+
+                <span class="menu-icon">🏠</span>
+                Inicio
+
+            </button>
+
+                <button class="menu-btn" onclick="window.location.href='staff.html'">
+
+                <span class="menu-icon">👥</span>
+                Staff
+
+            </button>
+
+                <button class="menu-btn" onclick="window.location.href='luchadores.html'">
+
+                <span class="menu-icon">⚔️</span>
+                Luchadores
+
+            </button>
+
+                <button class="menu-btn" onclick="window.location.href='combates.html'">
+
+                <span class="menu-icon">🥊</span>
+                Combates
+
+            </button>
+
+                <button class="menu-btn" onclick="window.location.href='torneo.html'">
+
+                <span class="menu-icon">🏆</span>
+                Torneo
+
+            </button>
+
+                <button class="menu-btn" onclick="window.location.href='estadisticas.html'">
+
+                <span class="menu-icon">📊</span>
+                Estadísticas
+
+            </button>
+
+                <button class="menu-btn active">
+
+                <span class="menu-icon">⚙️</span>
+                Sistema
+
+            </button>
+
+                <button class="menu-btn">
+                <span class="menu-icon">🔐</span>
+                Seguridad
+            </button>
+
+                <button class="menu-btn">
+                <span class="menu-icon">🗄️</span>
+                Base de Datos
+            </button>
+
+                <button class="menu-btn">
+                <span class="menu-icon">📁</span>
+                Respaldos
+            </button>
+
+            </div>
+
+            <button class="close-panel-btn" id="closePanel">
+
+            ✕ Cerrar Panel
+
+        </button>
+
+        </aside>
+
+    </div>
+
+    <script>
+        /* PANEL */
+
+        const panel =
+            document.getElementById('systemPanel');
+
+        document
+            .getElementById('togglePanel')
+            .onclick = () => {
+
+                panel.classList.add('active');
+
+            };
+
+        document
+            .getElementById('closePanel')
+            .onclick = () => {
+
+                panel.classList.remove('active');
+
+            };
+    </script>
+
+</body>
+
+</html>

@@ -1,355 +1,548 @@
-/**
- * login.js — Módulo de autenticación
- * Budokai System · Torneo de Artes Marciales
- *
- * Contrato con el backend (login_api.php):
- *   POST ?action=iniciar-sesion  →  { username, password }
- *   Respuesta OK  →  { status:"success", data:{ idUsuario, username, rol } }
- *   Respuesta ERR →  { status:"error",   message:"..." }
- *
- * Sesión guardada en sessionStorage:
- *   budokai_session = { idUsuario, username, rol, idSesion? }
- */
+const cloudGame = document.getElementById('cloudGame');
 
-'use strict';
+const startBtn = document.getElementById('startGameBtn');
+const pauseBtn = document.getElementById('pauseGameBtn');
+const endBtn = document.getElementById('endGameBtn');
 
-/* ── Configuración ──────────────────────────────────────────────── */
-const LOGIN_CONFIG = {
-  // URL del endpoint — ajusta el puerto si trabajas en local
-  apiUrl: 'http://localhost/Backend-Artes-Marciales/tournament-app/backend/api/endpoints/login/login_api.php',
+let gameInterval;
+let obstacleInterval;
 
-  // Máximo de intentos fallidos antes de bloquear (según RNF-04 del SRS)
-  maxAttempts: 3,
+let gameRunning = false;
+let gamePaused = false;
 
-  // Tiempo de bloqueo en segundos (10 min según RNF-04)
-  lockoutSeconds: 600,
+/* =========================
+   MENSAJES
+========================= */
 
-  // Clave en sessionStorage para la sesión activa
-  sessionKey: 'budokai_session',
+function showMessage(text, type = 'info') {
 
-  // Clave en localStorage para el contador de intentos fallidos
-  attemptsKey: 'budokai_failed_attempts',
-  lockoutKey:  'budokai_lockout_until',
+    const oldMessage =
+        document.querySelector('.system-message');
 
-  // Ruta al dashboard tras login exitoso (relativa a /pages/)
-  dashboardUrl: 'index.html',
-};
+    if (oldMessage) {
+        oldMessage.remove();
+    }
 
-/* ── Referencias DOM ────────────────────────────────────────────── */
-const dom = {
-  form:           () => document.getElementById('loginForm'),
-  usernameInput:  () => document.getElementById('username'),
-  passwordInput:  () => document.getElementById('password'),
-  toggleBtn:      () => document.getElementById('togglePassword'),
-  submitBtn:      () => document.getElementById('btnLogin'),
-  errorBanner:    () => document.getElementById('errorBanner'),
-  errorMsg:       () => document.getElementById('errorMsg'),
-  attemptsInfo:   () => document.getElementById('attemptsInfo'),
-  lockoutOverlay: () => document.getElementById('lockoutOverlay'),
-  lockoutTimer:   () => document.getElementById('lockoutTimer'),
-  toastSuccess:   () => document.getElementById('toastSuccess'),
-};
+    const message =
+        document.createElement('div');
 
-/* ── Estado local ───────────────────────────────────────────────── */
-let lockoutInterval = null;
-
-/* ══════════════════════════════════════════════════════════════════
-   INICIALIZACIÓN
-   ══════════════════════════════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', () => {
-  // Si ya hay sesión activa, redirigir directo al dashboard
-  if (sessionStorage.getItem(LOGIN_CONFIG.sessionKey)) {
-    redirectToDashboard();
-    return;
-  }
-
-  initBackground();
-  initTogglePassword();
-  initForm();
-  checkLockout();
-  updateAttemptsUI();
-});
-
-/* ══════════════════════════════════════════════════════════════════
-   FONDO — imagen o video
-   ══════════════════════════════════════════════════════════════════ */
-function initBackground() {
-  const bgImg   = document.getElementById('bgImage');
-  const bgVideo = document.getElementById('bgVideo');
-  const bgFallback = document.getElementById('bgFallback');
-
-  if (bgVideo) {
-    bgVideo.addEventListener('error', () => {
-      bgVideo.style.display = 'none';
-      if (bgImg) tryImage(bgImg, bgFallback);
-      else if (bgFallback) bgFallback.style.display = 'block';
-    });
-    return; // el video se maneja solo
-  }
-
-  if (bgImg) {
-    tryImage(bgImg, bgFallback);
-  } else if (bgFallback) {
-    bgFallback.style.display = 'block';
-  }
-}
-
-function tryImage(imgEl, fallbackEl) {
-  imgEl.addEventListener('error', () => {
-    imgEl.style.display = 'none';
-    if (fallbackEl) fallbackEl.style.display = 'block';
-  });
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   TOGGLE CONTRASEÑA
-   ══════════════════════════════════════════════════════════════════ */
-function initTogglePassword() {
-  const btn   = dom.toggleBtn();
-  const input = dom.passwordInput();
-  if (!btn || !input) return;
-
-  btn.addEventListener('click', () => {
-    const isText = input.type === 'text';
-    input.type = isText ? 'password' : 'text';
-    btn.textContent = isText ? '👁️' : '🙈';
-    btn.setAttribute('aria-label', isText ? 'Mostrar contraseña' : 'Ocultar contraseña');
-  });
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   FORMULARIO
-   ══════════════════════════════════════════════════════════════════ */
-function initForm() {
-  const form = dom.form();
-  if (!form) return;
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    await handleLogin();
-  });
-
-  // Limpiar error al escribir
-  [dom.usernameInput(), dom.passwordInput()].forEach(input => {
-    if (!input) return;
-    input.addEventListener('input', () => {
-      clearError();
-      input.classList.remove('is-error');
-    });
-  });
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   LÓGICA DE LOGIN
-   ══════════════════════════════════════════════════════════════════ */
-async function handleLogin() {
-  // Verificar bloqueo activo
-  if (isLockedOut()) {
-    showError('Cuenta bloqueada temporalmente. Espera el contador.');
-    return;
-  }
-
-  const username = dom.usernameInput()?.value.trim();
-  const password = dom.passwordInput()?.value;
-
-  // Validación básica en cliente
-  if (!username || !password) {
-    showError('Por favor completa todos los campos.');
-    if (!username) dom.usernameInput()?.classList.add('is-error');
-    if (!password) dom.passwordInput()?.classList.add('is-error');
-    return;
-  }
-
-  setLoading(true);
-  clearError();
-
-  try {
-    const response = await fetch(
-      `${LOGIN_CONFIG.apiUrl}?action=iniciar-sesion`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      }
+    message.classList.add(
+        'system-message'
     );
 
-    const json = await response.json();
+    message.classList.add(type);
 
-    if (response.ok && json.status === 'success') {
-      // ── Login exitoso ──────────────────────────────────────────
-      resetAttempts();
-      saveSession(json.data);
-      showToastSuccess(`Bienvenido, ${json.data.username}`);
+    message.innerHTML = text;
 
-      // Pequeña pausa para que el usuario vea el toast
-      setTimeout(() => redirectToDashboard(), 1200);
+    document.body.appendChild(message);
+
+    setTimeout(() => {
+        message.classList.add('show');
+    }, 10);
+
+    setTimeout(() => {
+
+        message.classList.remove('show');
+
+        setTimeout(() => {
+            message.remove();
+        }, 400);
+
+    }, 3500);
+}
+
+/* =========================
+   JUGADOR
+========================= */
+
+const player =
+    document.createElement('div');
+
+player.classList.add(
+    'player-cloud'
+);
+
+let playerY = 80;
+let velocity = 0;
+
+const gravity = 0.6;
+const jumpForce = -10;
+
+function setupPlayer() {
+
+    player.style.left = '40px';
+
+    player.style.top =
+        playerY + 'px';
+
+    cloudGame.appendChild(player);
+}
+
+function updatePlayer() {
+
+    velocity += gravity;
+
+    playerY += velocity;
+
+    if (playerY < 0) {
+
+        playerY = 0;
+        velocity = 0;
+    }
+
+    const maxY =
+        cloudGame.clientHeight - 45;
+
+    if (playerY > maxY) {
+
+        playerY = maxY;
+        velocity = 0;
+    }
+
+    player.style.top =
+        playerY + 'px';
+}
+
+/* =========================
+   SALTO
+========================= */
+
+function jump() {
+
+    velocity = jumpForce;
+}
+
+/* =========================
+   CONTROLES
+========================= */
+
+document.addEventListener(
+    'keydown',
+    e => {
+
+        if (!gameRunning) return;
+
+        if (
+            e.code === 'ArrowUp' ||
+            e.code === 'Space' ||
+            e.code === 'KeyW'
+        ) {
+            jump();
+        }
+    });
+
+/* =========================
+   OBSTACULOS
+========================= */
+
+function createObstacle() {
+
+    const obstacle =
+        document.createElement('div');
+
+    obstacle.classList.add(
+        'obstacle'
+    );
+
+    const obstacleHeight =
+        50 + Math.random() * 120;
+
+    obstacle.style.height =
+        obstacleHeight + 'px';
+
+    obstacle.style.left =
+        cloudGame.clientWidth + 'px';
+
+    const positionType =
+        Math.random() > 0.5 ?
+        'top' :
+        'bottom';
+
+    if (positionType === 'top') {
+
+        obstacle.style.top = '0px';
+
+        obstacle.style.bottom =
+            'auto';
+
+        obstacle.style.borderRadius =
+            '0 0 14px 14px';
 
     } else {
-      // ── Credenciales inválidas ─────────────────────────────────
-      const remaining = registerFailedAttempt();
 
-      if (remaining <= 0) {
-        startLockout();
-      } else {
-        const msg = response.status === 401
-          ? 'Usuario o contraseña incorrectos.'
-          : (json.message || 'Error al iniciar sesión.');
-        showError(msg);
-        dom.usernameInput()?.classList.add('is-error');
-        dom.passwordInput()?.classList.add('is-error');
-        updateAttemptsUI();
-      }
+        obstacle.style.bottom = '0px';
+
+        obstacle.style.top = 'auto';
+
+        obstacle.style.borderRadius =
+            '14px 14px 0 0';
     }
 
-  } catch (err) {
-    // Error de red / servidor caído
-    showError('No se pudo conectar con el servidor. Verifica tu conexión.');
-    console.error('[Login] Error de red:', err);
-  } finally {
-    setLoading(false);
-  }
+    cloudGame.appendChild(
+        obstacle
+    );
+
+    let obstacleX =
+        cloudGame.clientWidth;
+
+    const obstacleMove =
+        setInterval(() => {
+
+            if (!gameRunning ||
+                gamePaused
+            ) return;
+
+            obstacleX -= 10;
+
+            obstacle.style.left =
+                obstacleX + 'px';
+
+            const playerRect =
+                player.getBoundingClientRect();
+
+            const obstacleRect =
+                obstacle.getBoundingClientRect();
+
+            const collision =
+                playerRect.left <
+                obstacleRect.right &&
+
+                playerRect.right >
+                obstacleRect.left &&
+
+                playerRect.top <
+                obstacleRect.bottom &&
+
+                playerRect.bottom >
+                obstacleRect.top;
+
+            if (collision) {
+
+                createExplosion();
+
+                endGame();
+
+                showMessage(
+                    '💥 Has perdido',
+                    'error'
+                );
+
+                clearInterval(
+                    obstacleMove
+                );
+            }
+
+            if (obstacleX < -60) {
+
+                obstacle.remove();
+
+                clearInterval(
+                    obstacleMove
+                );
+            }
+
+        }, 20);
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   SESIÓN
-   ══════════════════════════════════════════════════════════════════ */
-function saveSession(data) {
-  sessionStorage.setItem(LOGIN_CONFIG.sessionKey, JSON.stringify({
-    idUsuario: data.idUsuario,
-    username:  data.username,
-    rol:       data.rol,
-    idSesion:  data.idSesion ?? null,
-  }));
-}
+/* =========================
+   PARTICULAS
+========================= */
 
-function redirectToDashboard() {
-  window.location.href = LOGIN_CONFIG.dashboardUrl;
-}
+function createExplosion() {
 
-/* ══════════════════════════════════════════════════════════════════
-   INTENTOS FALLIDOS Y BLOQUEO
-   ══════════════════════════════════════════════════════════════════ */
-function getAttempts() {
-  return parseInt(localStorage.getItem(LOGIN_CONFIG.attemptsKey) || '0', 10);
-}
+    for (let i = 0; i < 15; i++) {
 
-function registerFailedAttempt() {
-  const current = getAttempts() + 1;
-  localStorage.setItem(LOGIN_CONFIG.attemptsKey, String(current));
-  return LOGIN_CONFIG.maxAttempts - current;
-}
+        const particle =
+            document.createElement('div');
 
-function resetAttempts() {
-  localStorage.removeItem(LOGIN_CONFIG.attemptsKey);
-  localStorage.removeItem(LOGIN_CONFIG.lockoutKey);
-}
+        particle.classList.add(
+            'particle'
+        );
 
-function isLockedOut() {
-  const until = parseInt(localStorage.getItem(LOGIN_CONFIG.lockoutKey) || '0', 10);
-  return Date.now() < until;
-}
+        particle.style.left =
+            player.offsetLeft + 20 + 'px';
 
-function startLockout() {
-  const until = Date.now() + LOGIN_CONFIG.lockoutSeconds * 1000;
-  localStorage.setItem(LOGIN_CONFIG.lockoutKey, String(until));
-  showLockout();
-}
+        particle.style.top =
+            player.offsetTop + 20 + 'px';
 
-function checkLockout() {
-  if (isLockedOut()) showLockout();
-}
+        cloudGame.appendChild(
+            particle
+        );
 
-function showLockout() {
-  const overlay = dom.lockoutOverlay();
-  if (!overlay) return;
-  overlay.classList.add('visible');
-  setFormDisabled(true);
-  startLockoutTimer();
-}
+        const x =
+            (Math.random() - 0.5) *
+            200;
 
-function startLockoutTimer() {
-  if (lockoutInterval) clearInterval(lockoutInterval);
+        const y =
+            (Math.random() - 0.5) *
+            200;
 
-  const timerEl = dom.lockoutTimer();
+        particle.animate(
+            [{
+                    transform: 'translate(0,0) scale(1)',
 
-  const tick = () => {
-    const until = parseInt(localStorage.getItem(LOGIN_CONFIG.lockoutKey) || '0', 10);
-    const remaining = Math.max(0, Math.ceil((until - Date.now()) / 1000));
+                    opacity: 1
+                },
+                {
+                    transform: `translate(${x}px,${y}px) scale(0)`,
 
-    if (timerEl) {
-      const m = Math.floor(remaining / 60).toString().padStart(2, '0');
-      const s = (remaining % 60).toString().padStart(2, '0');
-      timerEl.textContent = `${m}:${s}`;
+                    opacity: 0
+                }
+            ], {
+                duration: 700,
+                easing: 'ease-out'
+            }
+        );
+
+        setTimeout(() => {
+            particle.remove();
+        }, 700);
     }
-
-    if (remaining <= 0) {
-      clearInterval(lockoutInterval);
-      lockoutInterval = null;
-      resetAttempts();
-      const overlay = dom.lockoutOverlay();
-      if (overlay) overlay.classList.remove('visible');
-      setFormDisabled(false);
-      updateAttemptsUI();
-    }
-  };
-
-  tick();
-  lockoutInterval = setInterval(tick, 1000);
 }
 
-/* ══════════════════════════════════════════════════════════════════
-   UI HELPERS
-   ══════════════════════════════════════════════════════════════════ */
-function setLoading(loading) {
-  const btn = dom.submitBtn();
-  if (!btn) return;
-  btn.disabled = loading;
-  btn.classList.toggle('loading', loading);
+/* =========================
+   CONTROLES JUEGO
+========================= */
+
+function startGame() {
+
+    endGame();
+
+    gameRunning = true;
+
+    gamePaused = false;
+
+    pauseBtn.textContent =
+        'Pausar';
+
+    playerY = 80;
+
+    velocity = 0;
+
+    cloudGame.innerHTML = '';
+
+    setupPlayer();
+
+    gameInterval =
+        setInterval(() => {
+
+            if (!gamePaused) {
+
+                updatePlayer();
+            }
+
+        }, 20);
+
+    obstacleInterval =
+        setInterval(() => {
+
+            if (!gamePaused) {
+
+                createObstacle();
+            }
+
+        }, 1200);
+
+    showMessage(
+        '☁️ Juego iniciado',
+        'success'
+    );
 }
 
-function setFormDisabled(disabled) {
-  const inputs = [dom.usernameInput(), dom.passwordInput(), dom.submitBtn()];
-  inputs.forEach(el => { if (el) el.disabled = disabled; });
+function pauseGame() {
+
+    if (!gameRunning) return;
+
+    gamePaused = !gamePaused;
+
+    pauseBtn.textContent =
+        gamePaused ?
+        'Continuar' :
+        'Pausar';
+
+    showMessage(
+        gamePaused ?
+        '⏸ Juego pausado' :
+        '▶ Juego reanudado',
+        'info'
+    );
 }
 
-function showError(msg) {
-  const banner = dom.errorBanner();
-  const msgEl  = dom.errorMsg();
-  if (!banner || !msgEl) return;
-  msgEl.textContent = msg;
-  banner.classList.add('visible');
-  // Re-trigger animation
-  banner.style.animation = 'none';
-  banner.offsetHeight; // reflow
-  banner.style.animation = '';
+function endGame() {
+
+    gameRunning = false;
+
+    clearInterval(gameInterval);
+
+    clearInterval(
+        obstacleInterval
+    );
+
+    const obstacles =
+        document.querySelectorAll(
+            '.obstacle'
+        );
+
+    obstacles.forEach(o =>
+        o.remove()
+    );
 }
 
-function clearError() {
-  const banner = dom.errorBanner();
-  if (banner) banner.classList.remove('visible');
-}
+/* =========================
+   BOTONES
+========================= */
 
-function updateAttemptsUI() {
-  const el = dom.attemptsInfo();
-  if (!el) return;
+startBtn.addEventListener(
+    'click',
+    startGame
+);
 
-  const attempts  = getAttempts();
-  const remaining = LOGIN_CONFIG.maxAttempts - attempts;
+pauseBtn.addEventListener(
+    'click',
+    pauseGame
+);
 
-  if (attempts === 0) {
-    el.textContent = `Intentos restantes: ${LOGIN_CONFIG.maxAttempts}`;
-    el.className = 'attempts-info';
-    return;
-  }
+endBtn.addEventListener(
+    'click',
+    () => {
 
-  el.textContent = `Intentos restantes: ${remaining}`;
-  el.className = 'attempts-info' + (remaining === 1 ? ' danger' : remaining === 2 ? ' warning' : '');
-}
+        endGame();
 
-function showToastSuccess(msg) {
-  const toast = dom.toastSuccess();
-  if (!toast) return;
-  toast.querySelector('.toast-msg').textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3000);
-}
+        showMessage(
+            '🛑 Juego terminado',
+            'info'
+        );
+    });
+
+/* =========================
+   INICIALIZAR
+========================= */
+
+setupPlayer();
+
+/* =========================
+   LOGIN
+========================= */
+
+const loginForm =
+    document.getElementById(
+        'loginForm'
+    );
+
+let attempts = 3;
+
+loginForm.addEventListener(
+    'submit',
+    async e => {
+
+        e.preventDefault();
+
+        if (attempts <= 0) {
+
+            showMessage(
+                '🚫 Sistema bloqueado',
+                'error'
+            );
+
+            return;
+        }
+
+        const username =
+            document.getElementById(
+                'username'
+            ).value;
+
+        const password =
+            document.getElementById(
+                'password'
+            ).value;
+
+        try {
+
+            const response =
+                await fetch(
+                    'http://localhost/Backend-Artes-Marciales/tournament-app/backend/api/endpoints/login/login_api.php?action=iniciar-sesion', {
+                        method: 'POST',
+
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+
+                        body: JSON.stringify({
+                            username,
+                            password
+                        })
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            console.log(data);
+
+            if (data.success) {
+
+                sessionStorage.setItem(
+                    'user',
+                    JSON.stringify({
+                        username: username,
+                        rol: data.rol || 'Administrador'
+                    })
+                );
+
+                showMessage(
+                    '✅ Login correcto',
+                    'success'
+                );
+
+                setTimeout(() => {
+
+                    window.location.href =
+                        '../pages/index.html';
+
+                }, 1500);
+
+            } else {
+
+                attempts--;
+
+                document.getElementById(
+                        'attemptsInfo'
+                    ).textContent =
+                    `Intentos restantes: ${attempts}`;
+
+                showMessage(
+                    `❌ ${data.message || 'Credenciales incorrectas'}`,
+                    'error'
+                );
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+            /* =========================
+               MODO LOCAL DESARROLLO
+            ========================= */
+
+            sessionStorage.setItem(
+                'user',
+                JSON.stringify({
+                    username: 'Admin',
+                    rol: 'Modo Local'
+                })
+            );
+
+            showMessage(
+                '⚠ Backend desconectado - Entrando en modo local',
+                'info'
+            );
+
+            setTimeout(() => {
+
+                window.location.href =
+                    '../pages/index.html';
+
+            }, 1500);
+        }
+    });
