@@ -1,21 +1,13 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| LUCHADOR DAO IMPLEMENTATION
-|--------------------------------------------------------------------------
-| Budokai Martial Arts Tournament System
-|--------------------------------------------------------------------------
-*/
-
 require_once __DIR__ . '/../../../../core/database.php';
 
 require_once __DIR__ . '/../../base/BaseDAO.php';
 require_once __DIR__ . '/../../base/ICRUD.php';
 
-require_once __DIR__ . '/../interfaces/ILuchadorDAO.php';
+require_once __DIR__ . '/../interfaces/ISeguridadDAO.php';
 
-class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
+class SeguridadDAOImpl extends BaseDAO implements ICRUD, ISeguridadDAO {
 
     /*
     |--------------------------------------------------------------------------
@@ -23,7 +15,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
     |--------------------------------------------------------------------------
     */
 
-    private $table = "luchadores";
+    private $table = "log";
 
     /*
     |--------------------------------------------------------------------------
@@ -55,7 +47,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
         FROM {$this->table}
 
-        ORDER BY id_luchador DESC
+        ORDER BY id_log DESC
 
         ";
 
@@ -77,7 +69,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
         FROM {$this->table}
 
-        WHERE id_luchador = ?
+        WHERE id_log = ?
 
         LIMIT 1
 
@@ -97,7 +89,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
     /*
     |--------------------------------------------------------------------------
-    | Crear luchador
+    | Crear log
     |--------------------------------------------------------------------------
     */
 
@@ -105,44 +97,31 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
         $sql = "
 
-        INSERT INTO {$this->table}
+    |    INSERT INTO {$this->table}
 
-        (
+(
 
-            nombre,
-            apellido,
+        id_usuario,
 
-            tipo_documento,
-            numero_documento,
+        accion,
 
-            edad,
-            genero,
+        modulo,
 
-            categoria,
-            peso,
+        descripcion,
 
-            telefono,
-            email,
+        ip_address,
 
-            victorias,
-            derrotas,
+        nivel,
 
-            estado,
+        fecha
 
-            foto,
-
-            fecha_registro
-
-        )
+)
 
         VALUES
 
         (
 
-            ?, ?, ?, ?,
-            ?, ?, ?, ?,
-            ?, ?, ?, ?,
-            ?, ?, NOW()
+    ?, ?, ?, ?, ?, ?, NOW()
 
         )
 
@@ -154,31 +133,21 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
             [
 
-                $data["nombre"],
-                $data["apellido"],
+    $data["id_usuario"],
 
-                $data["tipo_documento"],
-                $data["numero_documento"],
+    $data["accion"],
 
-                $data["edad"],
-                $data["genero"],
+    $data["modulo"],
 
-                $data["categoria"],
-                $data["peso"],
+    $data["descripcion"],
 
-                $data["telefono"],
-                $data["email"],
+    $data["ip_address"],
 
-                $data["victorias"],
-                $data["derrotas"],
+    $data["nivel"]
 
-                $data["estado"],
+],
 
-                $data["foto"]
-
-            ],
-
-            "ssssissdssiiss"
+            "isssss"
 
         );
 
@@ -186,7 +155,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
     /*
     |--------------------------------------------------------------------------
-    | Actualizar luchador
+    | Actualizar log
     |--------------------------------------------------------------------------
     */
 
@@ -194,33 +163,21 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
         $sql = "
 
-        UPDATE {$this->table}
+       UPDATE {$this->table}
 
-        SET
+SET
 
-            nombre = ?,
-            apellido = ?,
+    accion = ?,
 
-            tipo_documento = ?,
-            numero_documento = ?,
+    modulo = ?,
 
-            edad = ?,
-            genero = ?,
+    descripcion = ?,
 
-            categoria = ?,
-            peso = ?,
+    ip_address = ?,
 
-            telefono = ?,
-            email = ?,
+    nivel = ?
 
-            victorias = ?,
-            derrotas = ?,
-
-            estado = ?,
-
-            foto = ?
-
-        WHERE id_luchador = ?
+WHERE id_log = ?
 
         ";
 
@@ -230,33 +187,16 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
             [
 
-                $data["nombre"],
-                $data["apellido"],
-
-                $data["tipo_documento"],
-                $data["numero_documento"],
-
-                $data["edad"],
-                $data["genero"],
-
-                $data["categoria"],
-                $data["peso"],
-
-                $data["telefono"],
-                $data["email"],
-
-                $data["victorias"],
-                $data["derrotas"],
-
-                $data["estado"],
-
-                $data["foto"],
-
+                $data["accion"],
+                $data["modulo"],
+                $data["descripcion"],
+                $data["ip_address"],
+                $data["nivel"],
                 $id
 
             ],
 
-            "ssssissdssiissi"
+            "sssssi"
 
         );
 
@@ -264,7 +204,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
     /*
     |--------------------------------------------------------------------------
-    | Eliminar luchador
+    | Eliminar log
     |--------------------------------------------------------------------------
     */
 
@@ -274,7 +214,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
         DELETE FROM {$this->table}
 
-        WHERE id_luchador = ?
+        WHERE id_log = ?
 
         ";
 
@@ -292,7 +232,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
     /*
     |--------------------------------------------------------------------------
-    | Buscar luchador
+    | Buscar logs
     |--------------------------------------------------------------------------
     */
 
@@ -306,14 +246,9 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
         FROM {$this->table}
 
-        WHERE
+        WHERE accion LIKE ?
 
-            nombre LIKE ?
-            OR apellido LIKE ?
-            OR categoria LIKE ?
-            OR numero_documento LIKE ?
-
-        ORDER BY id_luchador DESC
+        ORDER BY id_log DESC
 
         ";
 
@@ -321,46 +256,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
             $sql,
 
-            [
-
-                $search,
-                $search,
-                $search,
-                $search
-
-            ],
-
-            "ssss"
-
-        );
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener por categoría
-    |--------------------------------------------------------------------------
-    */
-
-    public function getByCategoria($categoria){
-
-        $sql = "
-
-        SELECT *
-
-        FROM {$this->table}
-
-        WHERE categoria = ?
-
-        ORDER BY nombre ASC
-
-        ";
-
-        return $this->fetchAll(
-
-            $sql,
-
-            [$categoria],
+            [$search],
 
             "s"
 
@@ -370,31 +266,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener activos
-    |--------------------------------------------------------------------------
-    */
-
-    public function getActivos(){
-
-        $sql = "
-
-        SELECT *
-
-        FROM {$this->table}
-
-        WHERE estado = 'activo'
-
-        ORDER BY nombre ASC
-
-        ";
-
-        return $this->fetchAll($sql);
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Contar total
+    | Contar logs
     |--------------------------------------------------------------------------
     */
 
@@ -414,41 +286,11 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
     /*
     |--------------------------------------------------------------------------
-    | Contar por categoría
+    | Logs recientes
     |--------------------------------------------------------------------------
     */
 
-    public function countByCategoria($categoria){
-
-        $sql = "
-
-        SELECT COUNT(*) AS total
-
-        FROM {$this->table}
-
-        WHERE categoria = ?
-
-        ";
-
-        return $this->fetch(
-
-            $sql,
-
-            [$categoria],
-
-            "s"
-
-        );
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener ranking
-    |--------------------------------------------------------------------------
-    */
-
-    public function getRanking(){
+    public function getRecentLogs(){
 
         $sql = "
 
@@ -456,9 +298,9 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
         FROM {$this->table}
 
-        ORDER BY victorias DESC
+        ORDER BY fecha DESC
 
-        LIMIT 10
+        LIMIT 20
 
         ";
 
@@ -468,47 +310,105 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener top victorias
+    | Logs por usuario
     |--------------------------------------------------------------------------
     */
 
-    public function getTopVictorias(){
+    public function getLogsByUser($id_usuario){
 
-        return $this->getRanking();
+        $sql = "
+
+        SELECT *
+
+        FROM {$this->table}
+
+        WHERE id_usuario = ?
+
+        ORDER BY fecha DESC
+
+        ";
+
+        return $this->fetchAll(
+
+            $sql,
+
+            [$id_usuario],
+
+            "i"
+
+        );
 
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Validar documento
+    | Sesiones activas
     |--------------------------------------------------------------------------
     */
 
-    public function documentoExists($documento){
+    public function getActiveSessions(){
 
         $sql = "
 
-        SELECT id_luchador
+        SELECT *
 
-        FROM {$this->table}
+        FROM sesion
 
-        WHERE numero_documento = ?
+        WHERE estado = 1
 
-        LIMIT 1
+        ORDER BY fecha_inicio DESC
 
         ";
 
-        $result = $this->fetch(
+        return $this->fetchAll($sql);
 
-            $sql,
+    }
 
-            [$documento],
+    /*
+    |--------------------------------------------------------------------------
+    | Registrar evento
+    |--------------------------------------------------------------------------
+    */
 
-            "s"
+    public function registrarEvento($data){
 
-        );
+        return $this->create($data);
 
-        return !empty($result);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Contar logs
+    |--------------------------------------------------------------------------
+    */
+
+    public function countLogs(){
+
+        return $this->countAll();
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Intentos fallidos
+    |--------------------------------------------------------------------------
+    */
+
+    public function getFailedAttempts(){
+
+        $sql = "
+
+        SELECT *
+
+        FROM {$this->table}
+
+        WHERE accion LIKE '%fallido%'
+
+        ORDER BY fecha DESC
+
+        ";
+
+        return $this->fetchAll($sql);
 
     }
 

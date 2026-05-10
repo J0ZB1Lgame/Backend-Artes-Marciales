@@ -637,152 +637,345 @@
     </div>
 
     <script>
-        /* PANEL STAFF */
 
-        const staffPanel =
-            document.getElementById('staffPanel');
+    /*
+    |--------------------------------------------------------------------------
+    | PANEL STAFF
+    |--------------------------------------------------------------------------
+    */
 
-        document
-            .getElementById('toggleStaffPanel')
-            .onclick = () => {
+    const staffPanel =
+        document.getElementById('staffPanel');
 
-                staffPanel.classList.toggle('active');
+    document
+        .getElementById('toggleStaffPanel')
+        .onclick = () => {
+
+            staffPanel.classList.toggle('active');
+
+        };
+
+    /*
+    |--------------------------------------------------------------------------
+    | MODAL
+    |--------------------------------------------------------------------------
+    */
+
+    const modal =
+        document.getElementById('staffModal');
+
+    document
+        .getElementById('openModal')
+        .onclick = () => {
+
+            modal.classList.add('active');
+
+        };
+
+    document
+        .getElementById('closeModal')
+        .onclick = () => {
+
+            modal.classList.remove('active');
+
+        };
+
+    window.onclick = (e) => {
+
+        if (e.target === modal) {
+
+            modal.classList.remove('active');
+
+        }
+
+    };
+
+    /*
+    |--------------------------------------------------------------------------
+    | API URL
+    |--------------------------------------------------------------------------
+    */
+
+    const API_URL =
+        'http://localhost/backend/api/endpoints/staff/staff.api.php';
+
+    /*
+    |--------------------------------------------------------------------------
+    | CARGAR STAFF
+    |--------------------------------------------------------------------------
+    */
+
+    async function cargarStaff(){
+
+        try {
+
+            const response =
+                await fetch(API_URL);
+
+            const result =
+                await response.json();
+
+            if(result.success){
+
+                renderStaff(result.data);
+
+            }
+
+        } catch(error){
+
+            console.error(error);
+
+        }
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER STAFF
+    |--------------------------------------------------------------------------
+    */
+
+    function renderStaff(staffList){
+
+        const grid =
+            document.getElementById('staffGrid');
+
+        grid.innerHTML = '';
+
+        if(!staffList || staffList.length === 0){
+
+            grid.innerHTML = `
+
+                <div class="staff-card">
+
+                    <div class="staff-name">
+                        No hay staff registrado
+                    </div>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+        staffList.forEach(staff => {
+
+            const card =
+                document.createElement('div');
+
+            card.className =
+                'staff-card';
+
+            card.innerHTML = `
+
+                <div class="staff-top">
+
+                    <div class="staff-avatar">
+                        👤
+                    </div>
+
+                    <div>
+
+                        <div class="staff-name">
+                            ${staff.nombre} ${staff.apellido}
+                        </div>
+
+                        <div class="staff-role">
+                            ${staff.id_rol ?? 'Sin rol'}
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="staff-info">
+
+                    <div class="info-row">
+
+                        <span class="info-label">
+                            Zona
+                        </span>
+
+                        <span class="info-value">
+                            ${staff.id_zona ?? 'Sin zona'}
+                        </span>
+
+                    </div>
+
+                    <div class="info-row">
+
+                        <span class="info-label">
+                            Estado
+                        </span>
+
+                        <span class="info-value">
+                            ${staff.estado}
+                        </span>
+
+                    </div>
+
+                    <div class="info-row">
+
+                        <span class="info-label">
+                            ID
+                        </span>
+
+                        <span class="info-value">
+                            #${staff.id_staff_torneo}
+                        </span>
+
+                    </div>
+
+                </div>
+
+            `;
+
+            grid.appendChild(card);
+
+        });
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CREAR STAFF
+    |--------------------------------------------------------------------------
+    */
+
+    document
+        .getElementById('saveStaff')
+        .onclick = async () => {
+
+            const nombre =
+                document.getElementById('staffNombre').value;
+
+            const rol =
+                document.getElementById('staffRol').value;
+
+            const zona =
+                document.getElementById('staffZona').value;
+
+            if(!nombre || !zona){
+
+                alert('Completa todos los campos');
+
+                return;
+
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Separar nombre y apellido
+            |--------------------------------------------------------------------------
+            */
+
+            const partes =
+                nombre.split(' ');
+
+            const nombreReal =
+                partes[0];
+
+            const apellidoReal =
+                partes.slice(1).join(' ') || 'SinApellido';
+
+            /*
+            |--------------------------------------------------------------------------
+            | Data
+            |--------------------------------------------------------------------------
+            */
+
+            const data = {
+
+                nombre: nombreReal,
+
+                apellido: apellidoReal,
+
+                tipo_documento: 'CC',
+
+                numero_documento:
+                    Math.floor(Math.random() * 99999999).toString(),
+
+                telefono: '',
+
+                email: '',
+
+                estado: 'activo',
+
+                id_rol: 1,
+
+                id_zona: 1,
+
+                foto: '',
+
+                direccion: '',
+
+                fecha_nacimiento: '2000-01-01',
+
+                observaciones: ''
 
             };
 
-        /* MODAL */
+            try {
 
-        const modal =
-            document.getElementById('staffModal');
+                const response =
+                    await fetch(API_URL, {
 
-        document
-            .getElementById('openModal')
-            .onclick = () => {
+                        method: 'POST',
 
-                modal.classList.add('active');
+                        headers: {
 
-            };
+                            'Content-Type':
+                                'application/json'
 
-        document
-            .getElementById('closeModal')
-            .onclick = () => {
+                        },
 
-                modal.classList.remove('active');
+                        body:
+                            JSON.stringify(data)
 
-            };
+                    });
 
-        window.onclick = (e) => {
+                const result =
+                    await response.json();
 
-            if (e.target === modal) {
+                if(result.success){
 
-                modal.classList.remove('active');
+                    alert('Staff creado correctamente');
+
+                    modal.classList.remove('active');
+
+                    document.getElementById('staffNombre').value = '';
+
+                    document.getElementById('staffZona').value = '';
+
+                    cargarStaff();
+
+                } else {
+
+                    alert(result.message);
+
+                }
+
+            } catch(error){
+
+                console.error(error);
+
+                alert('Error de conexión');
 
             }
 
         };
 
-        /* CREAR STAFF */
+    /*
+    |--------------------------------------------------------------------------
+    | INIT
+    |--------------------------------------------------------------------------
+    */
 
-        document
-            .getElementById('saveStaff')
-            .onclick = () => {
+    cargarStaff();
 
-                const nombre =
-                    document.getElementById('staffNombre').value;
-
-                const rol =
-                    document.getElementById('staffRol').value;
-
-                const zona =
-                    document.getElementById('staffZona').value;
-
-                if (!nombre || !zona) {
-
-                    alert('Completa todos los campos');
-
-                    return;
-                }
-
-                const card =
-                    document.createElement('div');
-
-                card.className =
-                    'staff-card';
-
-                card.innerHTML = `
-
-        <div class="staff-top">
-
-            <div class="staff-avatar">
-                👤
-            </div>
-
-            <div>
-
-                <div class="staff-name">
-                    ${nombre}
-                </div>
-
-                <div class="staff-role">
-                    ${rol}
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="staff-info">
-
-            <div class="info-row">
-                <span class="info-label">
-                    Zona
-                </span>
-
-                <span class="info-value">
-                    ${zona}
-                </span>
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">
-                    Estado
-                </span>
-
-                <span class="info-value">
-                    Activo
-                </span>
-            </div>
-
-            <div class="info-row">
-                <span class="info-label">
-                    ID
-                </span>
-
-                <span class="info-value">
-                    #00${Math.floor(Math.random()*99)}
-                </span>
-            </div>
-
-        </div>
-
-    `;
-
-                document
-                    .getElementById('staffGrid')
-                    .appendChild(card);
-
-                modal.classList.remove('active');
-
-                document
-                    .getElementById('staffNombre')
-                    .value = '';
-
-                document
-                    .getElementById('staffZona')
-                    .value = '';
-
-            };
-    </script>
+</script>
 
 </body>
 

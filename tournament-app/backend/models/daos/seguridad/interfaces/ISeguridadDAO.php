@@ -1,62 +1,56 @@
 <?php
 
-interface ICRUD {
+require_once __DIR__ . '/../../base/ICRUD.php';
+
+interface ISeguridadDAO extends ICRUD {
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener todos los registros
+    | Obtener logs recientes
     |--------------------------------------------------------------------------
     */
 
-    public function getAll();
+    public function getRecentLogs();
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener registro por ID
+    | Obtener logs por usuario
     |--------------------------------------------------------------------------
     */
 
-    public function getById($id);
+    public function getLogsByUser($id_usuario);
 
     /*
     |--------------------------------------------------------------------------
-    | Crear registro
+    | Obtener sesiones activas
     |--------------------------------------------------------------------------
     */
 
-    public function create($data);
+    public function getActiveSessions();
 
     /*
     |--------------------------------------------------------------------------
-    | Actualizar registro
+    | Registrar evento
     |--------------------------------------------------------------------------
     */
 
-    public function update($id, $data);
+    public function registrarEvento($data);
 
     /*
     |--------------------------------------------------------------------------
-    | Eliminar registro
+    | Contar logs
     |--------------------------------------------------------------------------
     */
 
-    public function delete($id);
+    public function countLogs();
 
     /*
     |--------------------------------------------------------------------------
-    | Buscar registros
+    | Obtener intentos fallidos
     |--------------------------------------------------------------------------
     */
 
-    public function search($search);
-
-    /*
-    |--------------------------------------------------------------------------
-    | Contar registros
-    |--------------------------------------------------------------------------
-    */
-
-    public function countAll();
+    public function getFailedAttempts();
 
 }
 

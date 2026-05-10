@@ -1,21 +1,13 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| LUCHADOR DAO IMPLEMENTATION
-|--------------------------------------------------------------------------
-| Budokai Martial Arts Tournament System
-|--------------------------------------------------------------------------
-*/
-
 require_once __DIR__ . '/../../../../core/database.php';
 
 require_once __DIR__ . '/../../base/BaseDAO.php';
 require_once __DIR__ . '/../../base/ICRUD.php';
 
-require_once __DIR__ . '/../interfaces/ILuchadorDAO.php';
+require_once __DIR__ . '/../interfaces/ITorneoDAO.php';
 
-class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
+class TorneoDAOImpl extends BaseDAO implements ICRUD, ITorneoDAO {
 
     /*
     |--------------------------------------------------------------------------
@@ -23,7 +15,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
     |--------------------------------------------------------------------------
     */
 
-    private $table = "luchadores";
+    private $table = "torneos";
 
     /*
     |--------------------------------------------------------------------------
@@ -55,7 +47,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
         FROM {$this->table}
 
-        ORDER BY id_luchador DESC
+        ORDER BY id_torneo DESC
 
         ";
 
@@ -77,7 +69,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
         FROM {$this->table}
 
-        WHERE id_luchador = ?
+        WHERE id_torneo = ?
 
         LIMIT 1
 
@@ -97,7 +89,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
     /*
     |--------------------------------------------------------------------------
-    | Crear luchador
+    | Crear torneo
     |--------------------------------------------------------------------------
     */
 
@@ -110,28 +102,22 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
         (
 
             nombre,
-            apellido,
 
-            tipo_documento,
-            numero_documento,
+            descripcion,
 
-            edad,
-            genero,
-
-            categoria,
-            peso,
-
-            telefono,
-            email,
-
-            victorias,
-            derrotas,
+            fecha_inicio,
+            fecha_fin,
 
             estado,
 
-            foto,
+            ubicacion,
 
-            fecha_registro
+            tipo,
+
+            premio,
+            logo,
+            capacidad_maxima,
+            reglas
 
         )
 
@@ -140,9 +126,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
         (
 
             ?, ?, ?, ?,
-            ?, ?, ?, ?,
-            ?, ?, ?, ?,
-            ?, ?, NOW()
+            ?, ?, ?, ?
 
         )
 
@@ -155,30 +139,26 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
             [
 
                 $data["nombre"],
-                $data["apellido"],
 
-                $data["tipo_documento"],
-                $data["numero_documento"],
+                $data["descripcion"],
 
-                $data["edad"],
-                $data["genero"],
-
-                $data["categoria"],
-                $data["peso"],
-
-                $data["telefono"],
-                $data["email"],
-
-                $data["victorias"],
-                $data["derrotas"],
+                $data["fecha_inicio"],
+                $data["fecha_fin"],
 
                 $data["estado"],
 
-                $data["foto"]
+                $data["ubicacion"],
+
+                $data["tipo"],
+
+                $data["premio"],
+                $data["logo"],
+                $data["capacidad_maxima"],
+                $data["reglas"]
 
             ],
 
-            "ssssissdssiiss"
+            "ssssssssis"
 
         );
 
@@ -186,7 +166,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
     /*
     |--------------------------------------------------------------------------
-    | Actualizar luchador
+    | Actualizar torneo
     |--------------------------------------------------------------------------
     */
 
@@ -199,28 +179,24 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
         SET
 
             nombre = ?,
-            apellido = ?,
 
-            tipo_documento = ?,
-            numero_documento = ?,
+            descripcion = ?,
 
-            edad = ?,
-            genero = ?,
-
-            categoria = ?,
-            peso = ?,
-
-            telefono = ?,
-            email = ?,
-
-            victorias = ?,
-            derrotas = ?,
+            fecha_inicio = ?,
+            fecha_fin = ?,
 
             estado = ?,
 
-            foto = ?
+            ubicacion = ?,
 
-        WHERE id_luchador = ?
+            tipo = ?,
+
+            premio = ?,
+            logo = ?,
+            capacidad_maxima = ?,
+            reglas = ?
+
+        WHERE id_torneo = ?
 
         ";
 
@@ -231,32 +207,27 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
             [
 
                 $data["nombre"],
-                $data["apellido"],
 
-                $data["tipo_documento"],
-                $data["numero_documento"],
+                $data["descripcion"],
 
-                $data["edad"],
-                $data["genero"],
-
-                $data["categoria"],
-                $data["peso"],
-
-                $data["telefono"],
-                $data["email"],
-
-                $data["victorias"],
-                $data["derrotas"],
+                $data["fecha_inicio"],
+                $data["fecha_fin"],
 
                 $data["estado"],
 
-                $data["foto"],
+                $data["ubicacion"],
 
+                $data["tipo"],
+
+                $data["premio"],
+                $data["logo"],
+                $data["capacidad_maxima"],
+                $data["reglas"]
                 $id
 
             ],
 
-            "ssssissdssiissi"
+            "sssssssssisi"
 
         );
 
@@ -264,7 +235,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
     /*
     |--------------------------------------------------------------------------
-    | Eliminar luchador
+    | Eliminar torneo
     |--------------------------------------------------------------------------
     */
 
@@ -274,7 +245,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
         DELETE FROM {$this->table}
 
-        WHERE id_luchador = ?
+        WHERE id_torneo = ?
 
         ";
 
@@ -292,7 +263,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
     /*
     |--------------------------------------------------------------------------
-    | Buscar luchador
+    | Buscar torneo
     |--------------------------------------------------------------------------
     */
 
@@ -309,11 +280,11 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
         WHERE
 
             nombre LIKE ?
-            OR apellido LIKE ?
-            OR categoria LIKE ?
-            OR numero_documento LIKE ?
+            OR descripcion LIKE ?
+            OR ubicacion LIKE ?
+            OR tipo LIKE ?
 
-        ORDER BY id_luchador DESC
+        ORDER BY id_torneo DESC
 
         ";
 
@@ -333,62 +304,6 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
             "ssss"
 
         );
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener por categoría
-    |--------------------------------------------------------------------------
-    */
-
-    public function getByCategoria($categoria){
-
-        $sql = "
-
-        SELECT *
-
-        FROM {$this->table}
-
-        WHERE categoria = ?
-
-        ORDER BY nombre ASC
-
-        ";
-
-        return $this->fetchAll(
-
-            $sql,
-
-            [$categoria],
-
-            "s"
-
-        );
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener activos
-    |--------------------------------------------------------------------------
-    */
-
-    public function getActivos(){
-
-        $sql = "
-
-        SELECT *
-
-        FROM {$this->table}
-
-        WHERE estado = 'activo'
-
-        ORDER BY nombre ASC
-
-        ";
-
-        return $this->fetchAll($sql);
 
     }
 
@@ -414,41 +329,11 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
     /*
     |--------------------------------------------------------------------------
-    | Contar por categoría
+    | Obtener activos
     |--------------------------------------------------------------------------
     */
 
-    public function countByCategoria($categoria){
-
-        $sql = "
-
-        SELECT COUNT(*) AS total
-
-        FROM {$this->table}
-
-        WHERE categoria = ?
-
-        ";
-
-        return $this->fetch(
-
-            $sql,
-
-            [$categoria],
-
-            "s"
-
-        );
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Obtener ranking
-    |--------------------------------------------------------------------------
-    */
-
-    public function getRanking(){
+    public function getActivos(){
 
         $sql = "
 
@@ -456,9 +341,9 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
         FROM {$this->table}
 
-        ORDER BY victorias DESC
+        WHERE estado = 'activo'
 
-        LIMIT 10
+        ORDER BY fecha_inicio ASC
 
         ";
 
@@ -468,47 +353,171 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener top victorias
+    | Obtener finalizados
     |--------------------------------------------------------------------------
     */
 
-    public function getTopVictorias(){
+    public function getFinalizados(){
 
-        return $this->getRanking();
+        $sql = "
+
+        SELECT *
+
+        FROM {$this->table}
+
+        WHERE estado = 'finalizado'
+
+        ORDER BY fecha_fin DESC
+
+        ";
+
+        return $this->fetchAll($sql);
 
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Validar documento
+    | Obtener próximos
     |--------------------------------------------------------------------------
     */
 
-    public function documentoExists($documento){
+    public function getProximos(){
 
         $sql = "
 
-        SELECT id_luchador
+        SELECT *
 
         FROM {$this->table}
 
-        WHERE numero_documento = ?
+        WHERE fecha_inicio >= NOW()
+
+        ORDER BY fecha_inicio ASC
+
+        ";
+
+        return $this->fetchAll($sql);
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Obtener por nombre
+    |--------------------------------------------------------------------------
+    */
+
+    public function getByNombre($nombre){
+
+        $sql = "
+
+        SELECT *
+
+        FROM {$this->table}
+
+        WHERE nombre = ?
 
         LIMIT 1
 
         ";
 
-        $result = $this->fetch(
+        return $this->fetch(
 
             $sql,
 
-            [$documento],
+            [$nombre],
 
             "s"
 
         );
 
-        return !empty($result);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Obtener participantes
+    |--------------------------------------------------------------------------
+    */
+
+    public function getParticipantes($id_torneo){
+
+        $sql = "
+
+        SELECT *
+
+        FROM torneo_participantes
+
+        WHERE id_torneo = ?
+
+        ";
+
+        return $this->fetchAll(
+
+            $sql,
+
+            [$id_torneo],
+
+            "i"
+
+        );
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Obtener arenas
+    |--------------------------------------------------------------------------
+    */
+
+    public function getArenas($id_torneo){
+
+        $sql = "
+
+        SELECT *
+
+        FROM arenas
+
+        WHERE id_torneo = ?
+
+        ";
+
+        return $this->fetchAll(
+
+            $sql,
+
+            [$id_torneo],
+
+            "i"
+
+        );
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Contar por estado
+    |--------------------------------------------------------------------------
+    */
+
+    public function countByEstado($estado){
+
+        $sql = "
+
+        SELECT COUNT(*) AS total
+
+        FROM {$this->table}
+
+        WHERE estado = ?
+
+        ";
+
+        return $this->fetch(
+
+            $sql,
+
+            [$estado],
+
+            "s"
+
+        );
 
     }
 

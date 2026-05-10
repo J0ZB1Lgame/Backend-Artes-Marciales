@@ -1,99 +1,289 @@
 <?php
-// ================== HEADERS API ==================
+
+/*
+|--------------------------------------------------------------------------
+| HEADERS
+|--------------------------------------------------------------------------
+*/
+
 header("Access-Control-Allow-Origin: *");
+
 header("Content-Type: application/json; charset=UTF-8");
+
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 
-require_once __DIR__ . '/../../controllers/staff/StaffTorneoController.php';
+/*
+|--------------------------------------------------------------------------
+| OPTIONS
+|--------------------------------------------------------------------------
+*/
 
-$controller = new StaffTorneoController();
-$metodo = $_SERVER['REQUEST_METHOD'];
+if($_SERVER['REQUEST_METHOD'] === 'OPTIONS'){
+
+    http_response_code(200);
+
+    exit();
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| CONTROLLER
+|--------------------------------------------------------------------------
+*/
+
+require_once __DIR__ . '/../../controllers/luchador/LuchadorController.php';
+
+$controller = new LuchadorController();
+
+/*
+|--------------------------------------------------------------------------
+| REQUEST
+|--------------------------------------------------------------------------
+*/
+
+$method = $_SERVER['REQUEST_METHOD'];
+
 $action = $_GET['action'] ?? '';
 
-if ($metodo === 'OPTIONS') {
-    http_response_code(200);
-    exit;
+/*
+|--------------------------------------------------------------------------
+| RESPONSE HELPERS
+|--------------------------------------------------------------------------
+*/
+
+function apiResponse($data = null, $message = "OK", $status = 200){
+
+    http_response_code($status);
+
+    echo json_encode([
+
+        "success" => true,
+
+        "message" => $message,
+
+        "data" => $data
+
+    ]);
+
+    exit();
+
 }
 
-function apiResponse($data, $message = "OK", $status = 200) {
+function apiError($message = "Error", $status = 400){
+
     http_response_code($status);
+
     echo json_encode([
-        'status' => 'success',
-        'message' => $message,
-        'data' => $data
+
+        "success" => false,
+
+        "message" => $message
+
     ]);
-    exit;
+
+    exit();
+
 }
 
-function apiError($message, $status = 400) {
-    http_response_code($status);
-    echo json_encode([
-        'status' => 'error',
-        'message' => $message
-    ]);
-    exit;
-}
+/*
+|--------------------------------------------------------------------------
+| TRY
+|--------------------------------------------------------------------------
+*/
 
 try {
-    if ($metodo === 'GET') {
-        if (!$action || $action === 'listar') {
-            $data = $controller->mostrarLuchadores();
-            apiResponse($data, "Luchadores listados");
-        } elseif ($action === 'obtener' && isset($_GET['id'])) {
-            $luchador = $controller->buscarLuchador((int)$_GET['id']);
-            if ($luchador) {
-                apiResponse([
-                    'id_luchador' => $luchador->getIdLuchador(),
-                    'nombre' => $luchador->getNombre(),
-                    'especie' => $luchador->getEspecie(),
-                    'nivelDePoderKi' => $luchador->getNivelDePoderKi(),
-                    'origen' => $luchador->getOrigen(),
-                    'estado' => $luchador->getEstado()
-                ], "Luchador obtenido");
-            } else {
-                apiError("Luchador no encontrado", 404);
-            }
-        } else {
-            apiError("Acción no válida", 404);
+
+    /*
+    |--------------------------------------------------------------------------
+    | GET
+    |--------------------------------------------------------------------------
+    */
+
+    if($method === 'GET'){
+
+        /*
+        |--------------------------------------------------------------------------
+        | Obtener por ID
+        |--------------------------------------------------------------------------
+        */
+
+        if($action === 'obtener' && isset($_GET['id'])){
+
+            $result = $controller->getById(
+
+                (int)$_GET['id']
+
+            );
+
+            echo json_encode($result);
+
+            exit();
+
         }
-    } elseif ($metodo === 'POST') {
-        $datos = json_decode(file_get_contents('php://input'), true);
-        if (!is_array($datos) || !isset($datos['nombre'])) {
-            apiError("Falta el nombre del luchador");
+
+        /*
+        |--------------------------------------------------------------------------
+        | Buscar
+        |--------------------------------------------------------------------------
+        */
+
+        if($action === 'buscar' && isset($_GET['search'])){
+
+            $result = $controller->search(
+
+                $_GET['search']
+
+            );
+
+            echo json_encode($result);
+
+            exit();
+
         }
-        $resultado = $controller->crearLuchador($datos);
-        if ($resultado) {
-            apiResponse($resultado, "Luchador creado", 201);
-        } else {
-            apiError("Error al crear luchador");
+
+        /*
+        |--------------------------------------------------------------------------
+        | Contar
+        |--------------------------------------------------------------------------
+        */
+
+        if($action === 'contar'){
+
+            $result = $controller->countAll();
+
+            echo json_encode($result);
+
+            exit();
+
         }
-    } elseif ($metodo === 'PUT') {
-        $datos = json_decode(file_get_contents('php://input'), true);
-        if (!is_array($datos) || !isset($datos['nombre'])) {
-            apiError("Nombre requerido");
-        }
-        $resultado = $controller->actualizarInformacionLuchador($datos);
-        if ($resultado) {
-            apiResponse(null, "Luchador actualizado");
-        } else {
-            apiError("Error al actualizar luchador");
-        }
-    } elseif ($metodo === 'DELETE') {
-        if ($action === 'eliminar' && isset($_GET['id'])) {
-            $resultado = $controller->eliminarLuchador((int)$_GET['id']);
-            if ($resultado) {
-                apiResponse(null, "Luchador eliminado");
-            } else {
-                apiError("Error al eliminar luchador");
-            }
-        } else {
-            apiError("Acción no válida", 404);
-        }
-    } else {
-        apiError("Método no permitido", 405);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Listar
+        |--------------------------------------------------------------------------
+        */
+
+        $result = $controller->getAll();
+
+        echo json_encode($result);
+
+        exit();
+
     }
-} catch (Exception $e) {
-    apiError("Error del servidor: " . $e->getMessage(), 500);
+
+    /*
+    |--------------------------------------------------------------------------
+    | POST
+    |--------------------------------------------------------------------------
+    */
+
+    if($method === 'POST'){
+
+        $data = json_decode(
+
+            file_get_contents("php://input"),
+
+            true
+
+        );
+
+        $result = $controller->create($data);
+
+        echo json_encode($result);
+
+        exit();
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | PUT
+    |--------------------------------------------------------------------------
+    */
+
+    if($method === 'PUT'){
+
+        if(!isset($_GET['id'])){
+
+            apiError("ID requerido");
+
+        }
+
+        $data = json_decode(
+
+            file_get_contents("php://input"),
+
+            true
+
+        );
+
+        $result = $controller->update(
+
+            (int)$_GET['id'],
+
+            $data
+
+        );
+
+        echo json_encode($result);
+
+        exit();
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | DELETE
+    |--------------------------------------------------------------------------
+    */
+
+    if($method === 'DELETE'){
+
+        if(!isset($_GET['id'])){
+
+            apiError("ID requerido");
+
+        }
+
+        $result = $controller->delete(
+
+            (int)$_GET['id']
+
+        );
+
+        echo json_encode($result);
+
+        exit();
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Invalid Method
+    |--------------------------------------------------------------------------
+    */
+
+    apiError(
+
+        "Método no permitido",
+
+        405
+
+    );
+
+} catch(Exception $e){
+
+    apiError(
+
+        $e->getMessage(),
+
+        500
+
+    );
+
 }
+
 ?>

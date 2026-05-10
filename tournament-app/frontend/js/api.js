@@ -4,9 +4,15 @@ const USE_MOCK = false; // Backend listo, usar endpoints reales
 const BASE_URL = 'http://localhost/Backend-Artes-Marciales/tournament-app/backend/api/endpoints';
 
 // ── Endpoints correctos según staff_api.php y staff_extended_api.php ──
-const EP_STAFF = 'staff/staff_api.php';
-const EP_EXTENDED = 'staff/staff_extended_api.php';
+const EP_STAFF = 'staff/staff.api.php';
+
 const EP_LUCHADOR = 'luchador/luchador_api.php';
+
+const EP_COMBATE = 'combate/combate_api.php';
+
+const EP_TORNEO = 'torneo/torneo_api.php';
+const EP_EXTENDED = 'staff/staff_extended_api.php';
+
 
 // ── Mock data ────────────────────────────────────────────────────────
 let MOCK_STAFF = [

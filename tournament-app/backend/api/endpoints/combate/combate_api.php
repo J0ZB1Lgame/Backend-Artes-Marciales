@@ -34,9 +34,9 @@ if($_SERVER['REQUEST_METHOD'] === 'OPTIONS'){
 |--------------------------------------------------------------------------
 */
 
-require_once __DIR__ . '/../../controllers/staff/StaffTorneoController.php';
+require_once __DIR__ . '/../../controllers/combate/CombateController.php';
 
-$controller = new StaffTorneoController();
+$controller = new CombateController();
 
 /*
 |--------------------------------------------------------------------------

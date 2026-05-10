@@ -1,16 +1,8 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| STAFF TORNEO CONTROLLER
-|--------------------------------------------------------------------------
-| Budokai Martial Arts Tournament System
-|--------------------------------------------------------------------------
-*/
+require_once __DIR__ . '/../../../models/daos/combate/impl/CombateDAOImpl.php';
 
-require_once __DIR__ . '/../../../models/daos/staff/impl/StaffDAOImpl.php';
-
-class StaffTorneoController {
+class CombateController {
 
     /*
     |--------------------------------------------------------------------------
@@ -18,7 +10,7 @@ class StaffTorneoController {
     |--------------------------------------------------------------------------
     */
 
-    private $staffDAO;
+    private $combateDAO;
 
     /*
     |--------------------------------------------------------------------------
@@ -28,13 +20,13 @@ class StaffTorneoController {
 
     public function __construct(){
 
-        $this->staffDAO = new StaffDAOImpl();
+        $this->combateDAO = new CombateDAOImpl();
 
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener todos los miembros
+    | Obtener todos
     |--------------------------------------------------------------------------
     */
 
@@ -42,13 +34,13 @@ class StaffTorneoController {
 
         try {
 
-            $data = $this->staffDAO->getAll();
+            $data = $this->combateDAO->getAll();
 
             return [
 
                 "success" => true,
 
-                "message" => "Staff obtenido correctamente",
+                "message" => "Combates obtenidos correctamente",
 
                 "data" => $data
 
@@ -70,7 +62,7 @@ class StaffTorneoController {
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener miembro por ID
+    | Obtener por ID
     |--------------------------------------------------------------------------
     */
 
@@ -78,7 +70,7 @@ class StaffTorneoController {
 
         try {
 
-            $data = $this->staffDAO->getById($id);
+            $data = $this->combateDAO->getById($id);
 
             if(!$data){
 
@@ -86,7 +78,7 @@ class StaffTorneoController {
 
                     "success" => false,
 
-                    "message" => "Miembro no encontrado"
+                    "message" => "Combate no encontrado"
 
                 ];
 
@@ -116,7 +108,7 @@ class StaffTorneoController {
 
     /*
     |--------------------------------------------------------------------------
-    | Crear miembro
+    | Crear combate
     |--------------------------------------------------------------------------
     */
 
@@ -124,49 +116,49 @@ class StaffTorneoController {
 
         try {
 
-            /*
-            |--------------------------------------------------------------------------
-            | Validaciones básicas
-            |--------------------------------------------------------------------------
-            */
-
-            if(empty($data["nombre"])){
+            if(empty($data["id_torneo"])){
 
                 return [
 
                     "success" => false,
 
-                    "message" => "El nombre es obligatorio"
+                    "message" => "Torneo requerido"
 
                 ];
 
             }
 
-            if(empty($data["apellido"])){
+            if(empty($data["id_luchador_1"])){
 
                 return [
 
                     "success" => false,
 
-                    "message" => "El apellido es obligatorio"
+                    "message" => "Luchador 1 requerido"
 
                 ];
 
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Crear
-            |--------------------------------------------------------------------------
-            */
+            if(empty($data["id_luchador_2"])){
 
-            $id = $this->staffDAO->create($data);
+                return [
+
+                    "success" => false,
+
+                    "message" => "Luchador 2 requerido"
+
+                ];
+
+            }
+
+            $id = $this->combateDAO->create($data);
 
             return [
 
                 "success" => true,
 
-                "message" => "Miembro creado correctamente",
+                "message" => "Combate creado correctamente",
 
                 "id" => $id
 
@@ -188,7 +180,7 @@ class StaffTorneoController {
 
     /*
     |--------------------------------------------------------------------------
-    | Actualizar miembro
+    | Actualizar combate
     |--------------------------------------------------------------------------
     */
 
@@ -196,7 +188,7 @@ class StaffTorneoController {
 
         try {
 
-            $exists = $this->staffDAO->getById($id);
+            $exists = $this->combateDAO->getById($id);
 
             if(!$exists){
 
@@ -204,19 +196,19 @@ class StaffTorneoController {
 
                     "success" => false,
 
-                    "message" => "Miembro no encontrado"
+                    "message" => "Combate no encontrado"
 
                 ];
 
             }
 
-            $this->staffDAO->update($id, $data);
+            $this->combateDAO->update($id, $data);
 
             return [
 
                 "success" => true,
 
-                "message" => "Miembro actualizado correctamente"
+                "message" => "Combate actualizado"
 
             ];
 
@@ -236,7 +228,7 @@ class StaffTorneoController {
 
     /*
     |--------------------------------------------------------------------------
-    | Eliminar miembro
+    | Eliminar combate
     |--------------------------------------------------------------------------
     */
 
@@ -244,7 +236,7 @@ class StaffTorneoController {
 
         try {
 
-            $exists = $this->staffDAO->getById($id);
+            $exists = $this->combateDAO->getById($id);
 
             if(!$exists){
 
@@ -252,19 +244,19 @@ class StaffTorneoController {
 
                     "success" => false,
 
-                    "message" => "Miembro no encontrado"
+                    "message" => "Combate no encontrado"
 
                 ];
 
             }
 
-            $this->staffDAO->delete($id);
+            $this->combateDAO->delete($id);
 
             return [
 
                 "success" => true,
 
-                "message" => "Miembro eliminado correctamente"
+                "message" => "Combate eliminado"
 
             ];
 
@@ -284,7 +276,7 @@ class StaffTorneoController {
 
     /*
     |--------------------------------------------------------------------------
-    | Buscar miembros
+    | Buscar
     |--------------------------------------------------------------------------
     */
 
@@ -292,7 +284,7 @@ class StaffTorneoController {
 
         try {
 
-            $data = $this->staffDAO->search($search);
+            $data = $this->combateDAO->search($search);
 
             return [
 
@@ -318,7 +310,7 @@ class StaffTorneoController {
 
     /*
     |--------------------------------------------------------------------------
-    | Contar miembros
+    | Contar
     |--------------------------------------------------------------------------
     */
 
@@ -326,7 +318,7 @@ class StaffTorneoController {
 
         try {
 
-            $data = $this->staffDAO->countAll();
+            $data = $this->combateDAO->countAll();
 
             return [
 

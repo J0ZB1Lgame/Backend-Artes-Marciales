@@ -1,62 +1,56 @@
 <?php
 
-interface ICRUD {
+require_once __DIR__ . '/../../base/ICRUD.php';
+
+interface ICombateDAO extends ICRUD {
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener todos los registros
+    | Obtener combates por torneo
     |--------------------------------------------------------------------------
     */
 
-    public function getAll();
+    public function getByTorneo($id_torneo);
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener registro por ID
+    | Obtener combates activos
     |--------------------------------------------------------------------------
     */
 
-    public function getById($id);
+    public function getActivos();
 
     /*
     |--------------------------------------------------------------------------
-    | Crear registro
+    | Obtener combates finalizados
     |--------------------------------------------------------------------------
     */
 
-    public function create($data);
+    public function getFinalizados();
 
     /*
     |--------------------------------------------------------------------------
-    | Actualizar registro
+    | Obtener próximos combates
     |--------------------------------------------------------------------------
     */
 
-    public function update($id, $data);
+    public function getProximos();
 
     /*
     |--------------------------------------------------------------------------
-    | Eliminar registro
+    | Obtener historial de luchador
     |--------------------------------------------------------------------------
     */
 
-    public function delete($id);
+    public function getHistorialLuchador($id_luchador);
 
     /*
     |--------------------------------------------------------------------------
-    | Buscar registros
+    | Contar combates por estado
     |--------------------------------------------------------------------------
     */
 
-    public function search($search);
-
-    /*
-    |--------------------------------------------------------------------------
-    | Contar registros
-    |--------------------------------------------------------------------------
-    */
-
-    public function countAll();
+    public function countByEstado($estado);
 
 }
 

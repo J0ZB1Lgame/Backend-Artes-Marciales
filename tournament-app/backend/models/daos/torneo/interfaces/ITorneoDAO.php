@@ -1,62 +1,64 @@
 <?php
 
-interface ICRUD {
+require_once __DIR__ . '/../../base/ICRUD.php';
+
+interface ITorneoDAO extends ICRUD {
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener todos los registros
+    | Obtener torneos activos
     |--------------------------------------------------------------------------
     */
 
-    public function getAll();
+    public function getActivos();
 
     /*
     |--------------------------------------------------------------------------
-    | Obtener registro por ID
+    | Obtener torneos finalizados
     |--------------------------------------------------------------------------
     */
 
-    public function getById($id);
+    public function getFinalizados();
 
     /*
     |--------------------------------------------------------------------------
-    | Crear registro
+    | Obtener próximos torneos
     |--------------------------------------------------------------------------
     */
 
-    public function create($data);
+    public function getProximos();
 
     /*
     |--------------------------------------------------------------------------
-    | Actualizar registro
+    | Obtener torneo por nombre
     |--------------------------------------------------------------------------
     */
 
-    public function update($id, $data);
+    public function getByNombre($nombre);
 
     /*
     |--------------------------------------------------------------------------
-    | Eliminar registro
+    | Obtener participantes
     |--------------------------------------------------------------------------
     */
 
-    public function delete($id);
+    public function getParticipantes($id_torneo);
 
     /*
     |--------------------------------------------------------------------------
-    | Buscar registros
+    | Obtener arenas del torneo
     |--------------------------------------------------------------------------
     */
 
-    public function search($search);
+    public function getArenas($id_torneo);
 
     /*
     |--------------------------------------------------------------------------
-    | Contar registros
+    | Contar por estado
     |--------------------------------------------------------------------------
     */
 
-    public function countAll();
+    public function countByEstado($estado);
 
 }
 

@@ -6,23 +6,16 @@
 |--------------------------------------------------------------------------
 | Budokai Martial Arts Tournament System
 |--------------------------------------------------------------------------
-| Implementación completa del módulo STAFF
-|--------------------------------------------------------------------------
 */
 
 require_once __DIR__ . '/../../../../core/database.php';
 
+require_once __DIR__ . '/../../base/BaseDAO.php';
+require_once __DIR__ . '/../../base/ICRUD.php';
+
 require_once __DIR__ . '/../interfaces/IStaffDAO.php';
 
-class StaffDAOImpl implements IStaffDAO {
-
-    /*
-    |--------------------------------------------------------------------------
-    | Conexión
-    |--------------------------------------------------------------------------
-    */
-
-    private $conn;
+class StaffDAOImpl extends BaseDAO implements ICRUD, IStaffDAO {
 
     /*
     |--------------------------------------------------------------------------
@@ -42,7 +35,9 @@ class StaffDAOImpl implements IStaffDAO {
 
         $database = Database::getInstance();
 
-        $this->conn = $database->getConnection();
+        parent::__construct(
+            $database->getConnection()
+        );
 
     }
 
@@ -78,7 +73,7 @@ class StaffDAOImpl implements IStaffDAO {
 
             z.nombre AS zona_nombre,
 
-            s.fecha_creacion
+            s.fecha_ingreso
 
         FROM {$this->table} s
 
@@ -92,17 +87,7 @@ class StaffDAOImpl implements IStaffDAO {
 
         ";
 
-        $result = $this->conn->query($sql);
-
-        $data = [];
-
-        while($row = $result->fetch_assoc()){
-
-            $data[] = $row;
-
-        }
-
-        return $data;
+        return $this->fetchAll($sql);
 
     }
 
@@ -114,25 +99,23 @@ class StaffDAOImpl implements IStaffDAO {
 
     public function getById($id){
 
-        $stmt = $this->conn->prepare("
+        $sql = "
 
-            SELECT *
+        SELECT *
 
-            FROM {$this->table}
+        FROM {$this->table}
 
-            WHERE id_staff_torneo = ?
+        WHERE id_staff_torneo = ?
 
-            LIMIT 1
+        LIMIT 1
 
-        ");
+        ";
 
-        $stmt->bind_param("i",$id);
-
-        $stmt->execute();
-
-        $result = $stmt->get_result();
-
-        return $result->fetch_assoc();
+        return $this->fetch(
+            $sql,
+            [$id],
+            "i"
+        );
 
     }
 
@@ -144,63 +127,67 @@ class StaffDAOImpl implements IStaffDAO {
 
     public function create($data){
 
-        $stmt = $this->conn->prepare("
+        $sql = "
 
-            INSERT INTO {$this->table}
+        INSERT INTO {$this->table}
 
-            (
+        (
 
-                nombre,
-                apellido,
+            nombre,
+            apellido,
 
-                tipo_documento,
-                numero_documento,
+            tipo_documento,
+            numero_documento,
 
-                telefono,
-                email,
+            telefono,
+            email,
 
-                estado,
+            estado,
 
-                id_rol,
-                id_zona,
+            id_rol,
+            id_zona,
 
-                fecha_creacion
+            fecha_ingreso
 
-            )
+        )
 
-            VALUES
+        VALUES
 
-            (
+        (
 
-                ?, ?, ?, ?,
-                ?, ?, ?, ?,
-                ?, NOW()
+            ?, ?, ?, ?,
+            ?, ?, ?, ?,
+            ?, NOW()
 
-            )
+        )
 
-        ");
+        ";
 
-        $stmt->bind_param(
+        return $this->execute(
 
-            "sssssssii",
+            $sql,
 
-            $data["nombre"],
-            $data["apellido"],
+            [
 
-            $data["tipo_documento"],
-            $data["numero_documento"],
+                $data["nombre"],
+                $data["apellido"],
 
-            $data["telefono"],
-            $data["email"],
+                $data["tipo_documento"],
+                $data["numero_documento"],
 
-            $data["estado"],
+                $data["telefono"],
+                $data["email"],
 
-            $data["id_rol"],
-            $data["id_zona"]
+                $data["estado"],
+
+                $data["id_rol"],
+                $data["id_zona"]
+
+            ],
+
+            "sssssssii"
 
         );
-
-        return $stmt->execute();
 
     }
 
@@ -212,53 +199,57 @@ class StaffDAOImpl implements IStaffDAO {
 
     public function update($id, $data){
 
-        $stmt = $this->conn->prepare("
+        $sql = "
 
-            UPDATE {$this->table}
+        UPDATE {$this->table}
 
-            SET
+        SET
 
-                nombre = ?,
-                apellido = ?,
+            nombre = ?,
+            apellido = ?,
 
-                tipo_documento = ?,
-                numero_documento = ?,
+            tipo_documento = ?,
+            numero_documento = ?,
 
-                telefono = ?,
-                email = ?,
+            telefono = ?,
+            email = ?,
 
-                estado = ?,
+            estado = ?,
 
-                id_rol = ?,
-                id_zona = ?
+            id_rol = ?,
+            id_zona = ?
 
-            WHERE id_staff_torneo = ?
+        WHERE id_staff_torneo = ?
 
-        ");
+        ";
 
-        $stmt->bind_param(
+        return $this->execute(
 
-            "sssssssiii",
+            $sql,
 
-            $data["nombre"],
-            $data["apellido"],
+            [
 
-            $data["tipo_documento"],
-            $data["numero_documento"],
+                $data["nombre"],
+                $data["apellido"],
 
-            $data["telefono"],
-            $data["email"],
+                $data["tipo_documento"],
+                $data["numero_documento"],
 
-            $data["estado"],
+                $data["telefono"],
+                $data["email"],
 
-            $data["id_rol"],
-            $data["id_zona"],
+                $data["estado"],
 
-            $id
+                $data["id_rol"],
+                $data["id_zona"],
+
+                $id
+
+            ],
+
+            "sssssssiii"
 
         );
-
-        return $stmt->execute();
 
     }
 
@@ -270,17 +261,23 @@ class StaffDAOImpl implements IStaffDAO {
 
     public function delete($id){
 
-        $stmt = $this->conn->prepare("
+        $sql = "
 
-            DELETE FROM {$this->table}
+        DELETE FROM {$this->table}
 
-            WHERE id_staff_torneo = ?
+        WHERE id_staff_torneo = ?
 
-        ");
+        ";
 
-        $stmt->bind_param("i",$id);
+        return $this->execute(
 
-        return $stmt->execute();
+            $sql,
+
+            [$id],
+
+            "i"
+
+        );
 
     }
 
@@ -294,47 +291,39 @@ class StaffDAOImpl implements IStaffDAO {
 
         $search = "%{$search}%";
 
-        $stmt = $this->conn->prepare("
+        $sql = "
 
-            SELECT *
+        SELECT *
 
-            FROM {$this->table}
+        FROM {$this->table}
 
-            WHERE
+        WHERE
 
-                nombre LIKE ?
-                OR apellido LIKE ?
-                OR numero_documento LIKE ?
-                OR email LIKE ?
+            nombre LIKE ?
+            OR apellido LIKE ?
+            OR numero_documento LIKE ?
+            OR email LIKE ?
 
-            ORDER BY id_staff_torneo DESC
+        ORDER BY id_staff_torneo DESC
 
-        ");
+        ";
 
-        $stmt->bind_param(
+        return $this->fetchAll(
 
-            "ssss",
+            $sql,
 
-            $search,
-            $search,
-            $search,
-            $search
+            [
+
+                $search,
+                $search,
+                $search,
+                $search
+
+            ],
+
+            "ssss"
 
         );
-
-        $stmt->execute();
-
-        $result = $stmt->get_result();
-
-        $data = [];
-
-        while($row = $result->fetch_assoc()){
-
-            $data[] = $row;
-
-        }
-
-        return $data;
 
     }
 
@@ -354,9 +343,7 @@ class StaffDAOImpl implements IStaffDAO {
 
         ";
 
-        $result = $this->conn->query($sql);
-
-        return $result->fetch_assoc();
+        return $this->fetch($sql);
 
     }
 
@@ -368,23 +355,25 @@ class StaffDAOImpl implements IStaffDAO {
 
     public function countByRole($id_rol){
 
-        $stmt = $this->conn->prepare("
+        $sql = "
 
-            SELECT COUNT(*) AS total
+        SELECT COUNT(*) AS total
 
-            FROM {$this->table}
+        FROM {$this->table}
 
-            WHERE id_rol = ?
+        WHERE id_rol = ?
 
-        ");
+        ";
 
-        $stmt->bind_param("i",$id_rol);
+        return $this->fetch(
 
-        $stmt->execute();
+            $sql,
 
-        $result = $stmt->get_result();
+            [$id_rol],
 
-        return $result->fetch_assoc();
+            "i"
+
+        );
 
     }
 
@@ -396,31 +385,19 @@ class StaffDAOImpl implements IStaffDAO {
 
     public function getActiveStaff(){
 
-        $stmt = $this->conn->prepare("
+        $sql = "
 
-            SELECT *
+        SELECT *
 
-            FROM {$this->table}
+        FROM {$this->table}
 
-            WHERE estado = 'activo'
+        WHERE estado = 'activo'
 
-            ORDER BY nombre ASC
+        ORDER BY nombre ASC
 
-        ");
+        ";
 
-        $stmt->execute();
-
-        $result = $stmt->get_result();
-
-        $data = [];
-
-        while($row = $result->fetch_assoc()){
-
-            $data[] = $row;
-
-        }
-
-        return $data;
+        return $this->fetchAll($sql);
 
     }
 
@@ -432,25 +409,29 @@ class StaffDAOImpl implements IStaffDAO {
 
     public function documentExists($documento){
 
-        $stmt = $this->conn->prepare("
+        $sql = "
 
-            SELECT id_staff_torneo
+        SELECT id_staff_torneo
 
-            FROM {$this->table}
+        FROM {$this->table}
 
-            WHERE numero_documento = ?
+        WHERE numero_documento = ?
 
-            LIMIT 1
+        LIMIT 1
 
-        ");
+        ";
 
-        $stmt->bind_param("s",$documento);
+        $result = $this->fetch(
 
-        $stmt->execute();
+            $sql,
 
-        $result = $stmt->get_result();
+            [$documento],
 
-        return $result->num_rows > 0;
+            "s"
+
+        );
+
+        return !empty($result);
 
     }
 
@@ -462,25 +443,29 @@ class StaffDAOImpl implements IStaffDAO {
 
     public function emailExists($email){
 
-        $stmt = $this->conn->prepare("
+        $sql = "
 
-            SELECT id_staff_torneo
+        SELECT id_staff_torneo
 
-            FROM {$this->table}
+        FROM {$this->table}
 
-            WHERE email = ?
+        WHERE email = ?
 
-            LIMIT 1
+        LIMIT 1
 
-        ");
+        ";
 
-        $stmt->bind_param("s",$email);
+        $result = $this->fetch(
 
-        $stmt->execute();
+            $sql,
 
-        $result = $stmt->get_result();
+            [$email],
 
-        return $result->num_rows > 0;
+            "s"
+
+        );
+
+        return !empty($result);
 
     }
 
