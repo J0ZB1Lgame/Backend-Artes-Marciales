@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuarios — Budokai System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Orbitron', sans-serif; overflow: hidden; background: #000; color: white; }
+
+        .video-bg { position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+        .video-overlay { position: fixed; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,.94) 0%, rgba(0,0,0,.64) 45%, rgba(0,0,0,.26) 100%); z-index: -1; }
+
+        .layout { width: 100%; height: 100vh; display: flex; }
+
+        .users-section { flex: 1; padding: 40px; overflow: auto; }
+        .users-header  { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .users-title   { font-size: 52px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; text-shadow: 0 0 24px rgba(0,180,255,.22); }
+        .users-sub     { margin-top: 10px; font-size: 14px; color: rgba(255,255,255,.72); }
+
+        .top-actions { display: flex; gap: 16px; }
+        .create-btn, .panel-btn {
+            height: 58px; padding: 0 28px; border: none; border-radius: 18px; cursor: pointer;
+            font-family: inherit; font-size: 13px; font-weight: 900; letter-spacing: .10em; text-transform: uppercase;
+        }
+        .create-btn { color: white; background: linear-gradient(90deg, #00B4FF, #006CFF); box-shadow: 0 0 24px rgba(0,180,255,.25); }
+        .panel-btn  { color: white; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.08); }
+
+        /* STATS */
+        .stats-bar { display: flex; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+        .stat-pill {
+            padding: 10px 18px; border-radius: 14px;
+            background: rgba(5,15,30,.82); border: 1px solid rgba(0,180,255,.18);
+            font-size: 11px; letter-spacing: .10em; text-transform: uppercase; color: rgba(255,255,255,.72);
+        }
+        .stat-pill span { font-size: 18px; font-weight: 900; color: #00B4FF; display: block; }
+
+        /* TABLA */
+        .table-wrap { border-radius: 20px; overflow: hidden; background: rgba(5,15,30,.82); border: 1px solid rgba(0,180,255,.12); }
+        table { width: 100%; border-collapse: collapse; }
+        thead tr { background: rgba(0,180,255,.12); }
+        th { padding: 14px 20px; text-align: left; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #00B4FF; font-weight: 900; }
+        tbody tr { border-top: 1px solid rgba(255,255,255,.04); transition: background .15s; }
+        tbody tr:hover { background: rgba(0,180,255,.06); }
+        td { padding: 14px 20px; font-size: 12px; color: rgba(255,255,255,.85); }
+
+        .badge-rol {
+            display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 9px; font-weight: 900; letter-spacing: .10em;
+            background: rgba(0,180,255,.15); color: #00B4FF; border: 1px solid rgba(0,180,255,.22);
+        }
+        .badge-rol.admin { background: rgba(255,215,0,.15); color: #ffd700; border-color: rgba(255,215,0,.25); }
+        .badge-rol.operador { background: rgba(0,220,120,.15); color: #00dc78; border-color: rgba(0,220,120,.25); }
+
+        .estado-pill {
+            display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px;
+            font-size: 9px; font-weight: 900; letter-spacing: .10em; cursor: pointer;
+        }
+        .estado-pill.activo   { background: rgba(0,220,120,.15); color: #00dc78; border: 1px solid rgba(0,220,120,.25); }
+        .estado-pill.inactivo { background: rgba(255,80,80,.15);  color: #ff6060; border: 1px solid rgba(255,80,80,.25); }
+        .estado-pill:hover { opacity: .8; }
+
+        .td-actions { display: flex; gap: 8px; }
+        .btn-edit-u, .btn-del-u {
+            height: 30px; padding: 0 12px; border: none; border-radius: 8px; cursor: pointer;
+            font-family: inherit; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+        }
+        .btn-edit-u { background: rgba(0,180,255,.14); color: #00B4FF; border: 1px solid rgba(0,180,255,.22); }
+        .btn-edit-u:hover { background: rgba(0,180,255,.28); }
+        .btn-del-u  { background: rgba(255,80,80,.14);  color: #ff6060; border: 1px solid rgba(255,80,80,.22); }
+        .btn-del-u:hover  { background: rgba(255,80,80,.28); }
+
+        #no-data { display: none; text-align: center; padding: 40px; font-size: 13px; color: rgba(255,255,255,.45); }
+
+        /* PANEL */
+        .side-panel {
+            width: 360px; height: 100vh;
+            background: linear-gradient(180deg, rgba(5,15,30,.96), rgba(2,6,12,.98));
+            border-left: 1px solid rgba(0,180,255,.18); backdrop-filter: blur(18px);
+            padding: 30px 24px; display: flex; flex-direction: column;
+            position: fixed; top: 0; right: 0; z-index: 50;
+            transform: translateX(110%); transition: .35s ease;
+        }
+        .side-panel.active { transform: translateX(0); }
+        .panel-title { font-size: 28px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 8px; }
+        .panel-sub   { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #00B4FF; margin-bottom: 30px; }
+        .panel-menu  { display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; overflow-y: auto; padding-right: 4px; }
+        .menu-btn {
+            width: 100%; height: 58px; border: none; border-radius: 16px;
+            display: flex; align-items: center; gap: 14px; padding: 0 18px;
+            cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700;
+            letter-spacing: .08em; text-transform: uppercase; color: white;
+            background: linear-gradient(90deg, rgba(5,20,40,.95), rgba(8,35,70,.92));
+            border: 1px solid rgba(255,255,255,.05); transition: .22s ease;
+        }
+        .menu-btn:hover { transform: translateX(-4px); border-color: rgba(0,180,255,.25); box-shadow: 0 0 18px rgba(0,180,255,.14); }
+        .menu-btn.active { background: linear-gradient(90deg, #00B4FF, #006CFF); }
+        .menu-icon { font-size: 22px; }
+        .close-panel-btn {
+            margin-top: auto; height: 56px; border: none; border-radius: 18px; cursor: pointer;
+            font-family: inherit; font-size: 13px; font-weight: 900; letter-spacing: .10em;
+            text-transform: uppercase; color: white; background: linear-gradient(90deg, #00B4FF, #006CFF);
+        }
+
+        /* MODAL */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,.82); display: none; align-items: center; justify-content: center; z-index: 999; }
+        .modal.open { display: flex; }
+        .modal-box {
+            width: 480px; max-width: 94vw; border-radius: 28px;
+            background: linear-gradient(180deg, rgba(5,15,30,.96), rgba(2,6,12,.98));
+            border: 1px solid rgba(0,180,255,.18); padding: 32px; max-height: 90vh; overflow-y: auto;
+        }
+        .modal-title { font-size: 22px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 24px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+        label { font-size: 10px; letter-spacing: .10em; text-transform: uppercase; color: #00B4FF; }
+        input, select {
+            width: 100%; height: 48px; border: none; outline: none; border-radius: 12px;
+            padding: 0 14px; font-family: inherit; font-size: 12px;
+            background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); color: white;
+        }
+        select option { background: #050f1e; }
+        .hint { font-size: 10px; color: rgba(255,255,255,.4); margin-top: -4px; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 22px; }
+        .cancel-btn, .save-btn {
+            height: 50px; padding: 0 26px; border: none; border-radius: 12px; cursor: pointer;
+            font-family: inherit; font-weight: 900; letter-spacing: .10em; text-transform: uppercase;
+        }
+        .cancel-btn { background: rgba(255,255,255,.08); color: white; }
+        .save-btn   { color: white; background: linear-gradient(90deg, #00B4FF, #006CFF); }
+
+        /* LOG SECTION */
+        .section-title { font-size: 18px; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; margin: 30px 0 14px; color: rgba(255,255,255,.72); }
+        .log-table-wrap { border-radius: 16px; overflow: hidden; background: rgba(5,15,30,.72); border: 1px solid rgba(255,255,255,.06); max-height: 260px; overflow-y: auto; }
+        .log-row { padding: 10px 18px; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 11px; display: flex; gap: 14px; }
+        .log-fecha { color: rgba(255,255,255,.4); white-space: nowrap; }
+        .log-accion { flex: 1; color: rgba(255,255,255,.75); }
+
+        /* TOAST */
+        .toast {
+            position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
+            background: rgba(5,15,30,.96); border-radius: 14px; padding: 14px 24px;
+            font-size: 13px; font-weight: 700; letter-spacing: .06em;
+            border: 1px solid rgba(0,180,255,.20); z-index: 2000;
+            transition: transform .3s ease, opacity .3s ease; opacity: 0;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast--ok  { border-color: rgba(0,220,120,.30); color: #00dc78; }
+        .toast--err { border-color: rgba(255,80,80,.30);  color: #ff8080; }
+    </style>
+</head>
+<body>
+
+<video class="video-bg" autoplay muted loop playsinline>
+    <source src="../assets/bg/sistema.mp4" type="video/mp4">
+</video>
+<div class="video-overlay"></div>
+
+<div class="layout">
+    <section class="users-section">
+
+        <div class="users-header">
+            <div>
+                <h1 class="users-title">USUARIOS</h1>
+                <div class="users-sub">Gestión de acceso y roles del sistema</div>
+            </div>
+            <div class="top-actions">
+                <button class="panel-btn" id="togglePanel">☰ PANEL</button>
+                <button class="create-btn" id="openModal">+ Crear Usuario</button>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-pill"><span id="stat-total">0</span>Total</div>
+            <div class="stat-pill"><span id="stat-activos">0</span>Activos</div>
+            <div class="stat-pill"><span id="stat-inactivos">0</span>Inactivos</div>
+            <div class="stat-pill"><span id="stat-admins">0</span>Admins</div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="usersBody"></tbody>
+            </table>
+        </div>
+        <div id="no-data">No hay usuarios registrados.</div>
+
+        <!-- LOG DE AUDITORÍA -->
+        <div class="section-title">📋 Log de Auditoría</div>
+        <div class="log-table-wrap" id="logContainer">
+            <div class="log-row"><span class="log-accion">Cargando log...</span></div>
+        </div>
+
+    </section>
+
+    <aside class="side-panel" id="usersPanel">
+        <div class="panel-title">USUARIOS</div>
+        <div class="panel-sub">Budokai Tournament System</div>
+        <div class="panel-menu">
+            <button class="menu-btn" onclick="window.location.href='index.html'"><span class="menu-icon">🏠</span>Inicio</button>
+            <button class="menu-btn" onclick="window.location.href='staff.html'"><span class="menu-icon">👥</span>Staff</button>
+            <button class="menu-btn" onclick="window.location.href='luchadores.html'"><span class="menu-icon">⚔️</span>Luchadores</button>
+            <button class="menu-btn" onclick="window.location.href='combates.html'"><span class="menu-icon">🥊</span>Combates</button>
+            <button class="menu-btn" onclick="window.location.href='torneo.html'"><span class="menu-icon">🏆</span>Torneos</button>
+            <button class="menu-btn" onclick="window.location.href='sistema.html'"><span class="menu-icon">⚙️</span>Sistema</button>
+            <button class="menu-btn active"><span class="menu-icon">🔐</span>Usuarios</button>
+            <button class="menu-btn" onclick="cerrarSesion()"><span class="menu-icon">🚪</span>Cerrar Sesión</button>
+        </div>
+        <button class="close-panel-btn" id="closePanel">✕ Cerrar Panel</button>
+    </aside>
+</div>
+
+<!-- MODAL CREAR / EDITAR -->
+<div class="modal" id="modal">
+    <div class="modal-box">
+        <div class="modal-title" id="modal-title">Crear Usuario</div>
+        <form id="form-usuario">
+            <div class="form-group">
+                <label>Nombre de usuario *</label>
+                <input type="text" id="f-username" placeholder="Ej: arbitro01" required>
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="f-password" placeholder="Dejar en blanco para no cambiar">
+                <div class="hint" id="hint-pass">Mínimo 6 caracteres</div>
+            </div>
+            <div class="form-group">
+                <label>Rol</label>
+                <select id="f-rol">
+                    <option value="Administrador">Administrador</option>
+                    <option value="Operador" selected>Operador</option>
+                    <option value="Arbitro">Árbitro</option>
+                    <option value="Visualizador">Visualizador</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Estado</label>
+                <select id="f-estado">
+                    <option value="1">Activo</option>
+                    <option value="0">Inactivo</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="cancel-btn" id="closeModal">Cancelar</button>
+                <button type="submit" class="save-btn" id="btn-submit">Crear</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="../js/api.js"></script>
+<script>
+    // Solo admin puede acceder a esta página
+    (function() {
+        const s = getSession();
+        if (!s || (s.rol ?? '').toLowerCase() !== 'admin') {
+            window.location.replace('index.html');
+        }
+    })();
+
+    const panel = document.getElementById('usersPanel');
+    document.getElementById('togglePanel').onclick = () => panel.classList.add('active');
+    document.getElementById('closePanel').onclick  = () => panel.classList.remove('active');
+
+    let usuariosData = [];
+    let editingId = null;
+
+    function toast(msg, tipo = 'ok') {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.className = `toast toast--${tipo} show`;
+        clearTimeout(el._t);
+        el._t = setTimeout(() => el.classList.remove('show'), 3500);
+    }
+
+    function rolBadge(rol) {
+        const r = (rol || '').toLowerCase();
+        if (r.includes('admin')) return `<span class="badge-rol admin">${rol}</span>`;
+        if (r.includes('operador')) return `<span class="badge-rol operador">${rol}</span>`;
+        return `<span class="badge-rol">${rol}</span>`;
+    }
+
+    function renderTabla(lista) {
+        const tbody = document.getElementById('usersBody');
+        const noData = document.getElementById('no-data');
+        tbody.innerHTML = '';
+
+        if (!lista || lista.length === 0) { noData.style.display = 'block'; return; }
+        noData.style.display = 'none';
+
+        lista.forEach(u => {
+            const activo = u.estado == 1 || u.estado === true;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${u.id_usuario}</td>
+                <td>${u.username}</td>
+                <td>${rolBadge(u.rol)}</td>
+                <td>
+                    <span class="estado-pill ${activo ? 'activo' : 'inactivo'}"
+                          onclick="toggleEstado(${u.id_usuario}, ${activo ? 0 : 1}, '${u.username}', '${u.rol}')">
+                        ${activo ? '✅ ACTIVO' : '🔴 INACTIVO'}
+                    </span>
+                </td>
+                <td>
+                    <div class="td-actions">
+                        <button class="btn-edit-u" onclick="abrirEditar(${u.id_usuario})">✎ Editar</button>
+                        <button class="btn-del-u"  onclick="confirmarEliminar(${u.id_usuario})">✕</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function actualizarStats(lista) {
+        document.getElementById('stat-total').textContent    = lista.length;
+        document.getElementById('stat-activos').textContent  = lista.filter(u => u.estado == 1 || u.estado === true).length;
+        document.getElementById('stat-inactivos').textContent = lista.filter(u => u.estado == 0 || u.estado === false).length;
+        document.getElementById('stat-admins').textContent   = lista.filter(u => (u.rol||'').toLowerCase().includes('admin')).length;
+    }
+
+    async function cargarUsuarios() {
+        try {
+            const res = await fetch(`${BASE_URL}/${EP_LOGIN}?action=listar-usuarios`);
+            const json = await res.json();
+            usuariosData = json.data || json || [];
+            renderTabla(usuariosData);
+            actualizarStats(usuariosData);
+        } catch(e) {
+            toast('Error cargando usuarios: ' + e.message, 'err');
+        }
+    }
+
+    async function cargarLog() {
+        try {
+            const res  = await fetch(`${BASE_URL}/${EP_LOGIN}?action=consultar-log`);
+            const json = await res.json();
+            const logs = json.data || json || [];
+            const cont = document.getElementById('logContainer');
+            if (!logs.length) { cont.innerHTML = '<div class="log-row"><span class="log-accion">Sin registros en el log</span></div>'; return; }
+            cont.innerHTML = logs.slice(0, 50).map(l =>
+                `<div class="log-row">
+                    <span class="log-fecha">${l.fecha ? new Date(l.fecha).toLocaleString() : '—'}</span>
+                    <span class="log-accion">${l.accion || l.descripcion || '—'}</span>
+                </div>`
+            ).join('');
+        } catch(e) {
+            document.getElementById('logContainer').innerHTML = '<div class="log-row"><span class="log-accion">Error cargando log</span></div>';
+        }
+    }
+
+    function abrirNuevo() {
+        editingId = null;
+        document.getElementById('modal-title').textContent = 'Crear Usuario';
+        document.getElementById('form-usuario').reset();
+        document.getElementById('hint-pass').textContent = 'Mínimo 6 caracteres';
+        document.getElementById('btn-submit').textContent = 'Crear';
+        document.getElementById('modal').classList.add('open');
+    }
+
+    function abrirEditar(id) {
+        const u = usuariosData.find(x => x.id_usuario === id);
+        if (!u) return;
+        editingId = id;
+        document.getElementById('modal-title').textContent = 'Editar Usuario';
+        document.getElementById('f-username').value = u.username || '';
+        document.getElementById('f-password').value = '';
+        document.getElementById('hint-pass').textContent = 'Dejar en blanco para no cambiar';
+        document.getElementById('f-rol').value = u.rol || 'Operador';
+        document.getElementById('f-estado').value = (u.estado == 1 || u.estado === true) ? '1' : '0';
+        document.getElementById('btn-submit').textContent = 'Guardar';
+        document.getElementById('modal').classList.add('open');
+    }
+
+    function cerrarModal() {
+        document.getElementById('modal').classList.remove('open');
+        editingId = null;
+    }
+
+    async function guardarUsuario(e) {
+        e.preventDefault();
+        const username = document.getElementById('f-username').value.trim();
+        const password = document.getElementById('f-password').value;
+        const rol      = document.getElementById('f-rol').value;
+        const estado   = parseInt(document.getElementById('f-estado').value);
+
+        if (!editingId && password.length < 6) { toast('La contraseña debe tener al menos 6 caracteres', 'err'); return; }
+        if (editingId && password && password.length < 6) { toast('La contraseña debe tener al menos 6 caracteres', 'err'); return; }
+
+        const datos = { username, rol, estado };
+        if (password) datos.password = password;
+
+        try {
+            if (editingId) {
+                datos.id_usuario = editingId;
+                const res = await fetch(`${BASE_URL}/${EP_LOGIN}?action=actualizar-usuario`, {
+                    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(datos)
+                });
+                const json = await res.json();
+                if (json.status === 'error') throw new Error(json.message);
+                toast('✅ Usuario actualizado', 'ok');
+            } else {
+                const res = await fetch(`${BASE_URL}/${EP_LOGIN}?action=crear-usuario`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(datos)
+                });
+                const json = await res.json();
+                if (json.status === 'error') throw new Error(json.message);
+                toast('✅ Usuario creado', 'ok');
+            }
+            cerrarModal();
+            cargarUsuarios();
+        } catch(err) {
+            toast('❌ ' + err.message, 'err');
+        }
+    }
+
+    async function toggleEstado(id, nuevoEstado, username, rol) {
+        try {
+            const res = await fetch(`${BASE_URL}/${EP_LOGIN}?action=actualizar-usuario`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id_usuario: id, username, rol, estado: nuevoEstado })
+            });
+            const json = await res.json();
+            if (json.status === 'error') throw new Error(json.message);
+            toast(nuevoEstado ? '✅ Usuario activado' : '🔴 Usuario desactivado', 'ok');
+            cargarUsuarios();
+        } catch(err) {
+            toast('❌ ' + err.message, 'err');
+        }
+    }
+
+    function confirmarEliminar(id) {
+        const u = usuariosData.find(x => x.id_usuario === id);
+        if (!confirm(`¿Eliminar usuario "${u?.username}"? Esta acción no se puede deshacer.`)) return;
+        fetch(`${BASE_URL}/${EP_LOGIN}?action=eliminar-usuario&id=${id}`, { method: 'DELETE' })
+            .then(r => r.json())
+            .then(json => {
+                if (json.status === 'error') throw new Error(json.message);
+                toast('✅ Usuario eliminado', 'ok');
+                cargarUsuarios();
+            })
+            .catch(err => toast('❌ ' + err.message, 'err'));
+    }
+
+    function cerrarSesion() {
+        if (confirm('¿Deseas cerrar sesión?')) {
+            sessionStorage.removeItem('budokai_session');
+            window.location.href = 'login.html';
+        }
+    }
+
+    document.getElementById('openModal').addEventListener('click', abrirNuevo);
+    document.getElementById('closeModal').addEventListener('click', cerrarModal);
+    document.getElementById('form-usuario').addEventListener('submit', guardarUsuario);
+
+    document.addEventListener('DOMContentLoaded', () => {
+        cargarUsuarios();
+        cargarLog();
+    });
+</script>
+</body>
+</html>

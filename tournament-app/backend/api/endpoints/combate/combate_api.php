@@ -1,4 +1,6 @@
 <?php
+ini_set('display_errors', 0);
+error_reporting(0);
 
 /*
 |--------------------------------------------------------------------------
@@ -31,26 +33,6 @@ if($_SERVER['REQUEST_METHOD'] === 'OPTIONS'){
 /*
 |--------------------------------------------------------------------------
 | CONTROLLER
-|--------------------------------------------------------------------------
-*/
-
-require_once __DIR__ . '/../../controllers/combate/CombateController.php';
-
-$controller = new CombateController();
-
-/*
-|--------------------------------------------------------------------------
-| REQUEST
-|--------------------------------------------------------------------------
-*/
-
-$method = $_SERVER['REQUEST_METHOD'];
-
-$action = $_GET['action'] ?? '';
-
-/*
-|--------------------------------------------------------------------------
-| HELPERS
 |--------------------------------------------------------------------------
 */
 
@@ -95,6 +77,12 @@ function apiError($message = "Error", $status = 400){
 */
 
 try {
+
+    require_once __DIR__ . '/../../controllers/combate/CombateController.php';
+    $controller = new CombateController();
+    $method = $_SERVER['REQUEST_METHOD'];
+    $action = $_GET['action'] ?? '';
+
 
     /*
     |--------------------------------------------------------------------------
@@ -274,7 +262,7 @@ try {
 
     );
 
-} catch(Exception $e){
+} catch(\Throwable $e){
 
     apiError(
 

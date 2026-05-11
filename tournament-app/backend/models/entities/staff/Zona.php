@@ -22,6 +22,14 @@ class Zona {
     public function setIdZona(int $idZona): void { $this->idZona = $idZona; }
     public function setNombre(string $nombre): void { $this->nombre = $nombre; }
     public function setDescripcion(string $descripcion): void { $this->descripcion = $descripcion; }
+
+    public function toArray(): array {
+        return [
+            'id_zona' => $this->idZona,
+            'nombre' => $this->nombre,
+            'descripcion' => $this->descripcion
+        ];
+    }
 }
 
 ?>

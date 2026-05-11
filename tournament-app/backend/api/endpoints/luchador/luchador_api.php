@@ -1,4 +1,6 @@
 <?php
+ini_set('display_errors', 0);
+error_reporting(0);
 
 /*
 |--------------------------------------------------------------------------
@@ -33,20 +35,6 @@ if($_SERVER['REQUEST_METHOD'] === 'OPTIONS'){
 | CONTROLLER
 |--------------------------------------------------------------------------
 */
-
-require_once __DIR__ . '/../../controllers/luchador/LuchadorController.php';
-
-$controller = new LuchadorController();
-
-/*
-|--------------------------------------------------------------------------
-| REQUEST
-|--------------------------------------------------------------------------
-*/
-
-$method = $_SERVER['REQUEST_METHOD'];
-
-$action = $_GET['action'] ?? '';
 
 /*
 |--------------------------------------------------------------------------
@@ -95,6 +83,11 @@ function apiError($message = "Error", $status = 400){
 */
 
 try {
+
+    require_once __DIR__ . '/../../controllers/luchador/LuchadorController.php';
+    $controller = new LuchadorController();
+    $method = $_SERVER['REQUEST_METHOD'];
+    $action = $_GET['action'] ?? '';
 
     /*
     |--------------------------------------------------------------------------
@@ -274,7 +267,7 @@ try {
 
     );
 
-} catch(Exception $e){
+} catch(\Throwable $e){
 
     apiError(
 

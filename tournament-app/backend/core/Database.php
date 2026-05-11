@@ -35,7 +35,7 @@ class Database {
         $port = $envVars['DB_PORT'] ?? 3306;
 
         // Conectar a BD
-        $this->conn = new mysqli($host, $user, $pass, $dbname, $port);
+        $this->conn = @new mysqli($host, $user, $pass, $dbname, $port);
 
         // Verificar conexión
         if ($this->conn->connect_error) {

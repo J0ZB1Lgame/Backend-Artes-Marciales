@@ -130,7 +130,7 @@ class CombateDAOImpl extends BaseDAO implements ICRUD, ICombateDAO {
 
             ?, ?, ?, ?,
             ?, ?, ?, ?,
-            ?
+            ?, ?, ?, ?
 
         )
 
@@ -232,7 +232,7 @@ class CombateDAOImpl extends BaseDAO implements ICRUD, ICombateDAO {
                 $data["observaciones"],
                 $data["duracion_segundos"],
                 $data["puntos_luchador_1"],
-                $data["puntos_luchador_2"]
+                $data["puntos_luchador_2"],
 
                 $id
 

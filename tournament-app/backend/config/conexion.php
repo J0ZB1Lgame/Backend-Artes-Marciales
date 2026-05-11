@@ -8,7 +8,7 @@
 |--------------------------------------------------------------------------
 */
 
-define("DB_HOST", "127.0.0.1");
+define("DB_HOST", "localhost");
 
 /*
 |--------------------------------------------------------------------------
@@ -22,7 +22,7 @@ define("DB_HOST", "127.0.0.1");
 |--------------------------------------------------------------------------
 */
 
-define("DB_PORT", "3309");
+define("DB_PORT", "3306");
 
 /*
 |--------------------------------------------------------------------------
@@ -59,5 +59,13 @@ define("DB_CHARSET", "utf8");
 define("APP_NAME", "Budokai Tournament System");
 
 define("APP_ENV", "development");
+
+// Conexión global $conn usada por los DAOs del módulo login
+$conn = @new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, (int)DB_PORT);
+if ($conn->connect_error) {
+    $conn = null;
+} else {
+    $conn->set_charset(DB_CHARSET);
+}
 
 ?>

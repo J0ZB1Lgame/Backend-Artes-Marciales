@@ -60,8 +60,9 @@ class SesionController {
 
         $response = [
             'idUsuario' => $usuarioEntity->getIdUsuario(),
-            'username' => $usuarioEntity->getUsername(),
-            'rol' => $usuarioEntity->getRol()
+            'idSesion'  => $sesion->getIdSesion(),
+            'username'  => $usuarioEntity->getUsername(),
+            'rol'       => $usuarioEntity->getRol()
         ];
 
         if ($staffTorneoInfo !== null) {

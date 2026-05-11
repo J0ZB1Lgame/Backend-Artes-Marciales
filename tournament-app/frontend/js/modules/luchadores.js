@@ -1,6 +1,7 @@
 // frontend/js/modules/luchadores.js
 // Lógica de la pantalla de Gestión de Luchadores
-// Campos: id_luchador, nombre, especie, nivel_poder_ki, origen, estado
+// Campos reales BD: id_luchador, nombre, apellido, tipo_documento, numero_documento, 
+// edad, genero, categoria, peso, telefono, email, victorias, derrotas, estado, foto, fecha_registro
 
 const EP = 'luchador/luchador_api.php';
 
@@ -35,23 +36,35 @@ function toast(msg, tipo = 'ok') {
 // ── Stats ────────────────────────────────────────────────────
 function actualizarStats(lista) {
     const total = lista.length;
-    const humanos = lista.filter(l => (l.especie ?? '').toLowerCase().includes('humano')).length;
-    const aliens = lista.filter(l => (l.especie ?? '').toLowerCase().includes('alien')).length;
-    const otros = total - humanos - aliens;
+    const activos = lista.filter(l => (l.estado ?? '').toLowerCase() === 'activo').length;
+    const masculino = lista.filter(l => (l.genero ?? '').toLowerCase() === 'masculino').length;
+    const femenino = lista.filter(l => (l.genero ?? '').toLowerCase() === 'femenino').length;
+    const totalVictorias = lista.reduce((sum, l) => sum + (parseInt(l.victorias) || 0), 0);
+    const totalDerrotas = lista.reduce((sum, l) => sum + (parseInt(l.derrotas) || 0), 0);
 
     document.getElementById('stat-total').textContent = total;
-    document.getElementById('stat-humanos').textContent = humanos;
-    document.getElementById('stat-aliens').textContent = aliens;
-    document.getElementById('stat-otros').textContent = otros;
+    document.getElementById('stat-activos').textContent = activos;
+    document.getElementById('stat-masculino').textContent = masculino;
+    document.getElementById('stat-femenino').textContent = femenino;
+    document.getElementById('stat-victorias').textContent = totalVictorias;
+    document.getElementById('stat-derrotas').textContent = totalDerrotas;
 }
 
 // ── Badges ───────────────────────────────────────────────────
-function especieBadge(especie) {
-    const e = (especie ?? '').toLowerCase();
-    if (e.includes('humano')) return `<span class="badge badge-humano">👤 HUMANO</span>`;
-    if (e.includes('alien')) return `<span class="badge badge-alien">👽 ALIEN</span>`;
-    if (e.includes('androide')) return `<span class="badge badge-androide">🤖 ANDROIDE</span>`;
-    return `<span class="badge badge-default">${especie ?? '—'}</span>`;
+function generoBadge(genero) {
+    const g = (genero ?? '').toLowerCase();
+    if (g.includes('masculino')) return `<span class="badge badge-masculino">👤 MASCULINO</span>`;
+    if (g.includes('femenino')) return `<span class="badge badge-femenino">� FEMENINO</span>`;
+    return `<span class="badge badge-default">${genero ?? '—'}</span>`;
+}
+
+function categoriaBadge(categoria) {
+    const c = (categoria ?? '').toLowerCase();
+    if (c.includes('peso pesado')) return `<span class="badge badge-pesado">🏋️ PESADO</span>`;
+    if (c.includes('peso medio')) return `<span class="badge badge-medio">⚖️ MEDIO</span>`;
+    if (c.includes('peso ligero')) return `<span class="badge badge-ligero">🏃 LIGERO</span>`;
+    if (c.includes('pluma')) return `<span class="badge badge-pluma">� PLUMA</span>`;
+    return `<span class="badge badge-default">${categoria ?? '—'}</span>`;
 }
 
 function estadoBadge(estado) {
@@ -73,18 +86,22 @@ function renderTabla(lista) {
     }
     noData.style.display = 'none';
 
+    const puedeMod = puedeEscribir('luchadores');
+
     lista.forEach((l, i) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td class="td-num">#${i + 1}</td>
-            <td class="td-nombre">${l.nombre ?? '—'}</td>
-            <td>${especieBadge(l.especie)}</td>
-            <td class="td-ki">${l.nivel_poder_ki ?? '—'}</td>
-            <td class="td-origen">${l.origen ?? '—'}</td>
+            <td class="td-nombre">${l.nombre ?? '—'} ${l.apellido ?? ''}</td>
+            <td>${generoBadge(l.genero)}</td>
+            <td>${categoriaBadge(l.categoria)}</td>
+            <td class="td-peso">${l.peso ?? '—'} kg</td>
+            <td class="td-victorias">${l.victorias ?? 0}</td>
+            <td class="td-derrotas">${l.derrotas ?? 0}</td>
             <td>${estadoBadge(l.estado)}</td>
             <td class="td-actions">
-                <button class="btn-edit"   data-id="${l.id_luchador}">✎ EDITAR</button>
-                <button class="btn-delete" data-id="${l.id_luchador}">✕ ELIMINAR</button>
+                ${puedeMod ? `<button class="btn-edit"   data-id="${l.id_luchador}">✎ EDITAR</button>`   : ''}
+                ${puedeMod ? `<button class="btn-delete" data-id="${l.id_luchador}">✕ ELIMINAR</button>` : ''}
             </td>
         `;
         tbody.appendChild(tr);
@@ -99,13 +116,13 @@ function renderTabla(lista) {
 }
 
 // ── Filtro local ─────────────────────────────────────────────
-function filtrar(q, especie) {
+function filtrar(q, categoria) {
     const texto = q.toLowerCase();
     let lista = luchadorData.filter(l =>
         (l.nombre ?? '').toLowerCase().includes(texto)
     );
-    if (especie) {
-        lista = lista.filter(l => (l.especie ?? '').toLowerCase().includes(especie.toLowerCase()));
+    if (categoria) {
+        lista = lista.filter(l => (l.categoria ?? '').toLowerCase().includes(categoria.toLowerCase()));
     }
     renderTabla(lista);
 }
@@ -125,9 +142,15 @@ function abrirEditar(id) {
     editingId = id;
     document.getElementById('modal-title').textContent = 'Editar luchador';
     document.getElementById('f-nombre').value = l.nombre ?? '';
-    document.getElementById('f-especie').value = l.especie ?? '';
-    document.getElementById('f-ki').value = l.nivel_poder_ki ?? '';
-    document.getElementById('f-origen').value = l.origen ?? '';
+    document.getElementById('f-apellido').value = l.apellido ?? '';
+    document.getElementById('f-tipo-documento').value = l.tipo_documento ?? '';
+    document.getElementById('f-numero-documento').value = l.numero_documento ?? '';
+    document.getElementById('f-edad').value = l.edad ?? '';
+    document.getElementById('f-genero').value = l.genero ?? '';
+    document.getElementById('f-categoria').value = l.categoria ?? '';
+    document.getElementById('f-peso').value = l.peso ?? '';
+    document.getElementById('f-telefono').value = l.telefono ?? '';
+    document.getElementById('f-email').value = l.email ?? '';
     document.getElementById('f-estado').value = l.estado ?? 'activo';
     document.getElementById('btn-submit').textContent = 'Guardar cambios';
     document.getElementById('modal').classList.add('open');
@@ -167,10 +190,16 @@ async function onSubmit(e) {
 
     const datos = {
         nombre: document.getElementById('f-nombre').value.trim(),
-        especie: document.getElementById('f-especie').value.trim(),
-        nivel_poder_ki: parseFloat(document.getElementById('f-ki').value) || 0,
-        origen: document.getElementById('f-origen').value.trim(),
-        estado: document.getElementById('f-estado').value,
+        apellido: document.getElementById('f-apellido').value.trim(),
+        tipo_documento: document.getElementById('f-tipo-documento').value.trim(),
+        numero_documento: document.getElementById('f-numero-documento').value.trim(),
+        edad: parseInt(document.getElementById('f-edad').value) || 0,
+        genero: document.getElementById('f-genero').value.trim(),
+        categoria: document.getElementById('f-categoria').value.trim(),
+        peso: parseFloat(document.getElementById('f-peso').value) || 0,
+        telefono: document.getElementById('f-telefono').value.trim(),
+        email: document.getElementById('f-email').value.trim(),
+        estado: document.getElementById('f-estado').value.trim(),
     };
 
     try {
@@ -208,6 +237,10 @@ async function cargar() {
 // ── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     cargar();
+
+    if (!puedeEscribir('luchadores')) {
+        document.getElementById('btn-nuevo')?.style.setProperty('display', 'none');
+    }
 
     document.getElementById('btn-nuevo')
         ?.addEventListener('click', abrirNuevo);

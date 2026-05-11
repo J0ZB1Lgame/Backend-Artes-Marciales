@@ -48,6 +48,33 @@ private_keys/
 *.backup
 Backend-Artes-Marciales.backup/
 
+# Archivos comprimidos
+*.zip
+*.rar
+*.tar.gz
+
+# Documentación de auditoría / IA / Windsurf (no forman parte del sistema)
+AUDITORIA_*.md
+PROMPT_*.md
+WINDSURF_*.md
+CONEXION_TEST.md
+CONFIGURACION.md
+backend/AUDITORIA_*.md
+backend/PROMPT_*.md
+
+# Scripts de diagnóstico y utilidades de un solo uso
+backend/diagnostico.php
+backend/check_*.php
+backend/check_*.sql
+backend/fix_*.sql
+backend/adjust_*.php
+backend/test_*.php
+backend/setup_admin.php
+
+# Claude Code
+.claude/
+frontend/.claude/
+
 # Assets de fondo del login (archivos pesados — cada dev pone el suyo localmente)
 frontend/assets/bg/*.jpg
 frontend/assets/bg/*.jpeg

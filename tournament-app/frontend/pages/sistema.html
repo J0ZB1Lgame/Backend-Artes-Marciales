@@ -211,6 +211,10 @@
             display: flex;
             flex-direction: column;
             gap: 14px;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            padding-right: 4px;
         }
         
         .menu-btn {
@@ -318,123 +322,83 @@
             <div class="system-grid">
 
                 <div class="system-card">
-
-                    <div class="system-icon">
-                        👤
-                    </div>
-
-                    <div class="system-card-title">
-                        Usuarios
-                    </div>
-
+                    <div class="system-icon">🔐</div>
+                    <div class="system-card-title">Usuarios</div>
                     <div class="system-card-desc">
-                        Gestión completa de cuentas, permisos y accesos del sistema.
+                        Registro, edición y desactivación de usuarios del sistema. Gestión de roles y permisos de acceso.
                     </div>
-
-                    <button class="system-btn">
-                    Administrar Usuarios
-                </button>
-
+                    <button class="system-btn" onclick="window.location.href='usuarios.html'">
+                        Administrar Usuarios
+                    </button>
                 </div>
 
                 <div class="system-card">
-
-                    <div class="system-icon">
-                        🔐
-                    </div>
-
-                    <div class="system-card-title">
-                        Seguridad
-                    </div>
-
+                    <div class="system-icon">👤</div>
+                    <div class="system-card-title">Staff</div>
                     <div class="system-card-desc">
-                        Control de autenticación, sesiones y protección del sistema.
+                        Gestión completa de cuentas de staff, roles y asignación de zonas del torneo.
                     </div>
-
-                    <button class="system-btn">
-                    Configurar Seguridad
-                </button>
-
+                    <button class="system-btn" onclick="window.location.href='staff.html'">
+                        Administrar Staff
+                    </button>
                 </div>
 
                 <div class="system-card">
-
-                    <div class="system-icon">
-                        🗄️
-                    </div>
-
-                    <div class="system-card-title">
-                        Base de Datos
-                    </div>
-
+                    <div class="system-icon">🥋</div>
+                    <div class="system-card-title">Luchadores</div>
                     <div class="system-card-desc">
-                        Administración de tablas, registros y conexiones internas.
+                        Registro y administración de luchadores, categorías y estadísticas individuales.
                     </div>
-
-                    <button class="system-btn">
-                    Gestionar Base de Datos
-                </button>
-
+                    <button class="system-btn" onclick="window.location.href='luchadores.html'">
+                        Administrar Luchadores
+                    </button>
                 </div>
 
                 <div class="system-card">
-
-                    <div class="system-icon">
-                        📊
-                    </div>
-
-                    <div class="system-card-title">
-                        Logs
-                    </div>
-
+                    <div class="system-icon">🗄️</div>
+                    <div class="system-card-title">Base de Datos</div>
                     <div class="system-card-desc">
-                        Historial de acciones realizadas dentro del torneo y usuarios.
+                        Estado de la conexión MySQL. Registros activos:
+                        <strong id="db-luchadores">—</strong> luchadores,
+                        <strong id="db-combates">—</strong> combates,
+                        <strong id="db-torneos">—</strong> torneos.
                     </div>
-
-                    <button class="system-btn">
-                    Ver Logs
-                </button>
-
+                    <button class="system-btn" onclick="verificarDB()">
+                        🔄 Verificar Conexión
+                    </button>
                 </div>
 
                 <div class="system-card">
-
-                    <div class="system-icon">
-                        ⚙️
-                    </div>
-
-                    <div class="system-card-title">
-                        Configuración
-                    </div>
-
+                    <div class="system-icon">🥊</div>
+                    <div class="system-card-title">Combates</div>
                     <div class="system-card-desc">
-                        Ajustes generales visuales y operativos del sistema Budokai.
+                        Gestión de enfrentamientos, árbitros asignados y resultados registrados.
                     </div>
-
-                    <button class="system-btn">
-                    Abrir Configuración
-                </button>
-
+                    <button class="system-btn" onclick="window.location.href='combates.html'">
+                        Administrar Combates
+                    </button>
                 </div>
 
                 <div class="system-card">
-
-                    <div class="system-icon">
-                        ☁️
-                    </div>
-
-                    <div class="system-card-title">
-                        Respaldos
-                    </div>
-
+                    <div class="system-icon">🏆</div>
+                    <div class="system-card-title">Torneos</div>
                     <div class="system-card-desc">
-                        Copias de seguridad automáticas y restauración de información.
+                        Creación y seguimiento de torneos, brackets y campeones registrados.
                     </div>
+                    <button class="system-btn" onclick="window.location.href='torneo.html'">
+                        Administrar Torneos
+                    </button>
+                </div>
 
-                    <button class="system-btn">
-                    Gestionar Backups
-                </button>
-
+                <div class="system-card">
+                    <div class="system-icon">📊</div>
+                    <div class="system-card-title">Estadísticas</div>
+                    <div class="system-card-desc">
+                        Rankings, campeones por torneo y análisis de rendimiento por categoría.
+                    </div>
+                    <button class="system-btn" onclick="window.location.href='estadisticas.html'">
+                        Ver Estadísticas
+                    </button>
                 </div>
 
             </div>
@@ -455,103 +419,262 @@
 
             <div class="panel-menu">
 
-                <button class="menu-btn" onclick="window.location.href='index.html'">
+    <!-- Inicio -->
+    <button
+        class="menu-btn"
+        onclick="window.location.href='index.html'">
 
-                <span class="menu-icon">🏠</span>
-                Inicio
+        <span class="menu-icon">🏠</span>
+        Inicio
 
-            </button>
+    </button>
 
-                <button class="menu-btn" onclick="window.location.href='staff.html'">
+    <!-- Staff -->
+    <button
+        class="menu-btn"
+        onclick="window.location.href='staff.html'">
 
-                <span class="menu-icon">👥</span>
-                Staff
+        <span class="menu-icon">👥</span>
+        Staff
 
-            </button>
+    </button>
 
-                <button class="menu-btn" onclick="window.location.href='luchadores.html'">
+    <!-- Luchadores -->
+    <button
+        class="menu-btn"
+        onclick="window.location.href='luchadores.html'">
 
-                <span class="menu-icon">⚔️</span>
-                Luchadores
+        <span class="menu-icon">⚔️</span>
+        Luchadores
 
-            </button>
+    </button>
 
-                <button class="menu-btn" onclick="window.location.href='combates.html'">
+    <!-- Combates -->
+    <button
+        class="menu-btn"
+        onclick="window.location.href='combates.html'">
 
-                <span class="menu-icon">🥊</span>
-                Combates
+        <span class="menu-icon">🥊</span>
+        Combates
 
-            </button>
+    </button>
 
-                <button class="menu-btn" onclick="window.location.href='torneo.html'">
+    <!-- Torneo -->
+    <button
+        class="menu-btn"
+        onclick="window.location.href='torneo.html'">
 
-                <span class="menu-icon">🏆</span>
-                Torneo
+        <span class="menu-icon">🏆</span>
+        Torneo
 
-            </button>
+    </button>
 
-                <button class="menu-btn" onclick="window.location.href='estadisticas.html'">
+    <!-- Estadísticas -->
+    <button
+        class="menu-btn"
+        onclick="window.location.href='estadisticas.html'">
 
-                <span class="menu-icon">📊</span>
-                Estadísticas
+        <span class="menu-icon">📊</span>
+        Estadísticas
 
-            </button>
+    </button>
 
-                <button class="menu-btn active">
+    <!-- Sistema -->
+    <button
+        class="menu-btn active">
 
-                <span class="menu-icon">⚙️</span>
-                Sistema
+        <span class="menu-icon">⚙️</span>
+        Sistema
 
-            </button>
+    </button>
 
-                <button class="menu-btn">
-                <span class="menu-icon">🔐</span>
-                Seguridad
-            </button>
+    <!-- Seguridad -->
+    <button
+        class="menu-btn"
+        onclick="abrirModalSeguridad(); panel.classList.remove('active')">
 
-                <button class="menu-btn">
-                <span class="menu-icon">🗄️</span>
-                Base de Datos
-            </button>
+        <span class="menu-icon">🔐</span>
+        Seguridad
 
-                <button class="menu-btn">
-                <span class="menu-icon">📁</span>
-                Respaldos
-            </button>
+    </button>
 
-            </div>
+    <!-- Base de Datos -->
+    <button
+        class="menu-btn"
+        onclick="verificarDB(); panel.classList.remove('active')">
 
-            <button class="close-panel-btn" id="closePanel">
+        <span class="menu-icon">🗄️</span>
+        Base de Datos
 
-            ✕ Cerrar Panel
+    </button>
 
-        </button>
+    <!-- Respaldos -->
+    <button
+        class="menu-btn"
+        onclick="exportarDatos(); panel.classList.remove('active')">
+
+        <span class="menu-icon">📁</span>
+        Respaldos
+
+    </button>
+
+    <!-- Logout -->
+    <button class="menu-btn" onclick="logout()">
+        <span class="menu-icon">🚪</span>
+        Cerrar Sesión
+    </button>
+
+</div>
+
+            <button class="close-panel-btn" id="closePanel">✕ CERRAR PANEL</button>
 
         </aside>
 
     </div>
 
+    <!-- MODAL SEGURIDAD -->
+    <div id="modal-seg" style="
+        display:none;position:fixed;inset:0;z-index:200;
+        background:rgba(0,0,0,.72);backdrop-filter:blur(6px);
+        align-items:center;justify-content:center;
+    ">
+        <div style="
+            background:linear-gradient(180deg,rgba(5,15,30,.98),rgba(2,6,12,.99));
+            border:1px solid rgba(0,180,255,.22);border-radius:28px;
+            padding:36px;width:420px;max-width:95vw;
+        ">
+            <div style="font-size:20px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px;">🔐 CAMBIAR CONTRASEÑA</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);letter-spacing:.1em;margin-bottom:28px;">SEGURIDAD DEL SISTEMA</div>
+            <div style="display:flex;flex-direction:column;gap:14px;">
+                <input id="seg-nueva" type="password" placeholder="Nueva contraseña" style="
+                    width:100%;height:48px;padding:0 16px;border-radius:12px;border:1px solid rgba(255,255,255,.1);
+                    background:rgba(255,255,255,.06);color:white;font-family:inherit;font-size:12px;letter-spacing:.06em;
+                ">
+                <input id="seg-confirmar" type="password" placeholder="Confirmar contraseña" style="
+                    width:100%;height:48px;padding:0 16px;border-radius:12px;border:1px solid rgba(255,255,255,.1);
+                    background:rgba(255,255,255,.06);color:white;font-family:inherit;font-size:12px;letter-spacing:.06em;
+                ">
+                <div style="display:flex;gap:12px;margin-top:8px;">
+                    <button onclick="cerrarModalSeguridad()" style="
+                        flex:1;height:46px;border:1px solid rgba(255,255,255,.1);border-radius:12px;
+                        background:rgba(255,255,255,.06);color:white;font-family:inherit;font-size:11px;
+                        font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
+                    ">CANCELAR</button>
+                    <button onclick="cambiarPassword()" style="
+                        flex:1;height:46px;border:none;border-radius:12px;
+                        background:linear-gradient(90deg,#00B4FF,#006CFF);color:white;font-family:inherit;
+                        font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
+                    ">ACTUALIZAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast" style="
+        position:fixed;bottom:28px;right:28px;padding:14px 22px;border-radius:14px;
+        font-size:12px;font-weight:700;letter-spacing:.08em;z-index:999;
+        opacity:0;transform:translateY(14px);transition:.3s ease;max-width:320px;
+    "></div>
+
+    <script src="../js/api.js"></script>
     <script>
-        /* PANEL */
+        const panel = document.getElementById('systemPanel');
+        document.getElementById('togglePanel').onclick = () => panel.classList.add('active');
+        document.getElementById('closePanel').onclick  = () => panel.classList.remove('active');
 
-        const panel =
-            document.getElementById('systemPanel');
+        function showToast(msg, tipo = 'ok') {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+            el.style.background = tipo === 'ok'
+                ? 'rgba(0,180,255,.18)' : 'rgba(255,60,60,.18)';
+            el.style.border = tipo === 'ok'
+                ? '1px solid rgba(0,180,255,.4)' : '1px solid rgba(255,60,60,.4)';
+            el.style.color = tipo === 'ok' ? '#00B4FF' : '#ff6060';
+            clearTimeout(el._t);
+            el._t = setTimeout(() => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(14px)';
+            }, 3500);
+        }
 
-        document
-            .getElementById('togglePanel')
-            .onclick = () => {
+        async function verificarDB() {
+            showToast('⏳ Verificando conexión...', 'ok');
+            try {
+                const [l, c, t] = await Promise.all([
+                    apiGet(EP_LUCHADOR).catch(() => []),
+                    apiGet(EP_COMBATE).catch(() => []),
+                    apiGet(EP_TORNEO).catch(() => []),
+                ]);
+                document.getElementById('db-luchadores').textContent = (l || []).length;
+                document.getElementById('db-combates').textContent   = (c || []).length;
+                document.getElementById('db-torneos').textContent    = (t || []).length;
+                showToast('🟢 Base de datos conectada', 'ok');
+            } catch (e) {
+                showToast('🔴 Error de conexión: ' + e.message, 'error');
+            }
+        }
 
-                panel.classList.add('active');
+        function abrirModalSeguridad() {
+            const m = document.getElementById('modal-seg');
+            m.style.display = 'flex';
+            document.getElementById('seg-nueva').value = '';
+            document.getElementById('seg-confirmar').value = '';
+        }
 
-            };
+        function cerrarModalSeguridad() {
+            document.getElementById('modal-seg').style.display = 'none';
+        }
 
-        document
-            .getElementById('closePanel')
-            .onclick = () => {
+        async function cambiarPassword() {
+            const nueva = document.getElementById('seg-nueva').value.trim();
+            const conf  = document.getElementById('seg-confirmar').value.trim();
+            if (!nueva || nueva.length < 6) { showToast('La contraseña debe tener al menos 6 caracteres', 'error'); return; }
+            if (nueva !== conf) { showToast('Las contraseñas no coinciden', 'error'); return; }
+            const session = getSession();
+            if (!session) { showToast('Sesión no encontrada', 'error'); return; }
+            try {
+                await fetch(BASE_URL + '/' + EP_LOGIN + '?action=actualizar-password', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id_usuario: session.idUsuario, password: nueva })
+                });
+                cerrarModalSeguridad();
+                showToast('✅ Contraseña actualizada correctamente', 'ok');
+            } catch (e) {
+                showToast('Error al actualizar: ' + e.message, 'error');
+            }
+        }
 
-                panel.classList.remove('active');
+        async function exportarDatos() {
+            showToast('⏳ Preparando exportación...', 'ok');
+            try {
+                const [luchadores, combates, torneos, staff] = await Promise.all([
+                    apiGet(EP_LUCHADOR).catch(() => []),
+                    apiGet(EP_COMBATE).catch(() => []),
+                    apiGet(EP_TORNEO).catch(() => []),
+                    apiGet(EP_STAFF).catch(() => []),
+                ]);
+                const backup = {
+                    exportado: new Date().toISOString(),
+                    sistema: 'Budokai Tournament System',
+                    datos: { luchadores, combates, torneos, staff }
+                };
+                const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'budokai-backup-' + new Date().toISOString().slice(0,10) + '.json';
+                a.click();
+                URL.revokeObjectURL(a.href);
+                showToast('✅ Respaldo exportado correctamente', 'ok');
+            } catch (e) {
+                showToast('Error al exportar: ' + e.message, 'error');
+            }
+        }
 
-            };
+        document.addEventListener('DOMContentLoaded', verificarDB);
     </script>
 
 </body>

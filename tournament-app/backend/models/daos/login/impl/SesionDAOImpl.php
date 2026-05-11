@@ -26,15 +26,15 @@ class SesionDAOImpl extends BaseDAO implements ISesionDAO {
     }
 
     public function buscarSesion(int $id) {
-        $sql = "SELECT s.*, u.username, u.rol FROM sesion s LEFT JOIN usuario u ON s.id_usuario_activo = u.id_usuario WHERE s.id_sesion = ?";
+        $sql = "SELECT s.*, u.username, u.rol FROM sesion s LEFT JOIN usuario u ON s.id_usuario = u.id_usuario WHERE s.id_sesion = ?";
         $stmt = $this->connection->prepare($sql);
         $stmt->bind_param("i", $id);
         $stmt->execute();
         $result = $stmt->get_result();
         if ($row = $result->fetch_assoc()) {
             $usuario = null;
-            if ($row['id_usuario_activo']) {
-                $usuario = new Usuario($row['id_usuario_activo'], $row['username'], '', $row['rol'], true);
+            if ($row['id_usuario']) {
+                $usuario = new Usuario($row['id_usuario'], $row['username'], '', $row['rol'], true);
             }
             $estado = is_null($row['fecha_fin']);
             return new Sesion($row['id_sesion'], $row['fecha_inicio'], $estado, $usuario);
@@ -67,7 +67,7 @@ class SesionDAOImpl extends BaseDAO implements ISesionDAO {
     }
 
     public function actualizar($entidad) {
-        $sql = "UPDATE sesion SET fecha_inicio = ?, fecha_fin = ?, id_usuario_activo = ? WHERE id_sesion = ?";
+        $sql = "UPDATE sesion SET fecha_inicio = ?, fecha_fin = ?, id_usuario = ? WHERE id_sesion = ?";
         $stmt = $this->connection->prepare($sql);
         
         // Guardar valores en variables locales para bind_param
@@ -85,6 +85,62 @@ class SesionDAOImpl extends BaseDAO implements ISesionDAO {
         $stmt = $this->connection->prepare($sql);
         $stmt->bind_param("i", $id);
         return $stmt->execute();
+    }
+
+    public function getAll() {
+        $sql = "SELECT s.*, u.username, u.rol FROM sesion s LEFT JOIN usuario u ON s.id_usuario = u.id_usuario ORDER BY s.id_sesion DESC";
+        $result = $this->connection->query($sql);
+        $sesiones = [];
+        while ($row = $result->fetch_assoc()) {
+            $usuario = $row['id_usuario'] ? new Usuario($row['id_usuario'], $row['username'], '', $row['rol'], true) : null;
+            $sesiones[] = new Sesion($row['id_sesion'], $row['fecha_inicio'], is_null($row['fecha_fin']), $usuario);
+        }
+        return $sesiones;
+    }
+
+    public function getById($id) {
+        return $this->buscarSesion((int)$id);
+    }
+
+    public function create($data) {
+        $sql = "INSERT INTO sesion (fecha_inicio, fecha_fin, id_usuario) VALUES (?, NULL, ?)";
+        $stmt = $this->connection->prepare($sql);
+        $fecha = $data['fecha_inicio'] ?? date('Y-m-d H:i:s');
+        $idUsuario = $data['id_usuario'] ?? null;
+        $stmt->bind_param("si", $fecha, $idUsuario);
+        return $stmt->execute();
+    }
+
+    public function update($id, $data) {
+        $sql = "UPDATE sesion SET fecha_fin = ? WHERE id_sesion = ?";
+        $stmt = $this->connection->prepare($sql);
+        $fechaFin = $data['fecha_fin'] ?? date('Y-m-d H:i:s');
+        $stmt->bind_param("si", $fechaFin, $id);
+        return $stmt->execute();
+    }
+
+    public function delete($id) {
+        return $this->eliminarPorId((int)$id);
+    }
+
+    public function search($search) {
+        $like = "%{$search}%";
+        $sql = "SELECT s.*, u.username, u.rol FROM sesion s LEFT JOIN usuario u ON s.id_usuario = u.id_usuario WHERE u.username LIKE ? ORDER BY s.id_sesion DESC";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bind_param("s", $like);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $sesiones = [];
+        while ($row = $result->fetch_assoc()) {
+            $usuario = $row['id_usuario'] ? new Usuario($row['id_usuario'], $row['username'], '', $row['rol'], true) : null;
+            $sesiones[] = new Sesion($row['id_sesion'], $row['fecha_inicio'], is_null($row['fecha_fin']), $usuario);
+        }
+        return $sesiones;
+    }
+
+    public function countAll() {
+        $result = $this->connection->query("SELECT COUNT(*) AS total FROM sesion");
+        return $result->fetch_assoc();
     }
 }
 

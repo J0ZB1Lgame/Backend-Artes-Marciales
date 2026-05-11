@@ -1,808 +1,377 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Luchadores — Budokai System</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Orbitron', sans-serif;
-            overflow: hidden;
-            background: #000;
-            color: white;
-        }
-        /* VIDEO FONDO */
-        
-        .video-bg {
-            position: fixed;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -2;
-        }
-        
-        .video-overlay {
-            position: fixed;
-            inset: 0;
-            background: linear-gradient( 90deg, rgba(0, 0, 0, .88) 0%, rgba(0, 0, 0, .55) 45%, rgba(0, 0, 0, .25) 100%);
-            z-index: -1;
-        }
-        /* LAYOUT */
-        
-        .layout {
-            width: 100%;
-            height: 100vh;
-            display: flex;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Orbitron', sans-serif; overflow: hidden; background: #000; color: white; }
+
+        .video-bg { position: fixed; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+        .video-overlay { position: fixed; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,.88) 0%, rgba(0,0,0,.55) 45%, rgba(0,0,0,.25) 100%); z-index: -1; }
+
+        .layout { width: 100%; height: 100vh; display: flex; }
+
         /* CONTENIDO */
-        
-        .inventory-section {
-            flex: 1;
-            padding: 40px;
-            overflow: auto;
+        .inventory-section { flex: 1; padding: 40px; overflow: auto; }
+        .inventory-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .inventory-title { font-size: 52px; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; color: white; text-shadow: 0 0 24px rgba(0,229,255,.22); }
+        .inventory-sub { margin-top: 10px; font-size: 14px; color: rgba(255,255,255,.72); }
+
+        /* BOTONES SUPERIORES */
+        .top-actions { display: flex; gap: 16px; }
+        .create-btn, .panel-btn {
+            height: 58px; padding: 0 28px; border: none; border-radius: 18px; cursor: pointer;
+            font-family: inherit; font-size: 13px; font-weight: 900; letter-spacing: .10em; text-transform: uppercase;
         }
-        
-        .inventory-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px;
+        .create-btn { color: #001018; background: linear-gradient(90deg, #00E5FF, #00B8FF); box-shadow: 0 0 24px rgba(0,229,255,.25); }
+        .panel-btn  { color: white; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.08); }
+
+        /* STATS */
+        .stats-bar { display: flex; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+        .stat-pill {
+            padding: 10px 18px; border-radius: 14px;
+            background: rgba(10,18,42,.82); border: 1px solid rgba(0,229,255,.15);
+            font-size: 11px; letter-spacing: .10em; text-transform: uppercase; color: rgba(255,255,255,.72);
         }
-        
-        .inventory-title {
-            font-size: 52px;
-            font-weight: 900;
-            letter-spacing: .05em;
-            text-transform: uppercase;
-            color: white;
-            text-shadow: 0 0 24px rgba(0, 229, 255, .22);
+        .stat-pill span { font-size: 18px; font-weight: 900; color: #00E5FF; display: block; }
+
+        /* FILTROS */
+        .filters { display: flex; gap: 12px; margin-bottom: 18px; }
+        .filters input, .filters select {
+            height: 44px; border: none; outline: none; border-radius: 12px;
+            padding: 0 16px; font-family: inherit; font-size: 12px;
+            background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.08); color: white;
         }
-        
-        .inventory-sub {
-            margin-top: 10px;
-            font-size: 14px;
-            color: rgba(255, 255, 255, .72);
+        .filters input { flex: 1; }
+
+        /* TABLA */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        thead th {
+            padding: 12px 14px; text-align: left; font-size: 10px; letter-spacing: .12em;
+            text-transform: uppercase; color: #00E5FF;
+            background: rgba(0,229,255,.06); border-bottom: 1px solid rgba(0,229,255,.12);
         }
-        /* BOTONES */
-        
-        .top-actions {
-            display: flex;
-            gap: 16px;
+        tbody tr { border-bottom: 1px solid rgba(255,255,255,.04); transition: .15s; }
+        tbody tr:hover { background: rgba(0,229,255,.04); }
+        td { padding: 12px 14px; }
+        .td-num { color: rgba(255,255,255,.45); }
+        .td-nombre { font-weight: 700; }
+        .td-peso, .td-victorias, .td-derrotas { text-align: center; }
+        .td-actions { display: flex; gap: 8px; }
+
+        /* BADGES */
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 9px; font-weight: 900; letter-spacing: .10em; }
+        .badge-masculino  { background: rgba(0,150,255,.18); color: #4db8ff; border: 1px solid rgba(0,150,255,.25); }
+        .badge-femenino   { background: rgba(255,80,180,.18); color: #ff80cc; border: 1px solid rgba(255,80,180,.25); }
+        .badge-pesado     { background: rgba(255,80,80,.18);  color: #ff8080; border: 1px solid rgba(255,80,80,.25); }
+        .badge-medio      { background: rgba(255,200,0,.18);  color: #ffd700; border: 1px solid rgba(255,200,0,.25); }
+        .badge-ligero     { background: rgba(0,220,120,.18);  color: #00dc78; border: 1px solid rgba(0,220,120,.25); }
+        .badge-pluma      { background: rgba(180,100,255,.18);color: #b464ff; border: 1px solid rgba(180,100,255,.25); }
+        .badge-activo     { background: rgba(0,220,120,.18);  color: #00dc78; border: 1px solid rgba(0,220,120,.25); }
+        .badge-inactivo   { background: rgba(255,80,80,.18);  color: #ff8080; border: 1px solid rgba(255,80,80,.25); }
+        .badge-default    { background: rgba(255,255,255,.08); color: rgba(255,255,255,.6); }
+
+        /* BOTONES TABLA */
+        .btn-edit, .btn-delete {
+            height: 32px; padding: 0 14px; border: none; border-radius: 8px; cursor: pointer;
+            font-family: inherit; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
         }
-        
-        .create-btn,
-        .panel-btn {
-            height: 58px;
-            padding: 0 28px;
-            border: none;
-            border-radius: 18px;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 900;
-            letter-spacing: .10em;
-            text-transform: uppercase;
-        }
-        
-        .create-btn {
-            color: #001018;
-            background: linear-gradient( 90deg, #00E5FF, #00B8FF);
-            box-shadow: 0 0 24px rgba(0, 229, 255, .25);
-        }
-        
-        .panel-btn {
-            color: white;
-            background: rgba(255, 255, 255, .08);
-            border: 1px solid rgba(255, 255, 255, .08);
-        }
-        /* GRID */
-        
-        .fighter-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 24px;
-        }
-        /* CARD */
-        
-        .fighter-card {
-            border-radius: 26px;
-            overflow: hidden;
-            background: linear-gradient( 180deg, rgba(10, 18, 42, .88), rgba(4, 8, 24, .94));
-            border: 1px solid rgba(255, 255, 255, .08);
-            backdrop-filter: blur(18px);
-            transition: .22s ease;
-        }
-        
-        .fighter-card:hover {
-            transform: translateY(-6px);
-            border-color: rgba(0, 229, 255, .25);
-            box-shadow: 0 0 28px rgba(0, 229, 255, .12);
-        }
-        
-        .fighter-banner {
-            height: 160px;
-            background: linear-gradient( 135deg, #00E5FF, #0048ff);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 72px;
-        }
-        
-        .fighter-content {
-            padding: 22px;
-        }
-        
-        .fighter-name {
-            font-size: 22px;
-            font-weight: 900;
-            margin-bottom: 8px;
-        }
-        
-        .fighter-style {
-            color: #00E5FF;
-            font-size: 11px;
-            letter-spacing: .10em;
-            text-transform: uppercase;
-            margin-bottom: 18px;
-        }
-        
-        .fighter-info {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid rgba(255, 255, 255, .05);
-            padding-bottom: 10px;
-        }
-        
-        .info-label {
-            font-size: 11px;
-            color: rgba(255, 255, 255, .48);
-            letter-spacing: .08em;
-            text-transform: uppercase;
-        }
-        
-        .info-value {
-            font-size: 12px;
-        }
+        .btn-edit   { background: rgba(0,229,255,.14); color: #00E5FF; border: 1px solid rgba(0,229,255,.20); }
+        .btn-edit:hover   { background: rgba(0,229,255,.25); }
+        .btn-delete { background: rgba(255,80,80,.14);  color: #ff6060; border: 1px solid rgba(255,80,80,.20); }
+        .btn-delete:hover { background: rgba(255,80,80,.25); }
+        .btn-reload { height: 36px; padding: 0 18px; border: none; border-radius: 10px; cursor: pointer; font-family: inherit; font-size: 11px; font-weight: 700; background: rgba(255,255,255,.08); color: white; border: 1px solid rgba(255,255,255,.10); }
+
+        /* LOADING / NO DATA */
+        #loading { display: none; text-align: center; padding: 40px; font-size: 13px; color: rgba(255,255,255,.55); }
+        #no-data  { display: none; text-align: center; padding: 40px; font-size: 13px; color: rgba(255,255,255,.45); }
+
         /* PANEL DERECHO */
-        
         .side-panel {
-            width: 360px;
-            height: 100vh;
-            background: linear-gradient( 180deg, rgba(8, 15, 35, .96), rgba(3, 8, 22, .98));
-            border-left: 1px solid rgba(0, 229, 255, .18);
-            backdrop-filter: blur(18px);
-            padding: 30px 24px;
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            top: 0;
-            right: 0;
-            z-index: 50;
-            transform: translateX(110%);
-            transition: .35s ease;
+            width: 360px; height: 100vh;
+            background: linear-gradient(180deg, rgba(8,15,35,.96), rgba(3,8,22,.98));
+            border-left: 1px solid rgba(0,229,255,.18); backdrop-filter: blur(18px);
+            padding: 30px 24px; display: flex; flex-direction: column;
+            position: fixed; top: 0; right: 0; z-index: 50;
+            transform: translateX(110%); transition: .35s ease;
         }
-        
-        .side-panel.active {
-            transform: translateX(0);
-        }
-        /* TITULOS */
-        
-        .panel-title {
-            font-size: 28px;
-            font-weight: 900;
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            color: white;
-            margin-bottom: 8px;
-        }
-        
-        .panel-sub {
-            font-size: 11px;
-            letter-spacing: .12em;
-            text-transform: uppercase;
-            color: #00E5FF;
-            margin-bottom: 30px;
-        }
-        /* MENU */
-        
-        .panel-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-        
+        .side-panel.active { transform: translateX(0); }
+        .panel-title { font-size: 28px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; color: white; margin-bottom: 8px; }
+        .panel-sub   { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #00E5FF; margin-bottom: 30px; }
+        .panel-menu  { display: flex; flex-direction: column; gap: 14px; flex: 1; min-height: 0; overflow-y: auto; padding-right: 4px; }
         .menu-btn {
-            width: 100%;
-            height: 58px;
-            border: none;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 0 18px;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            color: white;
-            background: linear-gradient( 90deg, rgba(12, 20, 45, .95), rgba(20, 32, 68, .92));
-            border: 1px solid rgba(255, 255, 255, .05);
-            transition: .22s ease;
+            width: 100%; height: 58px; border: none; border-radius: 16px;
+            display: flex; align-items: center; gap: 14px; padding: 0 18px;
+            cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700;
+            letter-spacing: .08em; text-transform: uppercase; color: white;
+            background: linear-gradient(90deg, rgba(12,20,45,.95), rgba(20,32,68,.92));
+            border: 1px solid rgba(255,255,255,.05); transition: .22s ease;
         }
-        
-        .menu-btn:hover {
-            transform: translateX(-4px);
-            border-color: rgba(0, 229, 255, .25);
-            box-shadow: 0 0 18px rgba(0, 229, 255, .14);
-        }
-        
-        .menu-btn.active {
-            background: linear-gradient( 90deg, #00E5FF, #00B8FF);
-            color: #001018;
-        }
-        
-        .menu-icon {
-            font-size: 22px;
-        }
-        /* CERRAR PANEL */
-        
+        .menu-btn:hover { transform: translateX(-4px); border-color: rgba(0,229,255,.25); box-shadow: 0 0 18px rgba(0,229,255,.14); }
+        .menu-btn.active { background: linear-gradient(90deg, #00E5FF, #00B8FF); color: #001018; }
+        .menu-icon { font-size: 22px; }
         .close-panel-btn {
-            margin-top: auto;
-            height: 56px;
-            border: none;
-            border-radius: 18px;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 13px;
-            font-weight: 900;
-            letter-spacing: .10em;
-            text-transform: uppercase;
-            color: white;
-            background: linear-gradient( 90deg, #ff3b30, #ff6b45);
+            margin-top: auto; height: 56px; border: none; border-radius: 18px; cursor: pointer;
+            font-family: inherit; font-size: 13px; font-weight: 900; letter-spacing: .10em;
+            text-transform: uppercase; color: white; background: linear-gradient(90deg, #ff3b30, #ff6b45);
         }
+
         /* MODAL */
-        
         .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, .82);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 999;
+            position: fixed; inset: 0; background: rgba(0,0,0,.82);
+            display: none; align-items: center; justify-content: center; z-index: 999;
         }
-        
-        .modal.active {
-            display: flex;
-        }
-        
+        .modal.open { display: flex; }
         .modal-box {
-            width: 520px;
-            max-width: 94vw;
-            border-radius: 28px;
-            background: linear-gradient( 180deg, rgba(8, 15, 35, .96), rgba(3, 8, 22, .98));
-            border: 1px solid rgba(0, 229, 255, .18);
-            padding: 32px;
+            width: 560px; max-width: 94vw; border-radius: 28px;
+            background: linear-gradient(180deg, rgba(8,15,35,.96), rgba(3,8,22,.98));
+            border: 1px solid rgba(0,229,255,.18); padding: 32px; max-height: 90vh; overflow-y: auto;
         }
-        
-        .modal-title {
-            font-size: 24px;
-            font-weight: 900;
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            margin-bottom: 26px;
+        .modal-title { font-size: 22px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 24px; }
+        .form-grid   { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-group  { display: flex; flex-direction: column; gap: 8px; }
+        .form-group.full { grid-column: 1/3; }
+        label { font-size: 10px; letter-spacing: .10em; text-transform: uppercase; color: #00E5FF; }
+        input, select {
+            width: 100%; height: 48px; border: none; outline: none; border-radius: 12px;
+            padding: 0 14px; font-family: inherit; font-size: 12px;
+            background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08); color: white;
         }
-        /* FORM */
-        
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+        select option { background: #0a0f20; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 22px; }
+        .cancel-btn, .save-btn {
+            height: 50px; padding: 0 26px; border: none; border-radius: 12px; cursor: pointer;
+            font-family: inherit; font-weight: 900; letter-spacing: .10em; text-transform: uppercase;
         }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+        .cancel-btn { background: rgba(255,255,255,.08); color: white; }
+        .save-btn   { color: #001018; background: linear-gradient(90deg, #00E5FF, #00B8FF); }
+        .save-btn:disabled { opacity: .55; cursor: not-allowed; }
+
+        /* CONFIRM */
+        .confirm-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,.82);
+            display: none; align-items: center; justify-content: center; z-index: 1000;
         }
-        
-        .form-group.full {
-            grid-column: 1/3;
+        .confirm-overlay.open { display: flex; }
+        .confirm-box {
+            width: 380px; border-radius: 22px;
+            background: linear-gradient(180deg, rgba(8,15,35,.98), rgba(3,8,22,.99));
+            border: 1px solid rgba(255,80,80,.25); padding: 28px;
         }
-        
-        label {
-            font-size: 10px;
-            letter-spacing: .10em;
-            text-transform: uppercase;
-            color: #00E5FF;
+        .confirm-msg { font-size: 14px; line-height: 1.6; margin-bottom: 22px; }
+        .confirm-actions { display: flex; gap: 12px; justify-content: flex-end; }
+
+        /* TOAST */
+        .toast {
+            position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
+            background: rgba(8,15,35,.96); border-radius: 14px; padding: 14px 24px;
+            font-size: 13px; font-weight: 700; letter-spacing: .06em;
+            border: 1px solid rgba(0,229,255,.20); z-index: 2000;
+            transition: transform .3s ease, opacity .3s ease; opacity: 0;
         }
-        
-        input,
-        select {
-            width: 100%;
-            height: 50px;
-            border: none;
-            outline: none;
-            border-radius: 14px;
-            padding: 0 16px;
-            font-family: inherit;
-            background: rgba(255, 255, 255, .06);
-            border: 1px solid rgba(255, 255, 255, .06);
-            color: white;
-        }
-        
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 14px;
-            margin-top: 26px;
-        }
-        
-        .cancel-btn,
-        .save-btn {
-            height: 52px;
-            padding: 0 28px;
-            border: none;
-            border-radius: 14px;
-            cursor: pointer;
-            font-family: inherit;
-            font-weight: 900;
-            letter-spacing: .10em;
-            text-transform: uppercase;
-        }
-        
-        .cancel-btn {
-            background: rgba(255, 255, 255, .08);
-            color: white;
-        }
-        
-        .save-btn {
-            color: #001018;
-            background: linear-gradient( 90deg, #00E5FF, #00B8FF);
-        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast--ok  { border-color: rgba(0,220,120,.30); color: #00dc78; }
+        .toast--err { border-color: rgba(255,80,80,.30);  color: #ff8080; }
     </style>
-
 </head>
-
 <body>
 
-    <!-- VIDEO -->
-
-    <video class="video-bg" autoplay muted loop playsinline>
-
-    <source
-    src="../assets/bg/luchadores.mp4"
-    type="video/mp4">
-
+<video class="video-bg" autoplay muted loop playsinline>
+    <source src="../assets/bg/luchadores.mp4" type="video/mp4">
 </video>
+<div class="video-overlay"></div>
 
-    <div class="video-overlay"></div>
+<div class="layout">
+    <section class="inventory-section">
 
-    <div class="layout">
-
-        <!-- CONTENIDO -->
-
-        <section class="inventory-section">
-
-            <div class="inventory-header">
-
-                <div>
-
-                    <h1 class="inventory-title">
-                        LUCHADORES
-                    </h1>
-
-                    <div class="inventory-sub">
-                        Gestión completa de participantes del torneo
-                    </div>
-
-                </div>
-
-                <div class="top-actions">
-
-                    <button class="panel-btn" id="togglePanel">
-
-                    ☰ PANEL LUCHADORES
-
-                </button>
-
-                    <button class="create-btn" id="openModal">
-
-                    + Crear Luchador
-
-                </button>
-
-                </div>
-
+        <!-- CABECERA -->
+        <div class="inventory-header">
+            <div>
+                <h1 class="inventory-title">LUCHADORES</h1>
+                <div class="inventory-sub">Gestión completa de participantes del torneo</div>
             </div>
-
-            <!-- GRID -->
-
-            <div class="fighter-grid" id="fighterGrid">
-
-                <div class="fighter-card">
-
-                    <div class="fighter-banner">
-                        🥋
-                    </div>
-
-                    <div class="fighter-content">
-
-                        <div class="fighter-name">
-                            Goku
-                        </div>
-
-                        <div class="fighter-style">
-                            Artes Marciales
-                        </div>
-
-                        <div class="fighter-info">
-
-                            <div class="info-row">
-
-                                <span class="info-label">
-                                Categoría
-                            </span>
-
-                                <span class="info-value">
-                                Elite
-                            </span>
-
-                            </div>
-
-                            <div class="info-row">
-
-                                <span class="info-label">
-                                Estado
-                            </span>
-
-                                <span class="info-value">
-                                Activo
-                            </span>
-
-                            </div>
-
-                            <div class="info-row">
-
-                                <span class="info-label">
-                                ID
-                            </span>
-
-                                <span class="info-value">
-                                #001
-                            </span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
+            <div class="top-actions">
+                <button class="panel-btn" id="togglePanel">☰ PANEL</button>
+                <button class="btn-reload" id="btn-reload">↻ Recargar</button>
+                <button class="create-btn" id="btn-nuevo">+ Nuevo Luchador</button>
             </div>
+        </div>
 
-        </section>
+        <!-- STATS -->
+        <div class="stats-bar">
+            <div class="stat-pill"><span id="stat-total">0</span>Total</div>
+            <div class="stat-pill"><span id="stat-activos">0</span>Activos</div>
+            <div class="stat-pill"><span id="stat-masculino">0</span>Masculino</div>
+            <div class="stat-pill"><span id="stat-femenino">0</span>Femenino</div>
+            <div class="stat-pill"><span id="stat-victorias">0</span>Victorias</div>
+            <div class="stat-pill"><span id="stat-derrotas">0</span>Derrotas</div>
+        </div>
 
-        <!-- PANEL -->
+        <!-- FILTROS -->
+        <div class="filters">
+            <input type="text" id="search-input" placeholder="Buscar por nombre...">
+            <select id="filter-especie">
+                <option value="">Todas las categorías</option>
+                <option value="Peso Pluma">Peso Pluma</option>
+                <option value="Peso Ligero">Peso Ligero</option>
+                <option value="Peso Medio">Peso Medio</option>
+                <option value="Peso Pesado">Peso Pesado</option>
+            </select>
+        </div>
 
-        <aside class="side-panel" id="fightersPanel">
+        <!-- TABLA -->
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre</th>
+                        <th>Género</th>
+                        <th>Categoría</th>
+                        <th>Peso</th>
+                        <th>V</th>
+                        <th>D</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="luchador-tbody"></tbody>
+            </table>
+        </div>
+        <div id="loading">Cargando luchadores...</div>
+        <div id="no-data">No hay luchadores registrados.</div>
 
-            <div class="panel-title">
-                LUCHADORES
-            </div>
+    </section>
 
-            <div class="panel-sub">
-                Budokai Tournament System
-            </div>
+    <!-- PANEL LATERAL -->
+    <aside class="side-panel" id="fightersPanel">
+        <div class="panel-title">LUCHADORES</div>
+        <div class="panel-sub">Budokai Tournament System</div>
+        <div class="panel-menu">
+            <button class="menu-btn" onclick="window.location.href='index.html'"><span class="menu-icon">🏠</span>Inicio</button>
+            <button class="menu-btn" onclick="window.location.href='staff.html'"><span class="menu-icon">👥</span>Staff</button>
+            <button class="menu-btn active"><span class="menu-icon">⚔️</span>Luchadores</button>
+            <button class="menu-btn" onclick="document.getElementById('modal').classList.add('open')"><span class="menu-icon">➕</span>Nuevo Luchador</button>
+            <button class="menu-btn" onclick="window.location.href='combates.html'"><span class="menu-icon">🥊</span>Combates</button>
+            <button class="menu-btn" onclick="window.location.href='torneo.html'"><span class="menu-icon">🏆</span>Torneos</button>
+            <button class="menu-btn" onclick="window.location.href='estadisticas.html'"><span class="menu-icon">📊</span>Estadísticas</button>
+            <button class="menu-btn" onclick="window.location.href='sistema.html'"><span class="menu-icon">⚙️</span>Sistema</button>
+            <button class="menu-btn" onclick="cerrarSesion()"><span class="menu-icon">🚪</span>Cerrar Sesión</button>
+        </div>
+        <button class="close-panel-btn" id="closePanel">✕ Cerrar Panel</button>
+    </aside>
+</div>
 
-            <div class="panel-menu">
-
-                <button class="menu-btn" onclick="window.location.href='index.html'">
-
-                <span class="menu-icon">🏠</span>
-                Inicio
-
-            </button>
-
-                <button class="menu-btn" onclick="window.location.href='staff.html'">
-
-                <span class="menu-icon">👥</span>
-                Staff
-
-            </button>
-
-                <button class="menu-btn active">
-
-                <span class="menu-icon">⚔️</span>
-                Luchadores
-
-            </button>
-
-                <button class="menu-btn">
-                <span class="menu-icon">➕</span>
-                Crear Luchador
-            </button>
-
-                <button class="menu-btn">
-                <span class="menu-icon">🥋</span>
-                Categorías
-            </button>
-
-                <button class="menu-btn">
-                <span class="menu-icon">🏆</span>
-                Ranking
-            </button>
-
-                <button class="menu-btn">
-                <span class="menu-icon">📊</span>
-                Estadísticas
-            </button>
-
-            </div>
-
-            <button class="close-panel-btn" id="closePanel">
-
-            ✕ Cerrar Panel
-
-        </button>
-
-        </aside>
-
-    </div>
-
-    <!-- MODAL -->
-
-    <div class="modal" id="fighterModal">
-
-        <div class="modal-box">
-
-            <div class="modal-title">
-                Crear Luchador
-            </div>
-
+<!-- MODAL CREAR / EDITAR -->
+<div class="modal" id="modal">
+    <div class="modal-box">
+        <div class="modal-title" id="modal-title">Registrar Luchador</div>
+        <form id="form-luchador">
             <div class="form-grid">
-
                 <div class="form-group">
-
-                    <label>
-                    Nombre
-                </label>
-
-                    <input type="text" id="fighterName" placeholder="Nombre">
-
+                    <label>Nombre</label>
+                    <input type="text" id="f-nombre" placeholder="Nombre" required>
                 </div>
-
                 <div class="form-group">
-
-                    <label>
-                    Categoría
-                </label>
-
-                    <select id="fighterCategory">
-
-                    <option>
-                        Elite
-                    </option>
-
-                    <option>
-                        Amateur
-                    </option>
-
-                    <option>
-                        Profesional
-                    </option>
-
-                </select>
-
+                    <label>Apellido</label>
+                    <input type="text" id="f-apellido" placeholder="Apellido" required>
                 </div>
-
-                <div class="form-group full">
-
-                    <label>
-                    Estilo de combate
-                </label>
-
-                    <input type="text" id="fighterStyle" placeholder="Karate, MMA, Taekwondo...">
-
+                <div class="form-group">
+                    <label>Tipo Documento</label>
+                    <select id="f-tipo-documento">
+                        <option value="CC">Cédula</option>
+                        <option value="CE">Cédula Extranjería</option>
+                        <option value="PA">Pasaporte</option>
+                    </select>
                 </div>
-
+                <div class="form-group">
+                    <label>Número Documento</label>
+                    <input type="text" id="f-numero-documento" placeholder="Número documento" required>
+                </div>
+                <div class="form-group">
+                    <label>Edad</label>
+                    <input type="number" id="f-edad" placeholder="Edad" min="18" max="100">
+                </div>
+                <div class="form-group">
+                    <label>Género</label>
+                    <select id="f-genero">
+                        <option value="masculino">Masculino</option>
+                        <option value="femenino">Femenino</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="f-categoria">
+                        <option value="Peso Pluma">Peso Pluma</option>
+                        <option value="Peso Ligero">Peso Ligero</option>
+                        <option value="Peso Medio">Peso Medio</option>
+                        <option value="Peso Pesado">Peso Pesado</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Peso (kg)</label>
+                    <input type="number" id="f-peso" placeholder="Peso" step="0.1" min="40" max="200">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="tel" id="f-telefono" placeholder="Teléfono">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="f-email" placeholder="Email">
+                </div>
+                <div class="form-group">
+                    <label>Estado</label>
+                    <select id="f-estado">
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
+                </div>
             </div>
-
             <div class="modal-actions">
-
-                <button class="cancel-btn" id="closeModal">
-
-                Cancelar
-
-            </button>
-
-                <button class="save-btn" id="saveFighter">
-
-                Guardar
-
-            </button>
-
+                <button type="button" class="cancel-btn" id="btn-cerrar-modal">Cancelar</button>
+                <button type="submit" class="save-btn" id="btn-submit">Registrar</button>
             </div>
-
-        </div>
-
+        </form>
     </div>
+</div>
 
-    <script>
-        /* PANEL */
-
-        const panel =
-            document.getElementById('fightersPanel');
-
-        document
-            .getElementById('togglePanel')
-            .onclick = () => {
-
-                panel.classList.add('active');
-
-            };
-
-        document
-            .getElementById('closePanel')
-            .onclick = () => {
-
-                panel.classList.remove('active');
-
-            };
-
-        /* MODAL */
-
-        const modal =
-            document.getElementById('fighterModal');
-
-        document
-            .getElementById('openModal')
-            .onclick = () => {
-
-                modal.classList.add('active');
-
-            };
-
-        document
-            .getElementById('closeModal')
-            .onclick = () => {
-
-                modal.classList.remove('active');
-
-            };
-
-        window.onclick = (e) => {
-
-            if (e.target === modal) {
-
-                modal.classList.remove('active');
-
-            }
-
-        };
-
-        /* CREAR LUCHADOR */
-
-        document
-            .getElementById('saveFighter')
-            .onclick = () => {
-
-                const nombre =
-                    document.getElementById('fighterName').value;
-
-                const categoria =
-                    document.getElementById('fighterCategory').value;
-
-                const estilo =
-                    document.getElementById('fighterStyle').value;
-
-                if (!nombre || !estilo) {
-
-                    alert('Completa todos los campos');
-
-                    return;
-                }
-
-                const card =
-                    document.createElement('div');
-
-                card.className =
-                    'fighter-card';
-
-                card.innerHTML = `
-
-        <div class="fighter-banner">
-            🥋
+<!-- CONFIRM ELIMINAR -->
+<div class="confirm-overlay" id="confirm">
+    <div class="confirm-box">
+        <div class="confirm-msg" id="confirm-msg"></div>
+        <div class="confirm-actions">
+            <button class="cancel-btn" id="btn-confirm-cancel">Cancelar</button>
+            <button class="btn-delete" id="btn-confirm-ok">Eliminar</button>
         </div>
+    </div>
+</div>
 
-        <div class="fighter-content">
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-            <div class="fighter-name">
-                ${nombre}
-            </div>
+<!-- JS -->
+<script src="../js/api.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/modules/luchadores.js"></script>
+<script>
+    // Panel toggle
+    const panel = document.getElementById('fightersPanel');
+    document.getElementById('togglePanel').onclick = () => panel.classList.add('active');
+    document.getElementById('closePanel').onclick   = () => panel.classList.remove('active');
 
-            <div class="fighter-style">
-                ${estilo}
-            </div>
-
-            <div class="fighter-info">
-
-                <div class="info-row">
-
-                    <span class="info-label">
-                        Categoría
-                    </span>
-
-                    <span class="info-value">
-                        ${categoria}
-                    </span>
-
-                </div>
-
-                <div class="info-row">
-
-                    <span class="info-label">
-                        Estado
-                    </span>
-
-                    <span class="info-value">
-                        Activo
-                    </span>
-
-                </div>
-
-                <div class="info-row">
-
-                    <span class="info-label">
-                        ID
-                    </span>
-
-                    <span class="info-value">
-                        #00${Math.floor(Math.random()*99)}
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    `;
-
-                document
-                    .getElementById('fighterGrid')
-                    .appendChild(card);
-
-                modal.classList.remove('active');
-
-            };
-    </script>
-
+    function cerrarSesion() {
+        if (confirm('¿Deseas cerrar sesión?')) {
+            sessionStorage.removeItem('budokai_session');
+            window.location.href = 'login.html';
+        }
+    }
+</script>
 </body>
-
 </html>

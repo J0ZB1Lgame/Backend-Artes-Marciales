@@ -43,7 +43,7 @@ class TorneoDAOImpl extends BaseDAO implements ICRUD, ITorneoDAO {
 
         $sql = "
 
-        SELECT *
+        SELECT *, tipo AS categoria
 
         FROM {$this->table}
 
@@ -65,7 +65,7 @@ class TorneoDAOImpl extends BaseDAO implements ICRUD, ITorneoDAO {
 
         $sql = "
 
-        SELECT *
+        SELECT *, tipo AS categoria
 
         FROM {$this->table}
 
@@ -114,10 +114,13 @@ class TorneoDAOImpl extends BaseDAO implements ICRUD, ITorneoDAO {
 
             tipo,
 
+            tiempo_limite_minutos,
+
             premio,
             logo,
             capacidad_maxima,
-            reglas
+            reglas,
+            id_campeon
 
         )
 
@@ -126,7 +129,9 @@ class TorneoDAOImpl extends BaseDAO implements ICRUD, ITorneoDAO {
         (
 
             ?, ?, ?, ?,
-            ?, ?, ?, ?
+            ?, ?, ?, ?,
+            ?, ?, ?, ?,
+            ?
 
         )
 
@@ -140,25 +145,28 @@ class TorneoDAOImpl extends BaseDAO implements ICRUD, ITorneoDAO {
 
                 $data["nombre"],
 
-                $data["descripcion"],
+                $data["descripcion"] ?? null,
 
-                $data["fecha_inicio"],
-                $data["fecha_fin"],
+                $data["fecha_inicio"] ?? null,
+                $data["fecha_fin"] ?? null,
 
-                $data["estado"],
+                $data["estado"] ?? 'proximo',
 
-                $data["ubicacion"],
+                $data["ubicacion"] ?? null,
 
-                $data["tipo"],
+                $data["categoria"] ?? $data["tipo"] ?? null,
 
-                $data["premio"],
-                $data["logo"],
-                $data["capacidad_maxima"],
-                $data["reglas"]
+                $data["tiempo_limite_minutos"] ?? 3,
+
+                $data["premio"] ?? null,
+                $data["logo"] ?? null,
+                $data["capacidad_maxima"] ?? 0,
+                $data["reglas"] ?? null,
+                $data["id_campeon"] ?? null
 
             ],
 
-            "ssssssssis"
+            "sssssssissisi"
 
         );
 
@@ -191,10 +199,13 @@ class TorneoDAOImpl extends BaseDAO implements ICRUD, ITorneoDAO {
 
             tipo = ?,
 
+            tiempo_limite_minutos = ?,
+
             premio = ?,
             logo = ?,
             capacidad_maxima = ?,
-            reglas = ?
+            reglas = ?,
+            id_campeon = ?
 
         WHERE id_torneo = ?
 
@@ -208,26 +219,29 @@ class TorneoDAOImpl extends BaseDAO implements ICRUD, ITorneoDAO {
 
                 $data["nombre"],
 
-                $data["descripcion"],
+                $data["descripcion"] ?? null,
 
-                $data["fecha_inicio"],
-                $data["fecha_fin"],
+                $data["fecha_inicio"] ?? null,
+                $data["fecha_fin"] ?? null,
 
-                $data["estado"],
+                $data["estado"] ?? 'proximo',
 
-                $data["ubicacion"],
+                $data["ubicacion"] ?? null,
 
-                $data["tipo"],
+                $data["categoria"] ?? $data["tipo"] ?? null,
 
-                $data["premio"],
-                $data["logo"],
-                $data["capacidad_maxima"],
-                $data["reglas"]
+                $data["tiempo_limite_minutos"] ?? 3,
+
+                $data["premio"] ?? null,
+                $data["logo"] ?? null,
+                $data["capacidad_maxima"] ?? 0,
+                $data["reglas"] ?? null,
+                $data["id_campeon"] ?? null,
                 $id
 
             ],
 
-            "sssssssssisi"
+            "sssssssissisii"
 
         );
 

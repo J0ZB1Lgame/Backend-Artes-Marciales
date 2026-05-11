@@ -102,7 +102,13 @@
                         Contraseña
                     </label>
 
-                    <input type="password" id="password" placeholder="••••••••">
+                    <div class="password-wrapper">
+
+                        <input type="password" id="password" placeholder="••••••••">
+
+                        <button type="button" class="toggle-password" id="togglePassword">👁</button>
+
+                    </div>
 
                 </div>
 
@@ -121,8 +127,16 @@
     </main>
 
     <!-- JS -->
-
+    <script src="../js/api.js"></script>
     <script src="../js/modules/login.js"></script>
+    <script>
+        document.getElementById('togglePassword').onclick = function() {
+            const inp = document.getElementById('password');
+            const show = inp.type === 'password';
+            inp.type = show ? 'text' : 'password';
+            this.textContent = show ? '🙈' : '👁';
+        };
+    </script>
 
 </body>
 

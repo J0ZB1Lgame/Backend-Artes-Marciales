@@ -8,7 +8,7 @@
 |--------------------------------------------------------------------------
 */
 
-require_once __DIR__ . '/../../../models/daos/staff/impl/StaffDAOImpl.php';
+require_once __DIR__ . '/../../../models/daos/staff/impl/StaffTorneoDAOImpl.php';
 
 class StaffTorneoController {
 
@@ -18,7 +18,7 @@ class StaffTorneoController {
     |--------------------------------------------------------------------------
     */
 
-    private $staffDAO;
+    private $staffTorneoDAO;
 
     /*
     |--------------------------------------------------------------------------
@@ -28,7 +28,7 @@ class StaffTorneoController {
 
     public function __construct(){
 
-        $this->staffDAO = new StaffDAOImpl();
+        $this->staffTorneoDAO = new StaffTorneoDAOImpl();
 
     }
 
@@ -42,7 +42,7 @@ class StaffTorneoController {
 
         try {
 
-            $data = $this->staffDAO->getAll();
+            $data = $this->staffTorneoDAO->getAll();
 
             return [
 
@@ -78,7 +78,7 @@ class StaffTorneoController {
 
         try {
 
-            $data = $this->staffDAO->getById($id);
+            $data = $this->staffTorneoDAO->getById($id);
 
             if(!$data){
 
@@ -160,7 +160,7 @@ class StaffTorneoController {
             |--------------------------------------------------------------------------
             */
 
-            $id = $this->staffDAO->create($data);
+            $id = $this->staffTorneoDAO->create($data);
 
             return [
 
@@ -196,7 +196,7 @@ class StaffTorneoController {
 
         try {
 
-            $exists = $this->staffDAO->getById($id);
+            $exists = $this->staffTorneoDAO->getById($id);
 
             if(!$exists){
 
@@ -210,7 +210,7 @@ class StaffTorneoController {
 
             }
 
-            $this->staffDAO->update($id, $data);
+            $this->staffTorneoDAO->update($id, $data);
 
             return [
 
@@ -244,7 +244,7 @@ class StaffTorneoController {
 
         try {
 
-            $exists = $this->staffDAO->getById($id);
+            $exists = $this->staffTorneoDAO->getById($id);
 
             if(!$exists){
 
@@ -258,7 +258,7 @@ class StaffTorneoController {
 
             }
 
-            $this->staffDAO->delete($id);
+            $this->staffTorneoDAO->delete($id);
 
             return [
 
@@ -292,7 +292,7 @@ class StaffTorneoController {
 
         try {
 
-            $data = $this->staffDAO->search($search);
+            $data = $this->staffTorneoDAO->search($search);
 
             return [
 
@@ -326,7 +326,7 @@ class StaffTorneoController {
 
         try {
 
-            $data = $this->staffDAO->countAll();
+            $data = $this->staffTorneoDAO->countAll();
 
             return [
 
@@ -349,6 +349,76 @@ class StaffTorneoController {
         }
 
     }
+
+    public function mostrarZona() {
+        $conn = Database::getInstance()->getConnection();
+        $result = $conn->query("SELECT id_zona, nombre FROM zonas ORDER BY nombre");
+        if (!$result) return [];
+        $zonas = [];
+        while ($row = $result->fetch_assoc()) $zonas[] = $row;
+        return $zonas;
+    }
+
+    public function crearZona($data) {
+        $nombre = trim($data['nombre'] ?? '');
+        if (!$nombre) return false;
+        $conn = Database::getInstance()->getConnection();
+        $stmt = $conn->prepare("INSERT INTO zonas (nombre) VALUES (?)");
+        if (!$stmt) return false;
+        $stmt->bind_param("s", $nombre);
+        $stmt->execute();
+        return $conn->insert_id;
+    }
+
+    public function eliminarZona($id) {
+        $conn = Database::getInstance()->getConnection();
+        $stmt = $conn->prepare("DELETE FROM zonas WHERE id_zona = ?");
+        if (!$stmt) return false;
+        $stmt->bind_param("i", $id);
+        return $stmt->execute();
+    }
+
+    public function mostrarRol() {
+        $conn = Database::getInstance()->getConnection();
+        $result = $conn->query("SELECT id_rol, nombre FROM roles ORDER BY nombre");
+        if (!$result) return [];
+        $roles = [];
+        while ($row = $result->fetch_assoc()) $roles[] = $row;
+        return $roles;
+    }
+
+    public function buscarZona($id) {
+        $conn = Database::getInstance()->getConnection();
+        $stmt = $conn->prepare("SELECT id_zona, nombre FROM zonas WHERE id_zona = ?");
+        if (!$stmt) return null;
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
+
+    public function buscarRol($id) {
+        $conn = Database::getInstance()->getConnection();
+        $stmt = $conn->prepare("SELECT id_rol, nombre FROM roles WHERE id_rol = ?");
+        if (!$stmt) return null;
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_assoc();
+    }
+
+    // ── Métodos legacy del API extended ─────────────────────────────────────
+    public function listarStaffPorTorneo($ejecutor, $torneo) { return []; }
+    public function registrarStaff($ejecutor, $datos)        { return $this->create($datos); }
+    public function asignarStaffATorneo($ej, $staff, $torneo){ return true; }
+    public function asignarZona($ej, $staff, $zona)          { return $this->staffTorneoDAO->update((int)$staff, ['id_zona' => (int)$zona]); }
+    public function asignarRol($ej, $staff, $rol)            { return $this->staffTorneoDAO->update((int)$staff, ['id_rol'  => (int)$rol]);  }
+    public function eliminarStaffDeTorneo($ej,$staff,$torneo){ return $this->delete((int)$staff); }
+    public function mostrarLuchadores()                       { return []; }
+    public function buscarLuchador($nombre)                   { return null; }
+    public function crearLuchador($data)                      { return false; }
+    public function actualizarInformacionLuchador($data)      { return false; }
+    public function eliminarLuchador($id)                     { return false; }
+    public function actualizarInformacionRol($data)           { return false; }
+    public function actualizarInformacionZona($data)          { return false; }
 
 }
 

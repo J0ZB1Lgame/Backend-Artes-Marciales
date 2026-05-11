@@ -71,6 +71,52 @@ class LogDAOImpl extends BaseDAO implements ILogDAO {
         $stmt->bind_param("i", $id);
         return $stmt->execute();
     }
+
+    public function getAll() {
+        return $this->consultarHistorial();
+    }
+
+    public function getById($id) {
+        return $this->obtenerPorId((int)$id);
+    }
+
+    public function create($data) {
+        $log = new Log(null, $data['accion'] ?? '', $data['fecha'] ?? date('Y-m-d H:i:s'), $data['id_usuario'] ?? null);
+        return $this->crearEvento($log);
+    }
+
+    public function update($id, $data) {
+        $sql = "UPDATE log SET accion = ?, fecha = ?, id_usuario = ? WHERE id_log = ?";
+        $stmt = $this->connection->prepare($sql);
+        $accion = $data['accion'] ?? '';
+        $fecha = $data['fecha'] ?? date('Y-m-d H:i:s');
+        $idUsuario = $data['id_usuario'] ?? null;
+        $stmt->bind_param("ssii", $accion, $fecha, $idUsuario, $id);
+        return $stmt->execute();
+    }
+
+    public function delete($id) {
+        return $this->eliminarPorId((int)$id);
+    }
+
+    public function search($search) {
+        $like = "%{$search}%";
+        $sql = "SELECT * FROM log WHERE accion LIKE ? ORDER BY fecha DESC";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bind_param("s", $like);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $logs = [];
+        while ($row = $result->fetch_assoc()) {
+            $logs[] = new Log($row['id_log'], $row['accion'], $row['fecha'], $row['id_usuario']);
+        }
+        return $logs;
+    }
+
+    public function countAll() {
+        $result = $this->connection->query("SELECT COUNT(*) AS total FROM log");
+        return $result->fetch_assoc();
+    }
 }
 
 ?>

@@ -135,16 +135,71 @@ class UsuarioDAOImpl extends BaseDAO implements IUsuarioDAO {
     public function listarTodos(): array {
         $sql = "SELECT * FROM usuario";
         $result = $this->connection->query($sql);
-        
+
         if (!$result) {
             throw new Exception("Error al listar usuarios: " . $this->connection->error);
         }
-        
+
         $usuarios = [];
         while ($row = $result->fetch_assoc()) {
             $usuarios[] = new Usuario($row['id_usuario'], $row['username'], $row['password'], $row['rol'], (bool) $row['estado']);
         }
         return $usuarios;
+    }
+
+    public function getAll() {
+        return $this->listarTodos();
+    }
+
+    public function getById($id) {
+        return $this->obtenerPorId((int)$id);
+    }
+
+    public function create($data) {
+        $usuario = new Usuario(
+            null,
+            $data['username'],
+            password_hash($data['password'], PASSWORD_BCRYPT),
+            $data['rol'] ?? 'operador',
+            isset($data['estado']) ? (bool)$data['estado'] : true
+        );
+        return $this->crear($usuario);
+    }
+
+    public function update($id, $data) {
+        $existing = $this->obtenerPorId((int)$id);
+        if (!$existing) return false;
+        $usuario = new Usuario(
+            (int)$id,
+            $data['username'] ?? $existing->getUsername(),
+            isset($data['password']) ? password_hash($data['password'], PASSWORD_BCRYPT) : $existing->getPassword(),
+            $data['rol'] ?? $existing->getRol(),
+            isset($data['estado']) ? (bool)$data['estado'] : $existing->getEstado()
+        );
+        return $this->actualizar($usuario);
+    }
+
+    public function delete($id) {
+        return $this->eliminarPorId((int)$id);
+    }
+
+    public function search($search) {
+        $like = "%{$search}%";
+        $sql = "SELECT * FROM usuario WHERE username LIKE ?";
+        $stmt = $this->connection->prepare($sql);
+        $stmt->bind_param("s", $like);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $usuarios = [];
+        while ($row = $result->fetch_assoc()) {
+            $usuarios[] = new Usuario($row['id_usuario'], $row['username'], $row['password'], $row['rol'], (bool)$row['estado']);
+        }
+        return $usuarios;
+    }
+
+    public function countAll() {
+        $result = $this->connection->query("SELECT COUNT(*) AS total FROM usuario");
+        return $result->fetch_assoc();
     }
 }
 

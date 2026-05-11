@@ -126,39 +126,23 @@ body {
 }
 
 
-/* JUGADOR - NUBE */
+/* JUGADOR - GOKU */
 
 .player-cloud {
-    width: 58px;
-    height: 34px;
+    width: 48px;
+    height: 48px;
     position: absolute;
     left: 40px;
-    background: radial-gradient( circle at 30% 30%, rgba(255, 255, 255, .98), rgba(210, 235, 255, .92));
-    border-radius: 30px;
-    box-shadow: 0 0 22px rgba(255, 255, 255, .45), 0 0 40px rgba(0, 229, 255, .20);
+    background: url('../assets/bg/goku_mini.png') center / contain no-repeat;
+    border-radius: 0;
+    box-shadow: 0 0 18px rgba(255, 215, 0, .50), 0 0 35px rgba(0, 229, 255, .18);
     z-index: 5;
+    filter: drop-shadow(0 0 8px rgba(255,215,0,.6));
 }
 
-.player-cloud::before {
-    content: "";
-    position: absolute;
-    width: 28px;
-    height: 28px;
-    background: radial-gradient( circle at 30% 30%, rgba(255, 255, 255, .98), rgba(210, 235, 255, .92));
-    border-radius: 50%;
-    left: 6px;
-    top: -12px;
-}
-
+.player-cloud::before,
 .player-cloud::after {
-    content: "";
-    position: absolute;
-    width: 24px;
-    height: 24px;
-    background: radial-gradient( circle at 30% 30%, rgba(255, 255, 255, .98), rgba(210, 235, 255, .92));
-    border-radius: 50%;
-    right: 8px;
-    top: -8px;
+    display: none;
 }
 
 
@@ -242,6 +226,27 @@ body {
     background: #EAF1FF;
     color: #07111F;
     font-size: 12px;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 42px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    line-height: 1;
 }
 
 

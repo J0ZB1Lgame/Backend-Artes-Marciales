@@ -374,67 +374,27 @@
                 <div class="stats-grid">
 
                     <div class="stat-card">
-
-                        <div class="stat-icon">
-                            🥋
-                        </div>
-
-                        <div class="stat-value">
-                            0
-                        </div>
-
-                        <div class="stat-label">
-                            Luchadores
-                        </div>
-
+                        <div class="stat-icon">🥋</div>
+                        <div class="stat-value" id="stat-luchadores">—</div>
+                        <div class="stat-label">Luchadores</div>
                     </div>
 
                     <div class="stat-card">
-
-                        <div class="stat-icon">
-                            ⚔️
-                        </div>
-
-                        <div class="stat-value">
-                            0
-                        </div>
-
-                        <div class="stat-label">
-                            Combates
-                        </div>
-
+                        <div class="stat-icon">⚔️</div>
+                        <div class="stat-value" id="stat-combates">—</div>
+                        <div class="stat-label">Combates</div>
                     </div>
 
                     <div class="stat-card">
-
-                        <div class="stat-icon">
-                            🏆
-                        </div>
-
-                        <div class="stat-value">
-                            0
-                        </div>
-
-                        <div class="stat-label">
-                            Torneos
-                        </div>
-
+                        <div class="stat-icon">🏆</div>
+                        <div class="stat-value" id="stat-torneos">—</div>
+                        <div class="stat-label">Torneos</div>
                     </div>
 
                     <div class="stat-card">
-
-                        <div class="stat-icon">
-                            👥
-                        </div>
-
-                        <div class="stat-value">
-                            0
-                        </div>
-
-                        <div class="stat-label">
-                            Staff
-                        </div>
-
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-value" id="stat-staff">—</div>
+                        <div class="stat-label">Staff</div>
                     </div>
 
                 </div>
@@ -510,7 +470,7 @@
 
                 <button class="menu-btn" onclick="window.location.href='combates.html'">
 
-                    <span class="menu-icon">🥋</span>
+                    <span class="menu-icon">�</span>
                     Combates
 
                 </button>
@@ -540,7 +500,7 @@
 
             <div class="panel-footer">
 
-                <button class="logout-btn">
+                <button class="logout-btn" onclick="cerrarSesion()">
 
                     🚪 Cerrar Sesión
 
@@ -552,7 +512,13 @@
 
     </div>
 
+    <!-- JavaScript -->
+    <script src="../js/api.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/modules/dashboard.js"></script>
+    
     <script>
+        
         const homePanel =
             document.getElementById('homePanel');
 
@@ -563,6 +529,10 @@
                 homePanel.classList.toggle('active');
 
             };
+
+        function cerrarSesion() {
+            if (confirm('¿Deseas cerrar sesión?')) logout();
+        }
     </script>
 
 </body>
