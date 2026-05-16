@@ -10,6 +10,7 @@ let cardStaffId = null;
 
 // ── Llamadas al backend ─────────────────────────────────────
 const fetchStaff  = () => apiGet(EP);
+const fetchStaffById = (id) => apiGet(EP, { action: 'obtener', id });
 const fetchZonas  = () => apiGet(EP_EXT, { action: 'zona/listar' });
 const fetchRoles  = () => apiGet(EP_EXT, { action: 'rol/listar' });
 
@@ -161,8 +162,16 @@ function abrirNuevo() {
     document.getElementById('modal').classList.add('open');
 }
 
-function abrirEditar(id) {
-    const s = staffData.find(x => x.id_staff === id);
+async function abrirEditar(id) {
+    let s = staffData.find(x => x.id_staff === id);
+    if (!s || !s.cargo || !s.numero_documento || !s.tipo_documento) {
+        try {
+            const detail = await fetchStaffById(id);
+            if (detail) s = detail;
+        } catch (err) {
+            toast('No se pudo cargar los datos completos del staff.', 'err');
+        }
+    }
     if (!s) return;
     editingId = id;
     document.getElementById('modal-title').textContent  = 'Editar miembro';

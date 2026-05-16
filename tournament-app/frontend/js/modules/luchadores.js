@@ -10,8 +10,7 @@ let luchadorData = [];
 let editingId = null;
 
 // ── Llamadas al backend ─────────────────────────────────────
-const fetchLuchadores = () => apiGet(EP);
-
+const fetchLuchadores = () => apiGet(EP);const fetchLuchadorById = (id) => apiGet(EP, { action: 'obtener', id });
 function crearLuchador(datos) {
     return apiPost(EP, datos);
 }
@@ -94,7 +93,6 @@ function renderTabla(lista) {
             <td class="td-num">#${i + 1}</td>
             <td class="td-nombre">${l.nombre ?? '—'} ${l.apellido ?? ''}</td>
             <td>${generoBadge(l.genero)}</td>
-            <td>${categoriaBadge(l.categoria)}</td>
             <td class="td-peso">${l.peso ?? '—'} kg</td>
             <td class="td-victorias">${l.victorias ?? 0}</td>
             <td class="td-derrotas">${l.derrotas ?? 0}</td>
@@ -136,8 +134,16 @@ function abrirNuevo() {
     document.getElementById('modal').classList.add('open');
 }
 
-function abrirEditar(id) {
-    const l = luchadorData.find(x => x.id_luchador === id);
+async function abrirEditar(id) {
+    let l = luchadorData.find(x => x.id_luchador === id);
+    if (!l || !l.tipo_documento || !l.numero_documento || !l.categoria || !l.genero) {
+        try {
+            const detail = await fetchLuchadorById(id);
+            if (detail) l = detail;
+        } catch (err) {
+            toast('No se pudo cargar los datos completos del luchador.', 'err');
+        }
+    }
     if (!l) return;
     editingId = id;
     document.getElementById('modal-title').textContent = 'Editar luchador';

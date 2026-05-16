@@ -409,6 +409,125 @@ const constants = {
     }
 };
 
+// ── Budokai logo compartido ───────────────────────────────────
+const budokaiLogo = {
+    videoSrc: '../assets/bg/budokai.mp4',
+
+    createVideoContainer() {
+        const container = document.createElement('div');
+        container.className = 'budokai-logo-video-container';
+        container.innerHTML = `
+            <video autoplay muted loop playsinline>
+                <source src="${this.videoSrc}" type="video/mp4">
+            </video>
+        `;
+        document.body.appendChild(container);
+        return container;
+    },
+
+    createPanelLogo(panel) {
+        if (!panel || panel.querySelector('.panel-logo-video')) return;
+        const logo = document.createElement('div');
+        logo.className = 'panel-logo-video';
+        logo.innerHTML = `
+            <video autoplay muted loop playsinline>
+                <source src="${this.videoSrc}" type="video/mp4">
+            </video>
+        `;
+        const panelTitle = panel.querySelector('.panel-title');
+        if (panelTitle) {
+            panel.insertBefore(logo, panelTitle.nextSibling);
+        } else {
+            panel.prepend(logo);
+        }
+    },
+
+    applyStyles() {
+        if (document.getElementById('budokai-logo-video-styles')) return;
+        const style = document.createElement('style');
+        style.id = 'budokai-logo-video-styles';
+        style.textContent = `
+            .budokai-logo-video-container {
+                position: fixed;
+                width: 140px;
+                height: 140px;
+                border-radius: 50%;
+                overflow: hidden;
+                border: 3px solid rgba(0,229,255,.35);
+                background: rgba(0,0,0,.45);
+                box-shadow: 0 0 38px rgba(0,229,255,.22);
+                z-index: 5;
+                right: 20px;
+                top: 120px;
+                transition: top 0.2s ease, right 0.2s ease;
+            }
+
+            .budokai-logo-video-container video {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .panel-logo-video {
+                width: 84px;
+                height: 84px;
+                border-radius: 18px;
+                overflow: hidden;
+                border: 2px solid rgba(255,255,255,.16);
+                background: rgba(0,0,0,.28);
+                margin: 0 auto 18px;
+                box-shadow: 0 0 18px rgba(255,255,255,.12);
+            }
+
+            .panel-logo-video video {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .side-panel {
+                z-index: 10;
+            }
+        `;
+        document.head.appendChild(style);
+    },
+
+    updatePosition(container) {
+        if (!container) return;
+        const anchor = document.querySelector('.panel-btn, .open-panel-btn');
+        if (!anchor) {
+            container.style.top = '20px';
+            container.style.right = '20px';
+            return;
+        }
+        const rect = anchor.getBoundingClientRect();
+        const targetTop = rect.bottom + 14;
+        container.style.top = `${Math.min(targetTop, window.innerHeight - container.offsetHeight - 20)}px`;
+        container.style.right = '20px';
+    },
+
+    init() {
+        this.applyStyles();
+
+        const existing = document.querySelector('.budokai-logo-video-container');
+        if (!existing && !document.querySelector('.logo-video-container')) {
+            const container = this.createVideoContainer();
+            this.updatePosition(container);
+            window.addEventListener('resize', () => this.updatePosition(container));
+            window.addEventListener('scroll', () => this.updatePosition(container));
+        } else if (existing) {
+            this.updatePosition(existing);
+            window.addEventListener('resize', () => this.updatePosition(existing));
+            window.addEventListener('scroll', () => this.updatePosition(existing));
+        }
+
+        const panel = document.querySelector('.side-panel');
+        if (panel) {
+            this.createPanelLogo(panel);
+        }
+    }
+};
+
 // ── Exportar todo ─────────────────────────────────────────────
 window.utils = {
     validators,
@@ -420,3 +539,5 @@ window.utils = {
     dateUtils,
     constants
 };
+
+domUtils.ready(() => budokaiLogo.init());

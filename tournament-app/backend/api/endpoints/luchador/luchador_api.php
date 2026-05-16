@@ -199,12 +199,6 @@ try {
 
     if($method === 'PUT'){
 
-        if(!isset($_GET['id'])){
-
-            apiError("ID requerido");
-
-        }
-
         $data = json_decode(
 
             file_get_contents("php://input"),
@@ -213,9 +207,17 @@ try {
 
         );
 
+        $id = $_GET['id'] ?? $data['id_luchador'] ?? null;
+
+        if(!$id){
+
+            apiError("ID requerido");
+
+        }
+
         $result = $controller->update(
 
-            (int)$_GET['id'],
+            (int)$id,
 
             $data
 

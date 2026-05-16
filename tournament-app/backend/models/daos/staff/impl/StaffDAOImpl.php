@@ -247,7 +247,7 @@ class StaffDAOImpl extends BaseDAO implements ICRUD, IStaffDAO {
 
             ],
 
-            "sssssssiii"
+            "sssssssii"
 
         );
 

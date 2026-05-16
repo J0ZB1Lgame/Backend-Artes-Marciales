@@ -448,9 +448,15 @@
             position: fixed;
             top: 0;
             right: 0;
-            z-index: 50;
+            z-index: 1000 !important;
             transform: translateX(110%);
             transition: .35s ease;
+        }
+
+        .logo-video-container,
+        .budokai-logo-video-container {
+            z-index: 1 !important;
+            pointer-events: none;
         }
 
         .side-panel.active { transform: translateX(0); }

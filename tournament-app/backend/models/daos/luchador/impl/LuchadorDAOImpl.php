@@ -127,11 +127,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
             victorias,
             derrotas,
 
-            estado,
-
-            foto,
-
-            fecha_registro
+            estado
 
         )
 
@@ -142,7 +138,7 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
             ?, ?, ?, ?,
             ?, ?, ?, ?,
             ?, ?, ?, ?,
-            ?, ?, NOW()
+            ?
 
         )
 
@@ -154,31 +150,29 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
             [
 
-                $data["nombre"],
-                $data["apellido"],
+                $data["nombre"] ?? '',
+                $data["apellido"] ?? '',
 
-                $data["tipo_documento"],
-                $data["numero_documento"],
+                $data["tipo_documento"] ?? '',
+                (string)($data["numero_documento"] ?? ''),
 
-                $data["edad"],
-                $data["genero"],
+                $data["edad"] ?? 0,
+                $data["genero"] ?? '',
 
-                $data["categoria"],
-                $data["peso"],
+                $data["categoria"] ?? '',
+                $data["peso"] ?? 0,
 
-                $data["telefono"],
-                $data["email"],
+                (string)($data["telefono"] ?? ''),
+                $data["email"] ?? '',
 
-                $data["victorias"],
-                $data["derrotas"],
+                $data["victorias"] ?? $data["victory"] ?? 0,
+                $data["derrotas"] ?? 0,
 
-                $data["estado"],
-
-                $data["foto"]
+                $data["estado"] ?? 'activo'
 
             ],
 
-            "ssssissdssiiss"
+            "ssssissdssiis"
 
         );
 
@@ -192,73 +186,87 @@ class LuchadorDAOImpl extends BaseDAO implements ICRUD, ILuchadorDAO {
 
     public function update($id, $data){
 
-        $sql = "
+        $updates = [];
+        $values = [];
+        $types = "";
 
-        UPDATE {$this->table}
+        // Build dynamic UPDATE query with only provided fields
+        if(isset($data["nombre"])){
+            $updates[] = "nombre = ?";
+            $values[] = $data["nombre"];
+            $types .= "s";
+        }
+        if(isset($data["apellido"])){
+            $updates[] = "apellido = ?";
+            $values[] = $data["apellido"];
+            $types .= "s";
+        }
+        if(isset($data["tipo_documento"])){
+            $updates[] = "tipo_documento = ?";
+            $values[] = $data["tipo_documento"];
+            $types .= "s";
+        }
+        if(isset($data["numero_documento"])){
+            $updates[] = "numero_documento = ?";
+            $values[] = $data["numero_documento"];
+            $types .= "s";
+        }
+        if(isset($data["edad"])){
+            $updates[] = "edad = ?";
+            $values[] = $data["edad"];
+            $types .= "i";
+        }
+        if(isset($data["genero"])){
+            $updates[] = "genero = ?";
+            $values[] = $data["genero"];
+            $types .= "s";
+        }
+        if(isset($data["categoria"])){
+            $updates[] = "categoria = ?";
+            $values[] = $data["categoria"];
+            $types .= "s";
+        }
+        if(isset($data["peso"])){
+            $updates[] = "peso = ?";
+            $values[] = $data["peso"];
+            $types .= "d";
+        }
+        if(isset($data["telefono"])){
+            $updates[] = "telefono = ?";
+            $values[] = $data["telefono"];
+            $types .= "s";
+        }
+        if(isset($data["email"])){
+            $updates[] = "email = ?";
+            $values[] = $data["email"];
+            $types .= "s";
+        }
+        if(isset($data["victorias"])){
+            $updates[] = "victorias = ?";
+            $values[] = $data["victorias"];
+            $types .= "i";
+        }
+        if(isset($data["derrotas"])){
+            $updates[] = "derrotas = ?";
+            $values[] = $data["derrotas"];
+            $types .= "i";
+        }
+        if(isset($data["estado"])){
+            $updates[] = "estado = ?";
+            $values[] = $data["estado"];
+            $types .= "s";
+        }
 
-        SET
+        // If no fields to update, return
+        if(empty($updates)){
+            return true;
+        }
 
-            nombre = ?,
-            apellido = ?,
+        $sql = "UPDATE {$this->table} SET " . implode(", ", $updates) . " WHERE id_luchador = ?";
+        $values[] = $id;
+        $types .= "i";
 
-            tipo_documento = ?,
-            numero_documento = ?,
-
-            edad = ?,
-            genero = ?,
-
-            categoria = ?,
-            peso = ?,
-
-            telefono = ?,
-            email = ?,
-
-            victorias = ?,
-            derrotas = ?,
-
-            estado = ?,
-
-            foto = ?
-
-        WHERE id_luchador = ?
-
-        ";
-
-        return $this->execute(
-
-            $sql,
-
-            [
-
-                $data["nombre"],
-                $data["apellido"],
-
-                $data["tipo_documento"],
-                $data["numero_documento"],
-
-                $data["edad"],
-                $data["genero"],
-
-                $data["categoria"],
-                $data["peso"],
-
-                $data["telefono"],
-                $data["email"],
-
-                $data["victorias"],
-                $data["derrotas"],
-
-                $data["estado"],
-
-                $data["foto"],
-
-                $id
-
-            ],
-
-            "ssssissdssiissi"
-
-        );
+        return $this->execute($sql, $values, $types);
 
     }
 
