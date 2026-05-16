@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/bootstrap.php"
+         colors="true"
+         stopOnFailure="false">
+
+    <testsuites>
+        <testsuite name="RF-AN-06 Brackets">
+            <file>tests/BracketServiceTest.php</file>
+            <file>tests/CombateControllerTest.php</file>
+        </testsuite>
+        <testsuite name="RF-AN-06 Integracion">
+            <file>tests/BracketIntegrationTest.php</file>
+        </testsuite>
+        <testsuite name="Todos">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <!-- Variables de entorno para los tests de integración -->
+        <env name="DB_HOST"  value="localhost"/>
+        <env name="DB_NAME"  value="torneo_new"/>
+        <env name="DB_USER"  value="root"/>
+        <env name="DB_PASS"  value=""/>
+        <env name="DB_PORT"  value="3306"/>
+        <env name="APP_ENV"  value="testing"/>
+    </php>
+
+</phpunit>
